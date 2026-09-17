@@ -6143,6 +6143,33 @@ class MinhDucAudioEngine {
             return false;
           }
         },
+        async saveFavorite(uid, track) {
+          try {
+            if (!uid || !track) return false;
+            const cleanUid = String(uid).replace(/[\/\.]/g, '_');
+            const rawKey = track.youtube_id || track.id || ('track_' + Date.now());
+            const trackKey = String(rawKey).replace(/[\/\.]/g, '_');
+            const favRef = doc(db, `users/${cleanUid}/favorites`, trackKey);
+            const payload = {
+              id: track.id || track.db_id || ('yt_' + track.youtube_id),
+              db_id: track.db_id || track.id || null,
+              youtube_id: track.youtube_id || '',
+              title: track.title || 'Unknown Title',
+              artist: track.artist || 'Unknown Artist',
+              cover_url: track.cover_url || track.cover || '',
+              duration: track.duration || 210,
+              format: track.format || 'YT AUDIO 320k',
+              addedAt: serverTimestamp()
+            };
+            await setDoc(favRef, payload, { merge: true });
+            return true;
+          } catch (err) {
+            if (err && (err.code === 'permission-denied' || String(err).includes('permission-denied'))) {
+              console.warn('[Firebase] Firestore Rules chặn ghi dữ liệu (permission-denied). Hãy vào Firebase Console -> Firestore -> tab Rules và đổi allow read, write: if true;');
+            }
+            return false;
+          }
+        },
         async recordHistory(uid, track, durationPlayed = 0) {
           try {
             if (!uid || !track) return;
@@ -6225,18 +6252,37 @@ class MinhDucAudioEngine {
       const cloudUid = this.currentUser.uid || (this.currentUser.email ? this.currentUser.email.toLowerCase().replace(/[^a-z0-9]/g, '_') : this.currentUser.google_id);
       if (cloudUid && window.__firebaseService) {
         try {
+          const favKey = this.getFavoritesStorageKey();
+          let localFavs = JSON.parse(localStorage.getItem(favKey) || '[]');
+          localFavs = localFavs.filter(f => f && f.title && f.title !== 'Bài hát' && (f.youtube_id || (f.id && f.id !== 'yt_')));
+
+          // 1. Lấy dữ liệu từ Firebase về
           const fbFavs = await window.__firebaseService.getFavorites(cloudUid);
+
+          // 2. Đẩy các bài hát đang có ở máy tính lên Firebase nếu trên Firebase chưa có (Auto-Migrate)
+          const seenFb = new Set((fbFavs || []).map(f => f.youtube_id || f.id || f.title));
+          for (const lf of localFavs) {
+            const trkId = lf.youtube_id || lf.id || lf.title;
+            if (!seenFb.has(trkId)) {
+              if (typeof window.__firebaseService.saveFavorite === 'function') {
+                await window.__firebaseService.saveFavorite(cloudUid, lf);
+              } else if (typeof window.__firebaseService.toggleFavorite === 'function') {
+                await window.__firebaseService.toggleFavorite(cloudUid, lf);
+              }
+              seenFb.add(trkId);
+            }
+          }
+
+          // 3. Hợp nhất các bài hát từ Firebase vào máy tính/điện thoại
           if (Array.isArray(fbFavs) && fbFavs.length > 0) {
-            const favKey = this.getFavoritesStorageKey();
-            let localFavs = JSON.parse(localStorage.getItem(favKey) || '[]');
-            const seen = new Set(localFavs.map(f => f.youtube_id || f.title));
+            const seenLocal = new Set(localFavs.map(f => f.youtube_id || f.title));
             let merged = false;
             fbFavs.forEach(ff => {
               if (ff && ff.title && ff.title !== 'Bài hát' && (ff.youtube_id || (ff.id && ff.id !== 'yt_'))) {
                 const key = ff.youtube_id || ff.title;
-                if (!seen.has(key)) {
+                if (!seenLocal.has(key)) {
                   localFavs.push(ff);
-                  seen.add(key);
+                  seenLocal.add(key);
                   merged = true;
                 }
               }
@@ -6247,6 +6293,27 @@ class MinhDucAudioEngine {
           }
         } catch (e) {
           console.warn('[CloudSync] onFirebaseReady favorites sync error:', e);
+        }
+
+        // 4. Đồng bộ lịch sử nghe nhạc 2 chiều
+        try {
+          const histKey = this.getHistoryStorageKey ? this.getHistoryStorageKey() : 'minhduc_history';
+          let localHist = JSON.parse(localStorage.getItem(histKey) || '[]');
+          const fbHist = await window.__firebaseService.getHistory(cloudUid, 30);
+          const seenHist = new Set((fbHist || []).map(h => {
+            const tr = h.track || h;
+            return tr.youtube_id || tr.title;
+          }));
+          for (const item of localHist.slice(0, 15)) {
+            const tr = item.track || item;
+            const k = tr.youtube_id || tr.title;
+            if (k && !seenHist.has(k)) {
+              await window.__firebaseService.recordHistory(cloudUid, tr);
+              seenHist.add(k);
+            }
+          }
+        } catch (hErr) {
+          console.warn('[CloudSync] onFirebaseReady history sync error:', hErr);
         }
 
         try {

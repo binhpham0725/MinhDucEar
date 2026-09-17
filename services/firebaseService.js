@@ -15,7 +15,7 @@ async function loadFirebaseModules() {
   if (isInitialized) return { app, auth, db };
 
   try {
-    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+    const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
     const { 
       getAuth, 
       signInWithPopup, 
@@ -48,7 +48,7 @@ async function loadFirebaseModules() {
       arrayRemove 
     } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
 
-    app = initializeApp(firebaseConfig);
+    app = getApps().length > 0 ? getApps()[0] : initializeApp(firebaseConfig);
     auth = getAuth(app);
     db = getFirestore(app);
     isInitialized = true;
@@ -353,6 +353,34 @@ class FirebaseService {
       }
     } catch (err) {
       console.warn('[Firebase] toggleFavorite error:', err);
+      return false;
+    }
+  }
+
+  async saveFavorite(uid, track) {
+    try {
+      const modules = await loadFirebaseModules();
+      if (!modules || !uid || !track) return false;
+      const cleanUid = String(uid).replace(/[\/\.]/g, '_');
+      const rawKey = track.youtube_id || track.id || ('track_' + Date.now());
+      const trackKey = String(rawKey).replace(/[\/\.]/g, '_');
+      const { doc, setDoc, serverTimestamp } = modules.firestoreMethods;
+      const favRef = doc(modules.db, `users/${cleanUid}/favorites`, trackKey);
+      const payload = {
+        id: track.id || track.db_id || ('yt_' + track.youtube_id),
+        db_id: track.db_id || track.id || null,
+        youtube_id: track.youtube_id || '',
+        title: track.title || 'Unknown Title',
+        artist: track.artist || 'Unknown Artist',
+        cover_url: track.cover_url || track.cover || '',
+        duration: track.duration || 210,
+        format: track.format || 'YT AUDIO 320k',
+        addedAt: serverTimestamp()
+      };
+      await setDoc(favRef, payload, { merge: true });
+      return true;
+    } catch (err) {
+      console.warn('[Firebase] saveFavorite error:', err);
       return false;
     }
   }
