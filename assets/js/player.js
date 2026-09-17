@@ -5858,44 +5858,27 @@ class MinhDucAudioEngine {
         if (window.google?.accounts?.id) {
           try {
             window.google.accounts.id.prompt();
-            return;
           } catch (e) {}
         }
 
-        // Try Firebase Google Auth
-        if (window.__firebaseService) {
-          this.showGoogleModalAlert('Đang kết nối Google Sign-In...', 'info');
-          try {
-            const fbUser = await window.__firebaseService.signInWithGoogle();
-            if (fbUser && fbUser.email) {
-              await this.performGoogleLogin(
-                fbUser.email,
-                fbUser.displayName || fbUser.email.split('@')[0],
-                fbUser.photoURL,
-                fbUser.uid
-              );
-              return;
-            } else if (fbUser === null) {
-              this.showGoogleModalAlert('Đang chuyển hướng đến Google...', 'info');
-              return;
-            }
-          } catch (authErr) {
-            console.warn('Google Sign-In note:', authErr);
-          }
-        }
-
-        // If email was already entered in input below, use it
+        // Check if user already typed an email below
         const emailInput = document.getElementById('input-real-google-email');
-        const typedEmail = emailInput?.value?.trim();
-        if (typedEmail && typedEmail.includes('@')) {
-          const typedName = document.getElementById('input-real-google-name')?.value?.trim();
-          await this.performGoogleLogin(typedEmail, typedName);
-          return;
+        let userEmail = emailInput?.value?.trim();
+
+        // If no email entered yet, prompt user for their Gmail
+        if (!userEmail || !userEmail.includes('@')) {
+          userEmail = prompt('Nhập địa chỉ Gmail của bạn để đăng nhập:', '');
+          if (userEmail) userEmail = userEmail.trim();
         }
 
-        // Focus email input for manual entry if popup was blocked/closed
-        this.showGoogleModalAlert('Bạn hãy nhập email Google vào ô bên dưới để đăng nhập trực tiếp nhé!', 'info');
-        if (emailInput) emailInput.focus();
+        if (userEmail && userEmail.includes('@')) {
+          if (emailInput) emailInput.value = userEmail;
+          const nameInput = document.getElementById('input-real-google-name');
+          const userName = nameInput?.value?.trim() || userEmail.split('@')[0];
+          await this.performGoogleLogin(userEmail, userName);
+        } else if (emailInput) {
+          emailInput.focus();
+        }
       });
     }
   }
