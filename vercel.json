@@ -10,12 +10,20 @@
       "destination": "/api/lyrics"
     },
     {
+      "source": "/api/endpoints/auth.php",
+      "destination": "/api/auth"
+    },
+    {
       "source": "/api/tracks",
       "destination": "/api/tracks"
     },
     {
       "source": "/api/lyrics",
       "destination": "/api/lyrics"
+    },
+    {
+      "source": "/api/auth",
+      "destination": "/api/auth"
     }
   ],
   "headers": [

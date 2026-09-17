@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MinhDucEar - Đăng nhập & Đăng ký</title>
   
+  <!-- Google Identity Services (Sign-In & Cloud Sync) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

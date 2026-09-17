@@ -15,6 +15,8 @@
   })();
 </script>
 
+  <!-- Google Identity Services (Sign-In & Cloud Sync) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <!-- YouTube IFrame API -->
   <script src="https://www.youtube.com/iframe_api"></script>
   <!-- Bootstrap 5.3.3 CSS -->
