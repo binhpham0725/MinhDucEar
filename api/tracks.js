@@ -4,6 +4,8 @@
  * Alternative Stream Resolution, and Album Tracks Provider for Vercel Serverless.
  */
 
+const historyCache = new Map(); // key: userId -> array of history items
+
 const CATEGORY_QUERIES = {
   all: [
     'thinh hanh nhac tre vpop 2026',
@@ -381,6 +383,70 @@ export default async function handler(req, res) {
         success: false,
         resolved: false,
         message: 'Không tìm thấy bản thay thế phù hợp'
+      });
+    }
+
+    // 7. HISTORY RECORD (Vercel Serverless)
+    if (action === 'history_record') {
+      const body = req.body || {};
+      const userId = url.searchParams.get('user_id') || body.user_id || 'guest';
+      const trackId = url.searchParams.get('track_id') || body.track_id || '';
+      const ytId = url.searchParams.get('youtube_id') || body.youtube_id || '';
+      const title = body.title || url.searchParams.get('title') || '';
+      const artist = body.artist || url.searchParams.get('artist') || '';
+      const coverUrl = body.cover_url || url.searchParams.get('cover_url') || '';
+      const duration = parseInt(body.duration || url.searchParams.get('duration') || '210', 10);
+
+      const userKey = String(userId);
+      let list = historyCache.get(userKey) || [];
+
+      // Remove previous duplicate of this song
+      const keyMatch = ytId || trackId || title;
+      list = list.filter(h => (ytId && h.youtube_id !== ytId) && (!trackId || h.id != trackId) && (title && h.title !== title));
+
+      list.unshift({
+        id: trackId || ('yt_' + ytId),
+        track_id: trackId,
+        youtube_id: ytId,
+        title,
+        artist,
+        cover_url: coverUrl,
+        duration,
+        format: 'YT 320k',
+        played_at: new Date().toISOString(),
+        playedAt: Date.now()
+      });
+
+      if (list.length > 60) list = list.slice(0, 60);
+      historyCache.set(userKey, list);
+
+      return res.status(200).json({
+        success: true,
+        track_id: trackId || ('yt_' + ytId),
+        message: 'Đã lưu lịch sử phát nhạc'
+      });
+    }
+
+    // 8. HISTORY LIST (Vercel Serverless)
+    if (action === 'history_list') {
+      const userId = url.searchParams.get('user_id') || req.body?.user_id || 'guest';
+      const limit = Math.min(60, Math.max(1, parseInt(url.searchParams.get('limit') || '50', 10)));
+      const userKey = String(userId);
+      const list = (historyCache.get(userKey) || []).slice(0, limit);
+
+      return res.status(200).json({
+        success: true,
+        history: list
+      });
+    }
+
+    // 9. HISTORY CLEAR
+    if (action === 'history_clear') {
+      const userId = url.searchParams.get('user_id') || req.body?.user_id || 'guest';
+      historyCache.delete(String(userId));
+      return res.status(200).json({
+        success: true,
+        message: 'Đã xóa toàn bộ lịch sử nghe nhạc!'
       });
     }
 

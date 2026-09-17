@@ -2153,16 +2153,7 @@ class MinhDucAudioEngine {
       if (favBtn) {
         favBtn.addEventListener('click', async (e) => {
           e.stopPropagation();
-          try {
-            const trId = track.db_id || track.id;
-            const res = await fetch(`api/endpoints/playlists.php?action=favorite_toggle&track_id=${trId}`, { method: 'POST' });
-            const result = await res.json();
-            if (result.success) {
-              favBtn.classList.toggle('text-red-500', result.is_favorite);
-              favBtn.classList.toggle('text-gray-400', !result.is_favorite);
-              this.showInpageAlert(result.message, 'success');
-            }
-          } catch (err) {}
+          await this.toggleFavorite(track, favBtn);
         });
       }
 
@@ -2873,22 +2864,61 @@ class MinhDucAudioEngine {
   }
 
   getHistoryStorageKey() {
-    if (this.currentUser && this.currentUser.id) {
-      return `minhduc_history_user_${this.currentUser.id}`;
+    if (this.currentUser) {
+      if (this.currentUser.email) {
+        const clean = this.currentUser.email.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        const emailKey = `minhduc_history_user_${clean}`;
+        if (this.currentUser.id) {
+          const oldKey = `minhduc_history_user_${this.currentUser.id}`;
+          if (oldKey !== emailKey && localStorage.getItem(oldKey) && !localStorage.getItem(emailKey)) {
+            try { localStorage.setItem(emailKey, localStorage.getItem(oldKey)); } catch(e){}
+          }
+        }
+        return emailKey;
+      }
+      if (this.currentUser.id) {
+        return `minhduc_history_user_${this.currentUser.id}`;
+      }
     }
     return 'minhduc_history_guest';
   }
 
   getFavoritesStorageKey() {
-    if (this.currentUser && this.currentUser.id) {
-      return `minhduc_favs_user_${this.currentUser.id}`;
+    if (this.currentUser) {
+      if (this.currentUser.email) {
+        const clean = this.currentUser.email.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        const emailKey = `minhduc_favs_user_${clean}`;
+        if (this.currentUser.id) {
+          const oldKey = `minhduc_favs_user_${this.currentUser.id}`;
+          if (oldKey !== emailKey && localStorage.getItem(oldKey) && !localStorage.getItem(emailKey)) {
+            try { localStorage.setItem(emailKey, localStorage.getItem(oldKey)); } catch(e){}
+          }
+        }
+        return emailKey;
+      }
+      if (this.currentUser.id) {
+        return `minhduc_favs_user_${this.currentUser.id}`;
+      }
     }
     return 'minhduc_favs_guest';
   }
 
   getFavoriteAlbumsStorageKey() {
-    if (this.currentUser && this.currentUser.id) {
-      return `minhduc_fav_albums_user_${this.currentUser.id}`;
+    if (this.currentUser) {
+      if (this.currentUser.email) {
+        const clean = this.currentUser.email.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        const emailKey = `minhduc_fav_albums_user_${clean}`;
+        if (this.currentUser.id) {
+          const oldKey = `minhduc_fav_albums_user_${this.currentUser.id}`;
+          if (oldKey !== emailKey && localStorage.getItem(oldKey) && !localStorage.getItem(emailKey)) {
+            try { localStorage.setItem(emailKey, localStorage.getItem(oldKey)); } catch(e){}
+          }
+        }
+        return emailKey;
+      }
+      if (this.currentUser.id) {
+        return `minhduc_fav_albums_user_${this.currentUser.id}`;
+      }
     }
     return 'minhduc_fav_albums_guest';
   }
@@ -2948,8 +2978,8 @@ class MinhDucAudioEngine {
       // Refresh sidebar recent history
       this.renderSidebarRecentTracks();
 
-      // If user is logged in, record to MySQL database for this specific user
-      if (this.currentUser && this.currentUser.id) {
+      // If user is logged in, record to MySQL database & Firebase Cloud for this specific user
+      if (this.currentUser && (this.currentUser.id || this.currentUser.email)) {
         // Prevent duplicate history_record requests on rapid clicks (within 5 seconds)
         const now = Date.now();
         const trIdKey = track.youtube_id || track.db_id || track.id || track.title;
@@ -2959,21 +2989,41 @@ class MinhDucAudioEngine {
         this._lastRecordedTrKey = trIdKey;
         this._lastRecordedTime = now;
 
+        const uidParam = this.currentUser.id || this.currentUser.email;
         const formData = new FormData();
+        formData.append('user_id', uidParam);
         formData.append('track_id', track.db_id || track.id || '');
         formData.append('youtube_id', track.youtube_id || '');
         formData.append('title', track.title || '');
         formData.append('artist', track.artist || '');
         formData.append('cover_url', track.cover_url || track.cover || '');
         formData.append('duration', track.duration || 210);
-        fetch('api/endpoints/tracks.php?action=history_record', {
+
+        fetch(`api/endpoints/tracks.php?action=history_record&user_id=${encodeURIComponent(uidParam)}`, {
           method: 'POST',
+          credentials: 'include',
           body: formData
         }).then(res => res.json()).then(res => {
           if (res.success && res.track_id) {
             track.db_id = res.track_id;
           }
         }).catch(() => {});
+
+        // Cloud Firestore Sync (cross-device)
+        const cloudUid = this.currentUser?.uid || (this.currentUser?.email ? this.currentUser.email.toLowerCase().replace(/[^a-z0-9]/g, '_') : this.currentUser?.google_id);
+        if (window.__firebaseService && cloudUid) {
+          try {
+            window.__firebaseService.recordHistory(cloudUid, {
+              id: track.db_id || track.id || ('yt_' + track.youtube_id),
+              youtube_id: track.youtube_id || '',
+              title: track.title || '',
+              artist: track.artist || 'Nghệ sĩ',
+              cover_url: track.cover_url || track.cover || '',
+              duration: track.duration || 210,
+              format: track.format || 'YT 320k'
+            });
+          } catch(e) {}
+        }
       }
     } catch (e) {
       console.warn('Could not save history to localStorage', e);
@@ -3711,8 +3761,11 @@ class MinhDucAudioEngine {
 
     let favList = [];
     try {
-      const userParam = (this.currentUser && this.currentUser.id) ? `&user_id=${this.currentUser.id}` : '';
-      const res = await fetch(`api/endpoints/playlists.php?action=favorites_list&limit=${this.favLimit}&offset=0${userParam}`);
+      const uidParam = this.currentUser?.id || this.currentUser?.email || '';
+      const userParam = uidParam ? `&user_id=${encodeURIComponent(uidParam)}` : '';
+      const res = await fetch(`api/endpoints/playlists.php?action=favorites_list&limit=${this.favLimit}&offset=0${userParam}`, {
+        credentials: 'include'
+      });
       const data = await res.json();
       if (data.success && Array.isArray(data.favorites)) {
         favList = data.favorites;
@@ -3721,6 +3774,25 @@ class MinhDucAudioEngine {
         }
       }
     } catch (e) {}
+
+    // Cloud Firestore favorites sync across mobile/desktop
+    const cloudUid = this.currentUser?.uid || (this.currentUser?.email ? this.currentUser.email.toLowerCase().replace(/[^a-z0-9]/g, '_') : this.currentUser?.google_id);
+    if (window.__firebaseService && cloudUid) {
+      try {
+        const fbFavs = await window.__firebaseService.getFavorites(cloudUid);
+        if (Array.isArray(fbFavs) && fbFavs.length > 0) {
+          const seenFb = new Set(favList.map(f => f.youtube_id || f.title));
+          fbFavs.forEach(ff => {
+            if (!seenFb.has(ff.youtube_id || ff.title)) {
+              favList.push(ff);
+              seenFb.add(ff.youtube_id || ff.title);
+            }
+          });
+        }
+      } catch (fbErr) {
+        console.warn('[CloudSync] Firebase getFavorites notice:', fbErr);
+      }
+    }
 
     // Synchronize with local storage favorites
     const favKey = this.getFavoritesStorageKey();
@@ -3732,6 +3804,11 @@ class MinhDucAudioEngine {
         seen.add(lf.youtube_id || lf.title);
       }
     });
+
+    // Consolidate back to localStorage
+    try {
+      localStorage.setItem(favKey, JSON.stringify(favList));
+    } catch (e) {}
 
     this.currentFavoritesList = favList;
     if (badge) badge.textContent = `${favList.length} BÀI HÁT`;
@@ -3923,10 +4000,13 @@ class MinhDucAudioEngine {
       history = JSON.parse(localStorage.getItem(key) || '[]');
     } catch (e) {}
 
-    // If logged in, also fetch server history from MySQL history table
-    if (this.currentUser && this.currentUser.id) {
+    // If logged in, also fetch server history from MySQL / Vercel AND Firebase Cloud
+    if (this.currentUser && (this.currentUser.id || this.currentUser.email)) {
+      const uidParam = this.currentUser.id || this.currentUser.email;
       try {
-        const res = await fetch('api/endpoints/tracks.php?action=history_list&limit=50');
+        const res = await fetch(`api/endpoints/tracks.php?action=history_list&limit=50&user_id=${encodeURIComponent(uidParam)}`, {
+          credentials: 'include'
+        });
         const d = await res.json();
         if (d.success && Array.isArray(d.history) && d.history.length > 0) {
           const dbHistory = d.history.map(t => ({
@@ -3956,6 +4036,35 @@ class MinhDucAudioEngine {
         }
       } catch (err) {
         console.warn('Could not fetch server history:', err);
+      }
+
+      // Cloud Firestore fetch
+      const cloudUid = this.currentUser?.uid || (this.currentUser?.email ? this.currentUser.email.toLowerCase().replace(/[^a-z0-9]/g, '_') : this.currentUser?.google_id);
+      if (window.__firebaseService && cloudUid) {
+        try {
+          const fbHistory = await window.__firebaseService.getHistory(cloudUid, 50);
+          if (Array.isArray(fbHistory) && fbHistory.length > 0) {
+            const seen = new Set(history.map(h => h.youtube_id || h.title));
+            fbHistory.forEach(item => {
+              const tr = item.track || item;
+              const keyId = tr.youtube_id || tr.title;
+              if (!seen.has(keyId)) {
+                seen.add(keyId);
+                history.push({
+                  id: tr.id || ('yt_' + tr.youtube_id),
+                  youtube_id: tr.youtube_id,
+                  title: tr.title,
+                  artist: tr.artist || 'Nghệ sĩ',
+                  cover_url: tr.cover_url || ('https://i.ytimg.com/vi/' + tr.youtube_id + '/hqdefault.jpg'),
+                  duration: tr.duration || 210,
+                  format: tr.format || 'YT 320k',
+                  playedAt: item.playedAt?.toMillis ? item.playedAt.toMillis() : Date.now()
+                });
+              }
+            });
+            localStorage.setItem(key, JSON.stringify(history));
+          }
+        } catch(fbErr) {}
       }
     }
 
@@ -4767,10 +4876,12 @@ class MinhDucAudioEngine {
     let isFavResult = false;
     let apiSuccess = false;
 
-    // 1. If logged in, sync with MySQL database
-    if (this.currentUser && this.currentUser.id) {
+    // 1. If logged in, sync with MySQL / Vercel database & Firebase Cloud
+    if (this.currentUser && (this.currentUser.id || this.currentUser.email)) {
+      const uidParam = this.currentUser.id || this.currentUser.email;
       try {
         const formData = new FormData();
+        formData.append('user_id', uidParam);
         formData.append('track_id', trId);
         formData.append('youtube_id', ytId);
         formData.append('title', title);
@@ -4778,8 +4889,9 @@ class MinhDucAudioEngine {
         formData.append('cover_url', coverUrl);
         formData.append('duration', duration);
 
-        const res = await fetch('api/endpoints/playlists.php?action=favorite_toggle', {
+        const res = await fetch(`api/endpoints/playlists.php?action=favorite_toggle&user_id=${encodeURIComponent(uidParam)}`, {
           method: 'POST',
+          credentials: 'include',
           body: formData
         });
         const result = await res.json();
@@ -4800,6 +4912,29 @@ class MinhDucAudioEngine {
           }
         }
       } catch (err) {}
+
+      // 1.1 Cloud Firestore sync (real-time cross-device)
+      const cloudUid = this.currentUser?.uid || (this.currentUser?.email ? this.currentUser.email.toLowerCase().replace(/[^a-z0-9]/g, '_') : this.currentUser?.google_id);
+      if (window.__firebaseService && cloudUid) {
+        try {
+          const fbRes = await window.__firebaseService.toggleFavorite(cloudUid, {
+            id: track.db_id || trId || ('yt_' + ytId),
+            db_id: track.db_id,
+            youtube_id: ytId,
+            title: title,
+            artist: artist,
+            cover_url: coverUrl,
+            duration: duration,
+            format: track.format || 'YT AUDIO 320k'
+          });
+          if (fbRes && typeof fbRes.isFavorite === 'boolean') {
+            isFavResult = fbRes.isFavorite;
+            apiSuccess = true;
+          }
+        } catch (fbErr) {
+          console.warn('[CloudSync] Firebase favorite notice:', fbErr);
+        }
+      }
     }
 
     // 2. Synchronize with LocalStorage for current user / guest

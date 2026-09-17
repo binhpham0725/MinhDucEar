@@ -20,7 +20,7 @@ require_once __DIR__ . '/../external/youtube_music.php';
 $action = $_GET['action'] ?? $_POST['action'] ?? 'list';
 $db = Database::getInstance();
 $pdo = $db->getConnection();
-$userId = $_SESSION['user']['id'] ?? null;
+$userId = $_SESSION['user']['id'] ?? (isset($_REQUEST['user_id']) && is_numeric($_REQUEST['user_id']) ? (int)$_REQUEST['user_id'] : null);
 
 /**
  * Helper to cache YouTube track into MySQL database

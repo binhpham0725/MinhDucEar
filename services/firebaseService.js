@@ -282,11 +282,12 @@ class FirebaseService {
   // FAVORITES (Cloud Firestore)
   // -------------------------------------------------------------
   async getFavorites(uid) {
-    const modules = await loadFirebaseModules();
-    if (!modules || !uid) return [];
-    const { collection, getDocs, query, orderBy } = modules.firestoreMethods;
     try {
-      const q = query(collection(modules.db, `users/${uid}/favorites`), orderBy('addedAt', 'desc'));
+      const modules = await loadFirebaseModules();
+      if (!modules || !uid) return [];
+      const cleanUid = String(uid).replace(/[\/\.]/g, '_');
+      const { collection, getDocs, query, orderBy } = modules.firestoreMethods;
+      const q = query(collection(modules.db, `users/${cleanUid}/favorites`), orderBy('addedAt', 'desc'));
       const snap = await getDocs(q);
       return snap.docs.map(d => ({ id: d.id, ...d.data() }));
     } catch (e) {
@@ -296,21 +297,35 @@ class FirebaseService {
   }
 
   async toggleFavorite(uid, track) {
-    const modules = await loadFirebaseModules();
-    if (!modules || !uid || !track) return false;
-    const trackKey = track.youtube_id || track.id;
-    const { doc, getDoc, setDoc, deleteDoc, serverTimestamp } = modules.firestoreMethods;
-    const favRef = doc(modules.db, `users/${uid}/favorites`, String(trackKey));
-    const snap = await getDoc(favRef);
-    if (snap.exists()) {
-      await deleteDoc(favRef);
-      return { isFavorite: false };
-    } else {
-      await setDoc(favRef, {
-        ...track,
-        addedAt: serverTimestamp()
-      });
-      return { isFavorite: true };
+    try {
+      const modules = await loadFirebaseModules();
+      if (!modules || !uid || !track) return false;
+      const cleanUid = String(uid).replace(/[\/\.]/g, '_');
+      const trackKey = track.youtube_id || track.id;
+      const { doc, getDoc, setDoc, deleteDoc, serverTimestamp } = modules.firestoreMethods;
+      const favRef = doc(modules.db, `users/${cleanUid}/favorites`, String(trackKey));
+      const snap = await getDoc(favRef);
+      if (snap.exists()) {
+        await deleteDoc(favRef);
+        return { isFavorite: false };
+      } else {
+        const payload = {
+          id: track.id || track.db_id || ('yt_' + track.youtube_id),
+          db_id: track.db_id || track.id || null,
+          youtube_id: track.youtube_id || '',
+          title: track.title || 'Unknown Title',
+          artist: track.artist || 'Unknown Artist',
+          cover_url: track.cover_url || track.cover || '',
+          duration: track.duration || 210,
+          format: track.format || 'YT AUDIO 320k',
+          addedAt: serverTimestamp()
+        };
+        await setDoc(favRef, payload);
+        return { isFavorite: true };
+      }
+    } catch (err) {
+      console.warn('[Firebase] toggleFavorite error:', err);
+      return false;
     }
   }
 
@@ -318,12 +333,23 @@ class FirebaseService {
   // LISTENING HISTORY (Cloud Firestore)
   // -------------------------------------------------------------
   async recordHistory(uid, track, durationPlayed = 0) {
-    const modules = await loadFirebaseModules();
-    if (!modules || !uid || !track) return;
-    const { collection, addDoc, serverTimestamp } = modules.firestoreMethods;
     try {
-      await addDoc(collection(modules.db, `users/${uid}/history`), {
-        track,
+      const modules = await loadFirebaseModules();
+      if (!modules || !uid || !track) return;
+      const cleanUid = String(uid).replace(/[\/\.]/g, '_');
+      const { collection, addDoc, serverTimestamp } = modules.firestoreMethods;
+      const cleanTrack = {
+        id: track.id || track.db_id || ('yt_' + track.youtube_id),
+        db_id: track.db_id || track.id || null,
+        youtube_id: track.youtube_id || '',
+        title: track.title || 'Unknown Title',
+        artist: track.artist || 'Unknown Artist',
+        cover_url: track.cover_url || track.cover || '',
+        duration: track.duration || 210,
+        format: track.format || 'YT 320k'
+      };
+      await addDoc(collection(modules.db, `users/${cleanUid}/history`), {
+        track: cleanTrack,
         durationPlayed,
         playedAt: serverTimestamp()
       });
@@ -333,11 +359,12 @@ class FirebaseService {
   }
 
   async getHistory(uid, maxLimit = 50) {
-    const modules = await loadFirebaseModules();
-    if (!modules || !uid) return [];
-    const { collection, getDocs, query, orderBy, limit } = modules.firestoreMethods;
     try {
-      const q = query(collection(modules.db, `users/${uid}/history`), orderBy('playedAt', 'desc'), limit(maxLimit));
+      const modules = await loadFirebaseModules();
+      if (!modules || !uid) return [];
+      const cleanUid = String(uid).replace(/[\/\.]/g, '_');
+      const { collection, getDocs, query, orderBy, limit } = modules.firestoreMethods;
+      const q = query(collection(modules.db, `users/${cleanUid}/history`), orderBy('playedAt', 'desc'), limit(maxLimit));
       const snap = await getDocs(q);
       return snap.docs.map(d => ({ id: d.id, ...d.data() }));
     } catch (e) {

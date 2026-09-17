@@ -16,7 +16,7 @@ require_once __DIR__ . '/../../config/database.php';
 $action = $_GET['action'] ?? $_POST['action'] ?? 'list';
 $db = Database::getInstance();
 $pdo = $db->getConnection();
-$userId = $_SESSION['user']['id'] ?? (isset($_GET['user_id']) ? (int)$_GET['user_id'] : (isset($_POST['user_id']) ? (int)$_POST['user_id'] : null));
+$userId = $_SESSION['user']['id'] ?? (isset($_REQUEST['user_id']) && is_numeric($_REQUEST['user_id']) ? (int)$_REQUEST['user_id'] : null);
 
 if ($action === 'favorite_albums_list') {
     if (!$userId || !$pdo) {

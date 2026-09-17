@@ -14,6 +14,10 @@
       "destination": "/api/auth"
     },
     {
+      "source": "/api/endpoints/playlists.php",
+      "destination": "/api/playlists"
+    },
+    {
       "source": "/api/tracks",
       "destination": "/api/tracks"
     },
@@ -24,6 +28,10 @@
     {
       "source": "/api/auth",
       "destination": "/api/auth"
+    },
+    {
+      "source": "/api/playlists",
+      "destination": "/api/playlists"
     }
   ],
   "headers": [
