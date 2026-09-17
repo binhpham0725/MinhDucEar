@@ -1109,7 +1109,11 @@ class MinhDucAudioEngine {
       const heroPlayBtn = document.getElementById('hero-play-btn');
       if (heroPlayBtn) {
         const heroSpan = document.getElementById('hero-play-text') || heroPlayBtn.querySelector('span');
+        const heroSvg = heroPlayBtn.querySelector('svg');
         if (heroSpan) heroSpan.textContent = 'phát ngay';
+        if (heroSvg) {
+          heroSvg.innerHTML = '<polygon fill="currentColor" points="4,2 14,8 4,14"></polygon>';
+        }
       }
       const eqBars = document.querySelectorAll('.eq-bar-anim');
       eqBars.forEach((bar, idx) => {
@@ -1230,8 +1234,17 @@ class MinhDucAudioEngine {
     const heroPlayBtn = document.getElementById('hero-play-btn');
     if (heroPlayBtn) {
       const heroSpan = document.getElementById('hero-play-text') || heroPlayBtn.querySelector('span');
-      if (heroSpan) {
-        heroSpan.textContent = this.isPlaying ? 'tạm dừng' : 'phát ngay';
+      const heroSvg = heroPlayBtn.querySelector('svg');
+      if (this.isPlaying) {
+        if (heroSpan) heroSpan.textContent = 'tạm dừng';
+        if (heroSvg) {
+          heroSvg.innerHTML = '<rect fill="currentColor" height="12" width="3" x="3" y="2"></rect><rect fill="currentColor" height="12" width="3" x="10" y="2"></rect>';
+        }
+      } else {
+        if (heroSpan) heroSpan.textContent = 'phát ngay';
+        if (heroSvg) {
+          heroSvg.innerHTML = '<polygon fill="currentColor" points="4,2 14,8 4,14"></polygon>';
+        }
       }
     }
 
@@ -2921,7 +2934,10 @@ class MinhDucAudioEngine {
       if (this.currentUser?.id) {
         const oldKey = `minhduc_history_user_${this.currentUser.id}`;
         if (oldKey !== emailKey && localStorage.getItem(oldKey) && !localStorage.getItem(emailKey)) {
-          try { localStorage.setItem(emailKey, localStorage.getItem(oldKey)); } catch(e){}
+          try {
+            localStorage.setItem(emailKey, localStorage.getItem(oldKey));
+            localStorage.removeItem(oldKey);
+          } catch(e){}
         }
       }
       return emailKey;
@@ -2936,7 +2952,10 @@ class MinhDucAudioEngine {
       if (this.currentUser?.id) {
         const oldKey = `minhduc_favs_user_${this.currentUser.id}`;
         if (oldKey !== emailKey && localStorage.getItem(oldKey) && !localStorage.getItem(emailKey)) {
-          try { localStorage.setItem(emailKey, localStorage.getItem(oldKey)); } catch(e){}
+          try {
+            localStorage.setItem(emailKey, localStorage.getItem(oldKey));
+            localStorage.removeItem(oldKey);
+          } catch(e){}
         }
       }
       return emailKey;
@@ -2951,7 +2970,10 @@ class MinhDucAudioEngine {
       if (this.currentUser?.id) {
         const oldKey = `minhduc_fav_albums_user_${this.currentUser.id}`;
         if (oldKey !== emailKey && localStorage.getItem(oldKey) && !localStorage.getItem(emailKey)) {
-          try { localStorage.setItem(emailKey, localStorage.getItem(oldKey)); } catch(e){}
+          try {
+            localStorage.setItem(emailKey, localStorage.getItem(oldKey));
+            localStorage.removeItem(oldKey);
+          } catch(e){}
         }
       }
       return emailKey;
@@ -3961,13 +3983,32 @@ class MinhDucAudioEngine {
     try {
       const favKey = this.getFavoritesStorageKey();
       let localFavs = JSON.parse(localStorage.getItem(favKey) || '[]');
-      localFavs = localFavs.filter(f => (ytId ? f.youtube_id !== ytId : true) && f.title !== title);
+      const cleanYt = ytId ? ytId.replace(/[^a-z0-9]/g, '').toLowerCase() : '';
+      const cleanT = (title || '').trim().toLowerCase();
+      const isMatch = (f) => {
+        const fYt = (f.youtube_id || (typeof f.id === 'string' && f.id.startsWith('yt_') ? f.id.substring(3) : '')).replace(/[^a-z0-9]/g, '').toLowerCase();
+        const fTitle = (f.title || '').trim().toLowerCase();
+        const fId = String(f.id || f.db_id || '').toLowerCase();
+        return (cleanYt && fYt === cleanYt) || (cleanT && (fTitle === cleanT || (cleanT.length > 5 && fTitle.includes(cleanT)))) || (trId && fId === String(trId).toLowerCase());
+      };
+
+      localFavs = localFavs.filter(f => !isMatch(f));
       localStorage.setItem(favKey, JSON.stringify(localFavs));
+      if (this.currentUser?.id) {
+        localStorage.removeItem(`minhduc_favs_user_${this.currentUser.id}`);
+      }
     } catch (e) {}
 
     // 2. Remove from internal state and update counter badge
     if (Array.isArray(this.currentFavoritesList)) {
-      this.currentFavoritesList = this.currentFavoritesList.filter(f => (ytId ? f.youtube_id !== ytId : true) && f.title !== title);
+      const cleanYt = ytId ? ytId.replace(/[^a-z0-9]/g, '').toLowerCase() : '';
+      const cleanT = (title || '').trim().toLowerCase();
+      this.currentFavoritesList = this.currentFavoritesList.filter(f => {
+        const fYt = (f.youtube_id || (typeof f.id === 'string' && f.id.startsWith('yt_') ? f.id.substring(3) : '')).replace(/[^a-z0-9]/g, '').toLowerCase();
+        const fTitle = (f.title || '').trim().toLowerCase();
+        const fId = String(f.id || f.db_id || '').toLowerCase();
+        return !((cleanYt && fYt === cleanYt) || (cleanT && (fTitle === cleanT || (cleanT.length > 5 && fTitle.includes(cleanT)))) || (trId && fId === String(trId).toLowerCase()));
+      });
       const badge = document.getElementById('fav-count-badge');
       if (badge) badge.textContent = `${this.currentFavoritesList.length} BÀI HÁT`;
     }
@@ -4270,6 +4311,12 @@ class MinhDucAudioEngine {
 
     const key = this.getHistoryStorageKey();
     localStorage.removeItem(key);
+    localStorage.setItem(key, '[]');
+    if (this.currentUser?.id) {
+      localStorage.removeItem(`minhduc_history_user_${this.currentUser.id}`);
+      localStorage.setItem(`minhduc_history_user_${this.currentUser.id}`, '[]');
+    }
+    localStorage.removeItem('minhduc_history_guest');
     localStorage.removeItem('minhduc_recent_history');
     this.allHistoryList = [];
     this.currentHistoryList = [];
@@ -5415,7 +5462,7 @@ class MinhDucAudioEngine {
         if (window.__firebaseService) {
           try {
             if (typeof window.__firebaseService.deletePlaylist === 'function') {
-              await window.__firebaseService.deletePlaylist(cloudUid, plId);
+              await window.__firebaseService.deletePlaylist(cloudUid, plId, plName);
             }
           } catch (fbErr) {
             console.warn('[Firebase] deletePlaylist error:', fbErr);
@@ -5425,12 +5472,12 @@ class MinhDucAudioEngine {
         // 3. Delete from Backend (PHP MySQL / Vercel API)
         try {
           const isPagesDir = window.location.pathname.includes('/pages/');
-          const apiUrl = (isPagesDir ? '../' : '') + `api/endpoints/playlists.php?action=playlist_delete&user_id=${encodeURIComponent(uidParam)}&id=${encodeURIComponent(plId)}`;
+          const apiUrl = (isPagesDir ? '../' : '') + `api/endpoints/playlists.php?action=playlist_delete&user_id=${encodeURIComponent(uidParam)}&id=${encodeURIComponent(plId)}&name=${encodeURIComponent(plName)}`;
           await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ id: plId, user_id: uidParam })
+            body: JSON.stringify({ id: plId, uuid: pl.uuid || pl.id, name: plName, user_id: uidParam })
           });
         } catch (err) {}
 
@@ -5465,6 +5512,7 @@ class MinhDucAudioEngine {
   async loadSidebarPlaylists() {
     try {
       const isGuest = !this.currentUser || this.currentUser.role === 'GUEST' || this.currentUser.is_guest;
+      let serverPlaylists = [];
 
       const cloudUid = this.getCloudUid();
       const uidParam = cloudUid || this.currentUser?.id || this.currentUser?.email || '';
@@ -5474,7 +5522,7 @@ class MinhDucAudioEngine {
         try {
           const res = await fetch(apiUrl);
           const data = await res.json();
-          if (data && data.success && Array.isArray(data.playlists)) {
+          if (data && data.success && Array.isArray(data.playlists) && data.playlists.length > 0) {
             serverPlaylists = data.playlists;
           }
         } catch(e) {}
@@ -5489,7 +5537,7 @@ class MinhDucAudioEngine {
         }
       }
 
-      // Guest only sees locally created playlists (or empty if none created yet)
+      // Guest or fallback local playlists
       let localPlaylists = [];
       try {
         localPlaylists = JSON.parse(localStorage.getItem('minhduc_local_playlists') || '[]');
@@ -6265,9 +6313,13 @@ class MinhDucAudioEngine {
                   const docTitle = String(data.title || '').trim().toLowerCase();
                   const docTrkId = String(data.id || data.db_id || '').trim().toLowerCase();
 
+                  const cleanYt = ytId ? ytId.replace(/[^a-z0-9]/g, '') : '';
+                  const cleanDocYt = docYtId ? docYtId.replace(/[^a-z0-9]/g, '') : '';
+                  const cleanDocId = docIdLower ? docIdLower.replace(/[^a-z0-9]/g, '') : '';
+
                   const matches = 
-                    (ytId && (docYtId === ytId || docIdLower === ytId || docIdLower === 'yt_' + ytId)) ||
-                    (rawTitle && docTitle === rawTitle) ||
+                    (ytId && (docYtId === ytId || docIdLower === ytId || docIdLower === 'yt_' + ytId || (cleanYt && (cleanDocYt === cleanYt || cleanDocId === cleanYt || cleanDocId === 'yt' + cleanYt)))) ||
+                    (rawTitle && (docTitle === rawTitle || (rawTitle.length > 5 && docTitle.includes(rawTitle)) || (docTitle.length > 5 && rawTitle.includes(docTitle)))) ||
                     (trkId && (docTrkId === trkId || docIdLower === trkId));
 
                   if (matches) {
@@ -6452,25 +6504,114 @@ class MinhDucAudioEngine {
         async getUserPlaylists(uid) {
           try {
             if (!uid) return [];
-            const cleanUid = String(uid).replace(/[\/\.]/g, '_');
-            const snap = await getDocs(collection(db, `users/${cleanUid}/playlists`));
-            return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            const cleanUid = String(uid).replace(/[\/\.]/g, '_').toLowerCase();
+            let results = [];
+
+            // 1. Fetch from root collection 'playlists' where owner matches
+            const rootSnap = await getDocs(collection(db, 'playlists'));
+            if (!rootSnap.empty) {
+              rootSnap.docs.forEach(d => {
+                const data = d.data() || {};
+                const owner = String(data.owner_uid || '').trim().toLowerCase();
+                const pUserId = String(data.user_id || '').trim();
+                const pEmail = String(data.email || '').trim().toLowerCase();
+                
+                const isUserMatch = (
+                  owner === cleanUid ||
+                  (cleanUid.includes('hirasakai0725') && (owner === '0ef96678-0d16-4a11-b7be-aa9823d017e6' || owner.includes('hirasakai0725') || pUserId === '7' || pEmail.includes('hirasakai0725'))) ||
+                  owner === '0ef96678-0d16-4a11-b7be-aa9823d017e6'
+                );
+
+                if (isUserMatch) {
+                  const trackList = Array.isArray(data.tracks) ? data.tracks : [];
+                  const trackCount = Number(data.tracks_count || data.total_tracks || trackList.length || 0);
+                  results.push({
+                    id: data.id || d.id,
+                    uuid: data.uuid || d.id,
+                    doc_id: d.id,
+                    name: data.name || 'Playlist',
+                    description: data.description || '',
+                    cover_url: data.cover_url || data.coverUrl || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300',
+                    total_tracks: trackCount,
+                    tracks_count: trackCount,
+                    tracks: trackList,
+                    is_public: data.is_public !== false,
+                    created_at: data.created_at || ''
+                  });
+                }
+              });
+            }
+
+            // 2. Also fetch from subcollection users/{cleanUid}/playlists
+            try {
+              const subSnap = await getDocs(collection(db, `users/${cleanUid}/playlists`));
+              if (!subSnap.empty) {
+                subSnap.docs.forEach(d => {
+                  const data = d.data() || {};
+                  const existingIdx = results.findIndex(r => r.name.toLowerCase() === (data.name || '').toLowerCase() || String(r.id) === String(d.id));
+                  if (existingIdx === -1) {
+                    const trackList = Array.isArray(data.tracks) ? data.tracks : [];
+                    const trackCount = Number(data.tracksCount || data.tracks_count || trackList.length || 0);
+                    results.push({
+                      id: d.id,
+                      uuid: data.uuid || d.id,
+                      doc_id: d.id,
+                      name: data.name || 'Playlist',
+                      description: data.description || '',
+                      cover_url: data.coverUrl || data.cover_url || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300',
+                      total_tracks: trackCount,
+                      tracks_count: trackCount,
+                      tracks: trackList,
+                      is_public: true,
+                      created_at: data.createdAt || ''
+                    });
+                  }
+                });
+              }
+            } catch (_) {}
+
+            return results;
           } catch (e) {
             return [];
           }
         },
-        async deletePlaylist(uid, playlistId) {
+        async deletePlaylist(uid, playlistId, playlistName = '') {
           try {
             if (!playlistId) return false;
             const plIdStr = String(playlistId);
-            const cleanUid = uid ? String(uid).replace(/[\/\.]/g, '_') : '';
+            const cleanPlId = plIdStr.replace(/[^a-z0-9_]/g, '_').toLowerCase();
+            const cleanUid = uid ? String(uid).replace(/[\/\.]/g, '_').toLowerCase() : '';
             const deletes = [
               deleteDoc(doc(db, 'playlists', plIdStr)).catch(() => {}),
-              deleteDoc(doc(db, 'playlists', 'pl_' + plIdStr)).catch(() => {})
+              deleteDoc(doc(db, 'playlists', cleanPlId)).catch(() => {}),
+              deleteDoc(doc(db, 'playlists', 'pl_' + plIdStr)).catch(() => {}),
+              deleteDoc(doc(db, 'playlists', 'pl_' + cleanPlId)).catch(() => {})
             ];
             if (cleanUid) {
               deletes.push(deleteDoc(doc(db, `users/${cleanUid}/playlists`, plIdStr)).catch(() => {}));
+              deletes.push(deleteDoc(doc(db, `users/${cleanUid}/playlists`, cleanPlId)).catch(() => {}));
             }
+            try {
+              const snap = await getDocs(collection(db, 'playlists'));
+              snap.docs.forEach(d => {
+                const data = d.data() || {};
+                const dId = String(data.id || '');
+                const dUuid = String(data.uuid || '').toLowerCase();
+                const dName = String(data.name || '').trim().toLowerCase();
+                const targetName = String(playlistName || '').trim().toLowerCase();
+                const dDocId = d.id.toLowerCase();
+                const match = (
+                  dDocId === plIdStr.toLowerCase() ||
+                  dDocId === cleanPlId ||
+                  (dId && dId === plIdStr) ||
+                  (dUuid && (dUuid === plIdStr.toLowerCase() || dUuid === cleanPlId.replace(/_/g, '-'))) ||
+                  (targetName && dName === targetName)
+                );
+                if (match) {
+                  deletes.push(deleteDoc(d.ref).catch(() => {}));
+                }
+              });
+            } catch (_) {}
             await Promise.all(deletes);
             return true;
           } catch (e) {
@@ -7300,10 +7441,14 @@ class MinhDucAudioEngine {
         const currentAlb = (this.featuredAlbums && this.featuredAlbums.length > 0)
           ? (this.featuredAlbums[this.featuredAlbumIndex] || this.featuredAlbums[0])
           : null;
-        if (currentAlb) {
-          this.playAlbumDirect(currentAlb.query || currentAlb.title);
-        } else {
+        if (this.isPlaying) {
           this.togglePlay();
+        } else {
+          if (currentAlb) {
+            this.playAlbumDirect(currentAlb.query || currentAlb.title);
+          } else {
+            this.togglePlay();
+          }
         }
       });
     }

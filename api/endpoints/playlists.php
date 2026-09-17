@@ -22,8 +22,8 @@ $action = $_GET['action'] ?? $_POST['action'] ?? $_REQUEST['action'] ?? 'list';
 $db = Database::getInstance();
 $pdo = $db->getConnection();
 $userId = $_SESSION['user']['id'] ?? null;
-if (!$userId && !empty($_REQUEST['user_id'])) {
-    $rawUser = trim($_REQUEST['user_id']);
+$rawUser = trim($_GET['user_id'] ?? $_POST['user_id'] ?? $_REQUEST['user_id'] ?? '');
+if (!$userId && !empty($rawUser)) {
     if (is_numeric($rawUser)) {
         $userId = (int)$rawUser;
     } else if ($pdo) {
@@ -263,7 +263,11 @@ if ($action === 'playlists_list') {
         $stmt->execute([$userId]);
         $playlists = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    // Guest has empty playlist list by default (unless they create one in localStorage)
+    // If user has no custom playlists, include public playlists as fallback
+    if (empty($playlists) && $pdo) {
+        $stmt = $pdo->query("SELECT p.*, 1 as is_curated, COUNT(pt.track_id) as total_tracks FROM playlists p LEFT JOIN playlist_tracks pt ON p.id = pt.playlist_id WHERE p.is_public = 1 GROUP BY p.id ORDER BY p.created_at DESC LIMIT 10");
+        $playlists = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     echo json_encode(['success' => true, 'playlists' => $playlists]);
     exit;
 }
@@ -347,19 +351,38 @@ if ($action === 'playlist_update') {
 
 if ($action === 'playlist_delete') {
     $input = $_REQUEST;
-    $plId = intval($input['id'] ?? 0);
+    $rawId = trim($input['id'] ?? $input['uuid'] ?? '');
+    $plId = is_numeric($rawId) ? intval($rawId) : 0;
+    $name = trim($input['name'] ?? '');
 
-    if ($pdo && $plId > 0) {
-        $pdo->prepare("DELETE FROM playlist_tracks WHERE playlist_id = ?")->execute([$plId]);
-        if ($userId) {
-            $pdo->prepare("DELETE FROM playlists WHERE id = ? AND (user_id = ? OR user_id IS NULL OR user_id = 1)")->execute([$plId, $userId]);
-        } else {
-            $pdo->prepare("DELETE FROM playlists WHERE id = ?")->execute([$plId]);
+    if ($pdo && (!empty($rawId) || !empty($name))) {
+        if ($plId <= 0 && !empty($rawId)) {
+            $stmt = $pdo->prepare("SELECT id FROM playlists WHERE uuid = ? OR firebase_id = ? LIMIT 1");
+            $stmt->execute([$rawId, $rawId]);
+            $found = $stmt->fetchColumn();
+            if ($found) $plId = (int)$found;
+        }
+        if ($plId <= 0 && !empty($name) && $userId) {
+            $stmt = $pdo->prepare("SELECT id FROM playlists WHERE name = ? AND user_id = ? LIMIT 1");
+            $stmt->execute([$name, $userId]);
+            $found = $stmt->fetchColumn();
+            if ($found) $plId = (int)$found;
+        }
+
+        if ($plId > 0) {
+            $pdo->prepare("DELETE FROM playlist_tracks WHERE playlist_id = ?")->execute([$plId]);
+            if ($userId) {
+                $pdo->prepare("DELETE FROM playlists WHERE id = ? AND (user_id = ? OR user_id IS NULL OR user_id = 1)")->execute([$plId, $userId]);
+            } else {
+                $pdo->prepare("DELETE FROM playlists WHERE id = ?")->execute([$plId]);
+            }
+        } else if (!empty($rawId)) {
+            $pdo->prepare("DELETE FROM playlists WHERE uuid = ? OR firebase_id = ?")->execute([$rawId, $rawId]);
         }
 
         echo json_encode([
             'success' => true,
-            'id' => $plId,
+            'id' => $rawId,
             'message' => 'Đã xóa playlist thành công!'
         ]);
         exit;

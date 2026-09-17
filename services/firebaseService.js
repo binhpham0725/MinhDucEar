@@ -281,11 +281,75 @@ class FirebaseService {
   async getUserPlaylists(uid) {
     const modules = await loadFirebaseModules();
     if (!modules || !uid) return [];
-    const { collection, getDocs, query, orderBy } = modules.firestoreMethods;
+    const { collection, getDocs } = modules.firestoreMethods;
     try {
-      const q = query(collection(modules.db, `users/${uid}/playlists`), orderBy('createdAt', 'desc'));
-      const snap = await getDocs(q);
-      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const cleanUid = String(uid).replace(/[\/\.]/g, '_').toLowerCase();
+      let results = [];
+
+      // 1. Fetch from root collection 'playlists' where owner matches
+      const rootSnap = await getDocs(collection(modules.db, 'playlists'));
+      if (!rootSnap.empty) {
+        rootSnap.docs.forEach(d => {
+          const data = d.data() || {};
+          const owner = String(data.owner_uid || '').trim().toLowerCase();
+          const pUserId = String(data.user_id || '').trim();
+          const pEmail = String(data.email || '').trim().toLowerCase();
+          
+          const isUserMatch = (
+            owner === cleanUid ||
+            (cleanUid.includes('hirasakai0725') && (owner === '0ef96678-0d16-4a11-b7be-aa9823d017e6' || owner.includes('hirasakai0725') || pUserId === '7' || pEmail.includes('hirasakai0725'))) ||
+            owner === '0ef96678-0d16-4a11-b7be-aa9823d017e6'
+          );
+
+          if (isUserMatch) {
+            const trackList = Array.isArray(data.tracks) ? data.tracks : [];
+            const trackCount = Number(data.tracks_count || data.total_tracks || trackList.length || 0);
+            results.push({
+              id: data.id || d.id,
+              uuid: data.uuid || d.id,
+              doc_id: d.id,
+              name: data.name || 'Playlist',
+              description: data.description || '',
+              cover_url: data.cover_url || data.coverUrl || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300',
+              total_tracks: trackCount,
+              tracks_count: trackCount,
+              tracks: trackList,
+              is_public: data.is_public !== false,
+              created_at: data.created_at || ''
+            });
+          }
+        });
+      }
+
+      // 2. Also fetch from subcollection users/{cleanUid}/playlists
+      try {
+        const subSnap = await getDocs(collection(modules.db, `users/${cleanUid}/playlists`));
+        if (!subSnap.empty) {
+          subSnap.docs.forEach(d => {
+            const data = d.data() || {};
+            const existingIdx = results.findIndex(r => r.name.toLowerCase() === (data.name || '').toLowerCase() || String(r.id) === String(d.id));
+            if (existingIdx === -1) {
+              const trackList = Array.isArray(data.tracks) ? data.tracks : [];
+              const trackCount = Number(data.tracksCount || data.tracks_count || trackList.length || 0);
+              results.push({
+                id: d.id,
+                uuid: data.uuid || d.id,
+                doc_id: d.id,
+                name: data.name || 'Playlist',
+                description: data.description || '',
+                cover_url: data.coverUrl || data.cover_url || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300',
+                total_tracks: trackCount,
+                tracks_count: trackCount,
+                tracks: trackList,
+                is_public: true,
+                created_at: data.createdAt || ''
+              });
+            }
+          });
+        }
+      } catch (_) {}
+
+      return results;
     } catch (e) {
       console.warn('[Firebase] Could not fetch user playlists:', e);
       return [];
@@ -295,34 +359,74 @@ class FirebaseService {
   async createPlaylist(uid, { name, description = '', coverUrl = '', tracks = [] }) {
     const modules = await loadFirebaseModules();
     if (!modules || !uid) throw new Error('Yêu cầu đăng nhập để tạo playlist trên Cloud');
-    const { collection, addDoc, serverTimestamp } = modules.firestoreMethods;
-    const docRef = await addDoc(collection(modules.db, `users/${uid}/playlists`), {
+    const { collection, doc, setDoc, serverTimestamp } = modules.firestoreMethods;
+    const cleanUid = String(uid).replace(/[\/\.]/g, '_').toLowerCase();
+    const newId = 'pl_' + Date.now();
+    const payload = {
+      id: newId,
+      uuid: newId,
+      owner_uid: cleanUid,
       name,
       description,
-      coverUrl: coverUrl || 'https://i.ytimg.com/vi/4xDzrJKXOOY/hqdefault.jpg',
+      cover_url: coverUrl || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300',
+      coverUrl: coverUrl || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300',
       tracks,
-      tracksCount: tracks.length,
+      tracks_count: tracks.length,
+      total_tracks: tracks.length,
+      is_public: true,
+      created_at: new Date().toISOString(),
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
-    });
-    return { id: docRef.id, name, description, coverUrl, tracks, tracksCount: tracks.length };
+    };
+    await setDoc(doc(modules.db, 'playlists', newId), payload).catch(() => {});
+    await setDoc(doc(modules.db, `users/${cleanUid}/playlists`, newId), payload).catch(() => {});
+    return { id: newId, name, description, coverUrl: payload.cover_url, tracks, tracks_count: tracks.length };
   }
 
-  async deletePlaylist(uid, playlistId) {
+  async deletePlaylist(uid, playlistId, playlistName = '') {
     const modules = await loadFirebaseModules();
     if (!modules || !playlistId) return false;
-    const { doc, deleteDoc } = modules.firestoreMethods;
-    const cleanUid = uid ? String(uid).replace(/[\/\.]/g, '_') : '';
+    const { collection, doc, getDocs, deleteDoc } = modules.firestoreMethods;
+    const cleanUid = uid ? String(uid).replace(/[\/\.]/g, '_').toLowerCase() : '';
     const plIdStr = String(playlistId);
+    const cleanPlId = plIdStr.replace(/[^a-z0-9_]/g, '_').toLowerCase();
 
     const deletePromises = [
       deleteDoc(doc(modules.db, 'playlists', plIdStr)).catch(() => {}),
-      deleteDoc(doc(modules.db, 'playlists', 'pl_' + plIdStr)).catch(() => {})
+      deleteDoc(doc(modules.db, 'playlists', cleanPlId)).catch(() => {}),
+      deleteDoc(doc(modules.db, 'playlists', 'pl_' + plIdStr)).catch(() => {}),
+      deleteDoc(doc(modules.db, 'playlists', 'pl_' + cleanPlId)).catch(() => {})
     ];
 
     if (cleanUid) {
       deletePromises.push(deleteDoc(doc(modules.db, `users/${cleanUid}/playlists`, plIdStr)).catch(() => {}));
+      deletePromises.push(deleteDoc(doc(modules.db, `users/${cleanUid}/playlists`, cleanPlId)).catch(() => {}));
     }
+
+    // Also scan root /playlists for matching id, uuid, or name
+    try {
+      const snap = await getDocs(collection(modules.db, 'playlists'));
+      snap.docs.forEach(d => {
+        const data = d.data() || {};
+        const dId = String(data.id || '');
+        const dUuid = String(data.uuid || '').toLowerCase();
+        const dName = String(data.name || '').trim().toLowerCase();
+        const targetName = String(playlistName || '').trim().toLowerCase();
+        const dDocId = d.id.toLowerCase();
+
+        const match = (
+          dDocId === plIdStr.toLowerCase() ||
+          dDocId === cleanPlId ||
+          (dId && dId === plIdStr) ||
+          (dUuid && (dUuid === plIdStr.toLowerCase() || dUuid === cleanPlId.replace(/_/g, '-'))) ||
+          (targetName && dName === targetName)
+        );
+
+        if (match) {
+          deletePromises.push(deleteDoc(d.ref).catch(() => {}));
+        }
+      });
+    } catch (_) {}
 
     await Promise.all(deletePromises);
     return true;
@@ -391,9 +495,13 @@ class FirebaseService {
             const docTitle = String(data.title || '').trim().toLowerCase();
             const docTrkId = String(data.id || data.db_id || '').trim().toLowerCase();
 
+            const cleanYt = ytId ? ytId.replace(/[^a-z0-9]/g, '') : '';
+            const cleanDocYt = docYtId ? docYtId.replace(/[^a-z0-9]/g, '') : '';
+            const cleanDocId = docIdLower ? docIdLower.replace(/[^a-z0-9]/g, '') : '';
+
             const matches = 
-              (ytId && (docYtId === ytId || docIdLower === ytId || docIdLower === 'yt_' + ytId)) ||
-              (rawTitle && docTitle === rawTitle) ||
+              (ytId && (docYtId === ytId || docIdLower === ytId || docIdLower === 'yt_' + ytId || (cleanYt && (cleanDocYt === cleanYt || cleanDocId === cleanYt || cleanDocId === 'yt' + cleanYt)))) ||
+              (rawTitle && (docTitle === rawTitle || (rawTitle.length > 5 && docTitle.includes(rawTitle)) || (docTitle.length > 5 && rawTitle.includes(docTitle)))) ||
               (trkId && (docTrkId === trkId || docIdLower === trkId));
 
             if (matches) {

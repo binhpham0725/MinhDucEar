@@ -156,7 +156,87 @@ async function deleteFirestoreFavorite(uid, trackKey, meta = {}) {
   }
 }
 
-async function deleteFirestorePlaylist(uid, playlistId) {
+async function getFirestorePlaylists(uid) {
+  try {
+    const cleanUid = cleanId(uid);
+    const url = `${FIRESTORE_BASE_URL}/playlists?key=${FIREBASE_CONFIG.apiKey}&pageSize=100`;
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const data = await res.json();
+    if (!data || !Array.isArray(data.documents)) return [];
+
+    const results = [];
+    data.documents.forEach(d => {
+      const f = fromFirestoreFields(d.fields);
+      const owner = String(f.owner_uid || '').trim().toLowerCase();
+      const pUserId = String(f.user_id || '').trim();
+      const pEmail = String(f.email || '').trim().toLowerCase();
+
+      const isUserMatch = (
+        cleanUid !== 'guest' && (
+          owner === cleanUid ||
+          (cleanUid.includes('hirasakai0725') && (owner === '0ef96678-0d16-4a11-b7be-aa9823d017e6' || owner.includes('hirasakai0725') || pUserId === '7' || pEmail.includes('hirasakai0725'))) ||
+          owner === '0ef96678-0d16-4a11-b7be-aa9823d017e6'
+        )
+      );
+
+      if (isUserMatch || (cleanUid === 'guest' && f.is_public !== false)) {
+        const trList = Array.isArray(f.tracks) ? f.tracks : [];
+        const tCount = Number(f.tracks_count || f.total_tracks || trList.length || 0);
+        results.push({
+          id: f.id || d.name.split('/').pop(),
+          uuid: f.uuid || d.name.split('/').pop(),
+          name: f.name || 'Playlist',
+          description: f.description || '',
+          cover_url: f.cover_url || f.coverUrl || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300',
+          total_tracks: tCount,
+          tracks_count: tCount,
+          tracks: trList,
+          is_public: f.is_public !== false,
+          created_at: f.created_at || ''
+        });
+      }
+    });
+
+    if (cleanUid !== 'guest') {
+      try {
+        const subUrl = `${FIRESTORE_BASE_URL}/users/${cleanUid}/playlists?key=${FIREBASE_CONFIG.apiKey}&pageSize=50`;
+        const subRes = await fetch(subUrl);
+        if (subRes.ok) {
+          const subData = await subRes.json();
+          if (Array.isArray(subData.documents)) {
+            subData.documents.forEach(d => {
+              const f = fromFirestoreFields(d.fields);
+              const exists = results.some(r => r.name.toLowerCase() === (f.name || '').toLowerCase() || String(r.id) === String(f.id));
+              if (!exists) {
+                const trList = Array.isArray(f.tracks) ? f.tracks : [];
+                const tCount = Number(f.tracks_count || f.total_tracks || trList.length || 0);
+                results.push({
+                  id: f.id || d.name.split('/').pop(),
+                  uuid: f.uuid || d.name.split('/').pop(),
+                  name: f.name || 'Playlist',
+                  description: f.description || '',
+                  cover_url: f.cover_url || f.coverUrl || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300',
+                  total_tracks: tCount,
+                  tracks_count: tCount,
+                  tracks: trList,
+                  is_public: true,
+                  created_at: f.created_at || ''
+                });
+              }
+            });
+          }
+        }
+      } catch (_) {}
+    }
+
+    return results;
+  } catch (e) {
+    return [];
+  }
+}
+
+async function deleteFirestorePlaylist(uid, playlistId, name = '') {
   try {
     const plIdStr = String(playlistId);
     const cleanPlId = cleanId(plIdStr);
@@ -170,11 +250,32 @@ async function deleteFirestorePlaylist(uid, playlistId) {
     if (cleanUid) {
       paths.push(`users/${cleanUid}/playlists/${plIdStr}`);
       paths.push(`users/${cleanUid}/playlists/pl_${plIdStr}`);
+      paths.push(`users/${cleanUid}/playlists/${cleanPlId}`);
     }
 
     await Promise.all(paths.map(p => 
       fetch(`${FIRESTORE_BASE_URL}/${p}?key=${FIREBASE_CONFIG.apiKey}`, { method: 'DELETE' }).catch(() => {})
     ));
+
+    try {
+      const listRes = await fetch(`${FIRESTORE_BASE_URL}/playlists?key=${FIREBASE_CONFIG.apiKey}&pageSize=100`);
+      if (listRes.ok) {
+        const listData = await listRes.json();
+        if (Array.isArray(listData.documents)) {
+          const toDelete = listData.documents.filter(d => {
+            const f = fromFirestoreFields(d.fields);
+            const docId = d.name.split('/').pop().toLowerCase();
+            const dName = String(f.name || '').trim().toLowerCase();
+            const dId = String(f.id || '').toLowerCase();
+            const dUuid = String(f.uuid || '').toLowerCase();
+            return docId === cleanPlId || docId === plIdStr.toLowerCase() || dId === plIdStr.toLowerCase() || (dUuid && dUuid === plIdStr.toLowerCase()) || (name && dName === name.trim().toLowerCase());
+          });
+          await Promise.all(toDelete.map(d => 
+            fetch(`https://firestore.googleapis.com/v1/${d.name}?key=${FIREBASE_CONFIG.apiKey}`, { method: 'DELETE' }).catch(() => {})
+          ));
+        }
+      }
+    } catch (_) {}
   } catch (e) {
     console.warn('[Firestore] deletePlaylist error:', e);
   }
@@ -387,7 +488,17 @@ export default async function handler(req, res) {
     // 5. PLAYLISTS LIST & CREATE
     // -------------------------------------------------------------
     if (action === 'playlists_list' || action === 'list') {
-      const userPlaylists = cacheStore.playlists.get(String(userId)) || [];
+      const userKey = cleanId(userId);
+      let userPlaylists = cacheStore.playlists.get(userKey);
+      if (!userPlaylists || userPlaylists.length === 0) {
+        const dbPlaylists = await getFirestorePlaylists(userKey);
+        if (dbPlaylists && dbPlaylists.length > 0) {
+          userPlaylists = dbPlaylists;
+          cacheStore.playlists.set(userKey, userPlaylists);
+        } else {
+          userPlaylists = cacheStore.playlists.get(String(userId)) || [];
+        }
+      }
       return res.status(200).json({
         success: true,
         playlists: userPlaylists
@@ -397,21 +508,40 @@ export default async function handler(req, res) {
     if (action === 'playlist_create') {
       const name = (req.body?.name || url.searchParams.get('name') || 'Danh sách mới').trim();
       const description = req.body?.description || url.searchParams.get('description') || '';
-      const userKey = String(userId);
+      const userKey = cleanId(userId);
       let userPlaylists = cacheStore.playlists.get(userKey) || [];
 
+      const newId = 'pl_' + Date.now();
       const newPl = {
-        id: 'pl_' + Date.now(),
+        id: newId,
+        uuid: newId,
+        owner_uid: userKey,
         name,
         description,
-        cover_url: 'https://i.ytimg.com/vi/4xDzrJKXOOY/hqdefault.jpg',
+        cover_url: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300',
         tracks_count: 0,
+        total_tracks: 0,
         tracks: [],
+        is_public: true,
         created_at: new Date().toISOString()
       };
 
       userPlaylists.unshift(newPl);
       cacheStore.playlists.set(userKey, userPlaylists);
+
+      if (userKey !== 'guest') {
+        const payload = { fields: toFirestoreFields(newPl) };
+        fetch(`${FIRESTORE_BASE_URL}/playlists/${newId}?key=${FIREBASE_CONFIG.apiKey}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).catch(() => {});
+        fetch(`${FIRESTORE_BASE_URL}/users/${userKey}/playlists/${newId}?key=${FIREBASE_CONFIG.apiKey}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        }).catch(() => {});
+      }
 
       return res.status(200).json({
         success: true,
@@ -422,13 +552,14 @@ export default async function handler(req, res) {
 
     if (action === 'playlist_delete') {
       const plId = url.searchParams.get('id') || req.body?.id || '';
+      const name = url.searchParams.get('name') || req.body?.name || '';
       const userKey = cleanId(userId);
 
       let userPlaylists = cacheStore.playlists.get(userKey) || [];
-      userPlaylists = userPlaylists.filter(p => String(p.id) !== String(plId));
+      userPlaylists = userPlaylists.filter(p => String(p.id) !== String(plId) && (!name || p.name !== name));
       cacheStore.playlists.set(userKey, userPlaylists);
 
-      await deleteFirestorePlaylist(userKey, plId);
+      await deleteFirestorePlaylist(userKey, plId, name);
 
       return res.status(200).json({
         success: true,
