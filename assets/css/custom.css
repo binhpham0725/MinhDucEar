@@ -241,19 +241,41 @@ html.light .mobile-mini-player {
 /* FLOATING SYNCHRONIZED LYRICS PANEL (KARAOKE)                 */
 /* ============================================================= */
 #floating-lyrics-panel {
+  background: rgba(18, 18, 24, 0.96) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1.5px solid rgba(84, 216, 232, 0.75) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.85), 0 0 22px rgba(84, 216, 232, 0.4) !important;
   transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
+}
+
+#floating-lyrics-single-line {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  letter-spacing: 0.02em !important;
+  text-shadow: 0 0 12px rgba(84, 216, 232, 0.9), 0 0 24px rgba(84, 216, 232, 0.45) !important;
+}
+
+#btn-close-floating-lyrics {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+#btn-close-floating-lyrics:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
 }
 
 .lyrics-sync-line {
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, color, font-size;
+  color: rgba(255, 255, 255, 0.72) !important;
 }
 
 .lyrics-sync-line.active-lyric {
-  color: #54d8e8 !important;
-  text-shadow: 0 0 10px rgba(84, 216, 232, 0.7), 0 0 20px rgba(167, 139, 250, 0.4);
-  font-weight: 700;
+  color: #ffffff !important;
+  text-shadow: 0 0 12px rgba(84, 216, 232, 0.9), 0 0 24px rgba(84, 216, 232, 0.45);
+  font-weight: 800;
 }
 
 html.light #floating-lyrics-panel {
@@ -263,6 +285,13 @@ html.light #floating-lyrics-panel {
   border: 1.5px solid rgba(124, 58, 237, 0.35) !important;
   box-shadow: 0 12px 36px -4px rgba(124, 58, 237, 0.18), 0 4px 16px rgba(0, 0, 0, 0.08) !important;
   color: #0f172a !important;
+}
+
+html.light #floating-lyrics-single-line {
+  color: #7c3aed !important;
+  font-weight: 700 !important;
+  drop-shadow: 0 1px 2px rgba(124, 58, 237, 0.15) !important;
+  text-shadow: none !important;
 }
 
 #right-player-lyrics-status {
@@ -275,17 +304,26 @@ html.light #floating-lyrics-panel {
   border-radius: 12px !important;
   border: 1.5px solid transparent !important;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  line-height: 1.4 !important;
+  line-height: 1.45 !important;
+  color: rgba(255, 255, 255, 0.72) !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+}
+
+.right-lyric-line:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
 .right-lyric-line.active-lyric {
-  color: #54d8e8 !important;
-  background: rgba(84, 216, 232, 0.14) !important;
-  border: 1.5px solid rgba(84, 216, 232, 0.55) !important;
+  color: #ffffff !important;
+  background: rgba(84, 216, 232, 0.22) !important;
+  border: 1.5px solid rgba(84, 216, 232, 0.85) !important;
   border-radius: 12px !important;
-  box-shadow: 0 0 16px rgba(84, 216, 232, 0.25), inset 0 0 6px rgba(84, 216, 232, 0.08) !important;
-  font-weight: 700 !important;
-  font-size: 13.5px !important;
+  box-shadow: 0 0 18px rgba(84, 216, 232, 0.4), inset 0 0 6px rgba(84, 216, 232, 0.15) !important;
+  text-shadow: 0 0 12px rgba(84, 216, 232, 0.9), 0 0 24px rgba(84, 216, 232, 0.5) !important;
+  font-weight: 800 !important;
+  font-size: 14.5px !important;
 }
 
 html.light #right-player-media-card,

@@ -658,17 +658,26 @@ html.light .lyric-line.active {
   border-radius: 12px !important;
   border: 1.5px solid transparent !important;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  line-height: 1.4 !important;
+  line-height: 1.45 !important;
+  color: rgba(255, 255, 255, 0.72) !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+}
+
+.right-lyric-line:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
 .right-lyric-line.active-lyric {
-  color: #54d8e8 !important;
-  background: rgba(84, 216, 232, 0.14) !important;
-  border: 1.5px solid rgba(84, 216, 232, 0.55) !important;
+  color: #ffffff !important;
+  background: rgba(84, 216, 232, 0.22) !important;
+  border: 1.5px solid rgba(84, 216, 232, 0.85) !important;
   border-radius: 12px !important;
-  box-shadow: 0 0 16px rgba(84, 216, 232, 0.25), inset 0 0 6px rgba(84, 216, 232, 0.08) !important;
-  font-weight: 700 !important;
-  font-size: 13.5px !important;
+  box-shadow: 0 0 18px rgba(84, 216, 232, 0.4), inset 0 0 6px rgba(84, 216, 232, 0.15) !important;
+  text-shadow: 0 0 12px rgba(84, 216, 232, 0.9), 0 0 24px rgba(84, 216, 232, 0.5) !important;
+  font-weight: 800 !important;
+  font-size: 14.5px !important;
 }
 
 /* Light mode styling for Right Media Player rectangular card */
@@ -748,6 +757,31 @@ html.light .right-lyric-line.active-lyric {
   box-shadow: 0 4px 14px rgba(124, 58, 237, 0.14) !important;
   text-shadow: none !important;
   font-weight: 700 !important;
+}
+
+/* Dark mode styling for Floating Lyrics Pill (Mini Karaoke Bar) */
+#floating-lyrics-panel {
+  background: rgba(18, 18, 24, 0.96) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1.5px solid rgba(84, 216, 232, 0.75) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.85), 0 0 22px rgba(84, 216, 232, 0.4) !important;
+}
+
+#floating-lyrics-single-line {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  letter-spacing: 0.02em !important;
+  text-shadow: 0 0 12px rgba(84, 216, 232, 0.9), 0 0 24px rgba(84, 216, 232, 0.45) !important;
+}
+
+#btn-close-floating-lyrics {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+#btn-close-floating-lyrics:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Light mode styling for Floating Lyrics Pill (Mini Karaoke Bar) */
@@ -3026,7 +3060,7 @@ html.light .bg-surface-container\/80 {
         <rect fill="currentColor" height="10" width="2" x="12" y="3"></rect>
       </svg>
     </button>
-    <button type="button" id="mobile-mini-lyrics-btn" class="w-8 h-8 rounded text-secondary hover:text-white flex items-center justify-center cursor-pointer relative" data-bs-toggle="offcanvas" data-bs-target="#mobile-player-offcanvas" title="Mở Lời bài hát">
+    <button type="button" id="mobile-mini-lyrics-btn" class="w-8 h-8 rounded text-secondary hover:text-white flex items-center justify-center cursor-pointer relative active:scale-95 transition-all" title="Bật/Tắt Lời bài hát">
       <span class="text-sm">🎤</span>
       <span id="mobile-mini-lyrics-dot" class="hidden absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-secondary shadow-[0_0_6px_#54d8e8] animate-pulse"></span>
     </button>
@@ -3291,46 +3325,21 @@ html.light .bg-surface-container\/80 {
   </div>
 </div>
 
-<!-- MOBILE BOTTOM NAVIGATION DOCK (App Style 5 Tabs) -->
-<nav id="mobile-bottom-dock" class="lg:hidden shrink-0 h-14 bg-[#111116]/95 backdrop-blur-2xl border-t border-outline-variant/30 flex items-center justify-around z-40 px-1 select-none">
-  <button type="button" class="mobile-dock-btn flex flex-col items-center justify-center flex-1 py-1 text-secondary font-bold active:scale-95 transition-all cursor-pointer" data-view="home">
-    <span class="text-base leading-none">🏠</span>
-    <span class="font-silkscreen text-[8px] mt-1">Trang chủ</span>
-  </button>
-  <button type="button" class="mobile-dock-btn flex flex-col items-center justify-center flex-1 py-1 text-gray-400 hover:text-white active:scale-95 transition-all cursor-pointer" data-view="explore">
-    <span class="text-base leading-none">🧭</span>
-    <span class="font-silkscreen text-[8px] mt-1">Khám phá</span>
-  </button>
-  <button type="button" class="mobile-dock-btn flex flex-col items-center justify-center flex-1 py-1 text-gray-400 hover:text-white active:scale-95 transition-all cursor-pointer" data-view="search">
-    <span class="text-base leading-none">🔍</span>
-    <span class="font-silkscreen text-[8px] mt-1">Tìm kiếm</span>
-  </button>
-  <button type="button" class="mobile-dock-btn flex flex-col items-center justify-center flex-1 py-1 text-gray-400 hover:text-white active:scale-95 transition-all cursor-pointer" data-view="favorites">
-    <span class="text-base leading-none">💖</span>
-    <span class="font-silkscreen text-[8px] mt-1">Thư viện</span>
-  </button>
-  <button type="button" class="mobile-dock-btn flex flex-col items-center justify-center flex-1 py-1 text-gray-400 hover:text-white active:scale-95 transition-all cursor-pointer" data-bs-toggle="offcanvas" data-bs-target="#mobile-player-offcanvas">
-    <span class="text-base leading-none">🎤</span>
-    <span class="font-silkscreen text-[8px] mt-1">Lời nhạc</span>
-  </button>
-</nav>
-
-
 <!-- COMPACT SINGLE-LINE FLOATING LYRICS PILL (KARAOKE MINI BAR) -->
-<div id="floating-lyrics-panel" class="fixed left-1/2 -translate-x-1/2 bottom-[132px] lg:bottom-[82px] z-[60] max-w-[94vw] sm:max-w-2xl bg-[#111116]/95 backdrop-blur-xl border border-secondary/60 rounded-full shadow-[0_4px_25px_rgba(0,0,0,0.85),0_0_20px_rgba(84,216,232,0.3)] transition-all duration-300 transform translate-y-4 opacity-0 pointer-events-none px-4 py-2 text-on-surface flex items-center justify-between gap-3 select-none">
+<div id="floating-lyrics-panel" class="fixed left-1/2 -translate-x-1/2 bottom-[76px] sm:bottom-[80px] z-[60] max-w-[94vw] sm:max-w-2xl bg-[#111116]/95 backdrop-blur-xl border border-secondary/60 rounded-full shadow-[0_4px_25px_rgba(0,0,0,0.85),0_0_20px_rgba(84,216,232,0.3)] transition-all duration-300 transform translate-y-4 opacity-0 pointer-events-none px-4 py-2 text-on-surface flex items-center justify-between gap-3 select-none">
   <div class="flex items-center gap-2.5 min-w-0 flex-1 justify-center">
     <span class="text-xs text-secondary animate-pulse shrink-0">🎤</span>
-    <p id="floating-lyrics-single-line" class="font-sans font-semibold text-xs sm:text-sm text-secondary tracking-wide text-center truncate transition-all duration-200 drop-shadow-[0_0_8px_rgba(84,216,232,0.45)]">
+    <p id="floating-lyrics-single-line" class="font-sans font-bold text-sm sm:text-base text-white tracking-wide text-center truncate transition-all duration-200">
       Đang đồng bộ lời bài hát...
     </p>
   </div>
-  <button type="button" id="btn-close-floating-lyrics" class="text-gray-400 hover:text-white p-0.5 rounded transition-colors cursor-pointer text-[11px] shrink-0 ml-1 leading-none" title="Đóng thanh lời (✕)">✕</button>
+  <button type="button" id="btn-close-floating-lyrics" class="text-gray-300 hover:text-white p-0.5 rounded transition-colors cursor-pointer text-xs shrink-0 ml-1 leading-none" title="Đóng thanh lời (✕)">✕</button>
 </div>
 
 
 
 
-<script src="assets/js/player.js?v=3.6.0"></script>
+<script src="assets/js/player.js?v=3.7.0"></script>
   <!-- YouTube Audio Engine & HTML5 Audio -->
   <div id="yt-player-container" style="position:fixed;bottom:0;right:0;width:64px;height:64px;opacity:0.01;pointer-events:none;z-index:-1">
     <div id="yt-player"></div>

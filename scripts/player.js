@@ -1893,6 +1893,15 @@ class MinhDucAudioEngine {
     const mobileMiniNext = document.getElementById('mobile-mini-next-btn');
     if (mobileMiniNext) mobileMiniNext.addEventListener('click', () => this.next());
 
+    const mobileMiniLyrics = document.getElementById('mobile-mini-lyrics-btn');
+    if (mobileMiniLyrics) {
+      mobileMiniLyrics.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.toggleFloatingLyrics();
+      });
+    }
+
     // G. Mobile Player Offcanvas Controls
     const mobPlayBtn = document.getElementById('mobile-drawer-play-btn');
     if (mobPlayBtn) mobPlayBtn.addEventListener('click', () => this.togglePlay());
@@ -2243,6 +2252,8 @@ class MinhDucAudioEngine {
     const panel = document.getElementById('floating-lyrics-panel');
     const btn = document.getElementById('btn-footer-lyrics');
     const dot = document.getElementById('lyrics-indicator-dot');
+    const mobLyricsBtn = document.getElementById('mobile-mini-lyrics-btn');
+    const mobLyricsDot = document.getElementById('mobile-mini-lyrics-dot');
     if (!panel) return;
 
     if (forceState !== null) {
@@ -2261,6 +2272,11 @@ class MinhDucAudioEngine {
       }
       if (dot) dot.classList.remove('hidden');
 
+      if (mobLyricsBtn) {
+        mobLyricsBtn.classList.add('text-secondary', 'drop-shadow-[0_0_8px_rgba(84,216,232,0.8)]');
+      }
+      if (mobLyricsDot) mobLyricsDot.classList.remove('hidden');
+
       if (this.currentTrack) {
         this.loadTrackLyrics(this.currentTrack);
       } else {
@@ -2275,6 +2291,11 @@ class MinhDucAudioEngine {
         btn.classList.add('text-on-surface-variant');
       }
       if (dot) dot.classList.add('hidden');
+
+      if (mobLyricsBtn) {
+        mobLyricsBtn.classList.remove('text-secondary', 'drop-shadow-[0_0_8px_rgba(84,216,232,0.8)]');
+      }
+      if (mobLyricsDot) mobLyricsDot.classList.add('hidden');
     }
   }
 
@@ -2740,7 +2761,8 @@ class MinhDucAudioEngine {
   syncRightLyrics(currentTime) {
     if (!this.rightLyrics || this.rightLyrics.length === 0) return;
     const container = document.getElementById('right-player-lyrics-container');
-    if (!container) return;
+    const mobContainer = document.getElementById('mobile-drawer-lyrics-container');
+    if (!container && !mobContainer) return;
 
     let newIndex = -1;
     for (let i = this.rightLyrics.length - 1; i >= 0; i--) {
@@ -2753,20 +2775,25 @@ class MinhDucAudioEngine {
     if (newIndex === this.activeRightLyricIndex) return;
     this.activeRightLyricIndex = newIndex;
 
-    const lines = container.querySelectorAll('.right-lyric-line');
-    lines.forEach((lineEl, idx) => {
-      if (idx === newIndex) {
-        lineEl.className = 'right-lyric-line active-lyric select-none cursor-pointer';
-        
-        const parentHeight = container.clientHeight;
-        const lineTop = lineEl.offsetTop;
-        const lineHeight = lineEl.clientHeight;
-        const targetScroll = lineTop - (parentHeight / 2) + (lineHeight / 2);
-        container.scrollTo({ top: Math.max(0, targetScroll), behavior: 'smooth' });
-      } else {
-        lineEl.className = 'right-lyric-line select-none cursor-pointer';
-      }
-    });
+    const highlightLines = (box) => {
+      if (!box) return;
+      const lines = box.querySelectorAll('.right-lyric-line');
+      lines.forEach((lineEl, idx) => {
+        if (idx === newIndex) {
+          lineEl.className = 'right-lyric-line active-lyric select-none cursor-pointer';
+          const parentHeight = box.clientHeight;
+          const lineTop = lineEl.offsetTop;
+          const lineHeight = lineEl.clientHeight;
+          const targetScroll = lineTop - (parentHeight / 2) + (lineHeight / 2);
+          box.scrollTo({ top: Math.max(0, targetScroll), behavior: 'smooth' });
+        } else {
+          lineEl.className = 'right-lyric-line select-none cursor-pointer';
+        }
+      });
+    };
+
+    highlightLines(container);
+    highlightLines(mobContainer);
   }
 
   openAddToPlaylistModal(track) {
