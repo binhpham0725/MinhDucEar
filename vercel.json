@@ -18,6 +18,10 @@
       "destination": "/api/playlists"
     },
     {
+      "source": "/api/endpoints/stats.php",
+      "destination": "/api/stats"
+    },
+    {
       "source": "/api/tracks",
       "destination": "/api/tracks"
     },
@@ -32,6 +36,10 @@
     {
       "source": "/api/playlists",
       "destination": "/api/playlists"
+    },
+    {
+      "source": "/api/stats",
+      "destination": "/api/stats"
     }
   ],
   "headers": [
