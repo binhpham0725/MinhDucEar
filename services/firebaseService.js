@@ -142,26 +142,34 @@ class FirebaseService {
     if (!modules) throw new Error('Firebase chưa sẵn sàng');
     const provider = new modules.authMethods.GoogleAuthProvider();
 
-    // Try popup first (desktop), fall back to redirect (mobile / popup blocked)
+    // On mobile browsers, skip popup entirely and use redirect directly
+    const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+    if (isMobile) {
+      await modules.authMethods.signInWithRedirect(modules.auth, provider);
+      return null;
+    }
+
+    // Desktop: try popup first, fall back to redirect on any technical failure
     try {
       const result = await modules.authMethods.signInWithPopup(modules.auth, provider);
       if (result.user) await this.saveUserProfile(result.user);
       return result.user;
     } catch (popupErr) {
-      const redirectCodes = [
-        'auth/popup-blocked',
-        'auth/cancelled-popup-request',
+      // Only rethrow if user explicitly closed/cancelled — everything else → redirect
+      const userCancelledCodes = [
         'auth/popup-closed-by-user',
-        'auth/unauthorized-domain'
+        'auth/cancelled-popup-request'
       ];
-      if (redirectCodes.includes(popupErr.code)) {
-        // Redirect flow — page will reload, result handled in init()
-        await modules.authMethods.signInWithRedirect(modules.auth, provider);
-        return null;
+      if (userCancelledCodes.includes(popupErr.code)) {
+        throw popupErr;
       }
-      throw popupErr;
+      // Blocked, unsupported, unauthorized domain, etc. → use redirect
+      console.warn('[Firebase] Popup failed, switching to redirect:', popupErr.code);
+      await modules.authMethods.signInWithRedirect(modules.auth, provider);
+      return null;
     }
   }
+
 
   async signInWithEmail(email, password) {
     const modules = await loadFirebaseModules();
