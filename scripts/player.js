@@ -1282,10 +1282,11 @@ class MinhDucAudioEngine {
   }
 
   isTrackFavorite(track) {
-    if (!track) return false;
+    if (!track || (!track.title && !track.youtube_id)) return false;
     const trId = track.db_id || track.id || '';
-    const ytId = track.youtube_id || (typeof trId === 'string' && trId.startsWith('yt_') ? trId.substring(3) : '');
+    const ytId = track.youtube_id || (typeof trId === 'string' && trId.startsWith('yt_') && trId.length > 3 ? trId.substring(3) : '');
     const title = (track.title || '').trim().toLowerCase();
+    if (!ytId && (!title || title === 'bài hát')) return false;
 
     // 1. Check syncStats if available
     if (this.currentUser && this.syncStats && Array.isArray(this.syncStats.favorites)) {
@@ -1296,9 +1297,10 @@ class MinhDucAudioEngine {
     // 2. Check currentFavoritesList memory cache
     if (Array.isArray(this.currentFavoritesList) && this.currentFavoritesList.length > 0) {
       const match = this.currentFavoritesList.some(f => {
+        if (!f || !f.title || f.title === 'Bài hát') return false;
         if (ytId && f.youtube_id && f.youtube_id === ytId) return true;
         if (track.db_id && (f.db_id === track.db_id || f.id === track.db_id)) return true;
-        if (trId && (f.id === trId || f.db_id === trId)) return true;
+        if (trId && trId !== 'yt_' && (f.id === trId || f.db_id === trId)) return true;
         if (title && f.title && f.title.trim().toLowerCase() === title) return true;
         return false;
       });
@@ -1311,9 +1313,10 @@ class MinhDucAudioEngine {
       const localFavs = JSON.parse(localStorage.getItem(key) || '[]');
       if (Array.isArray(localFavs)) {
         return localFavs.some(f => {
+          if (!f || !f.title || f.title === 'Bài hát') return false;
           if (ytId && f.youtube_id && f.youtube_id === ytId) return true;
           if (track.db_id && (f.db_id === track.db_id || f.id === track.db_id)) return true;
-          if (trId && (f.id === trId || f.db_id === trId)) return true;
+          if (trId && trId !== 'yt_' && (f.id === trId || f.db_id === trId)) return true;
           if (title && f.title && f.title.trim().toLowerCase() === title) return true;
           return false;
         });
@@ -1325,37 +1328,46 @@ class MinhDucAudioEngine {
 
   updateControllerFavoriteUI() {
     const btnFav = document.getElementById('btn-favorite');
-    if (!btnFav) return;
+    const mobMiniFav = document.getElementById('mobile-mini-fav-btn');
+    const mobDrawerFav = document.getElementById('mobile-drawer-fav-btn');
     const track = this.currentTrack;
     const isFav = track ? this.isTrackFavorite(track) : false;
 
-    if (isFav) {
-      btnFav.className = 'text-pink-500 hover:scale-110 p-1 transition-transform hover:text-pink-400 drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]';
-      btnFav.title = 'Đã yêu thích (Nhấn để hủy yêu thích)';
-      btnFav.innerHTML = `
-        <svg class="w-4 h-4 pixel-icon fill-current" viewBox="0 0 16 16">
-          <rect fill="currentColor" height="3" width="4" x="2" y="2"></rect>
-          <rect fill="currentColor" height="3" width="4" x="10" y="2"></rect>
-          <rect fill="currentColor" height="4" width="14" x="1" y="4"></rect>
-          <rect fill="currentColor" height="3" width="10" x="3" y="8"></rect>
-          <rect fill="currentColor" height="2" width="6" x="5" y="11"></rect>
-          <rect fill="currentColor" height="2" width="2" x="7" y="13"></rect>
-        </svg>
-      `;
-    } else {
-      btnFav.className = 'text-tertiary hover:scale-110 p-1 transition-transform hover:text-pink-400';
-      btnFav.title = 'Thêm vào yêu thích / Add to favorites';
-      btnFav.innerHTML = `
-        <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
-          <rect fill="currentColor" height="3" width="4" x="2" y="2"></rect>
-          <rect fill="currentColor" height="3" width="4" x="10" y="2"></rect>
-          <rect fill="currentColor" height="4" width="14" x="1" y="4"></rect>
-          <rect fill="currentColor" height="3" width="10" x="3" y="8"></rect>
-          <rect fill="currentColor" height="2" width="6" x="5" y="11"></rect>
-          <rect fill="currentColor" height="2" width="2" x="7" y="13"></rect>
-        </svg>
-      `;
-    }
+    const activeSvg = `
+      <svg class="w-4 h-4 pixel-icon fill-current" viewBox="0 0 16 16">
+        <rect fill="currentColor" height="3" width="4" x="2" y="2"></rect>
+        <rect fill="currentColor" height="3" width="4" x="10" y="2"></rect>
+        <rect fill="currentColor" height="4" width="14" x="1" y="4"></rect>
+        <rect fill="currentColor" height="3" width="10" x="3" y="8"></rect>
+        <rect fill="currentColor" height="2" width="6" x="5" y="11"></rect>
+        <rect fill="currentColor" height="2" width="2" x="7" y="13"></rect>
+      </svg>
+    `;
+    const inactiveSvg = `
+      <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
+        <rect fill="currentColor" height="3" width="4" x="2" y="2"></rect>
+        <rect fill="currentColor" height="3" width="4" x="10" y="2"></rect>
+        <rect fill="currentColor" height="4" width="14" x="1" y="4"></rect>
+        <rect fill="currentColor" height="3" width="10" x="3" y="8"></rect>
+        <rect fill="currentColor" height="2" width="6" x="5" y="11"></rect>
+        <rect fill="currentColor" height="2" width="2" x="7" y="13"></rect>
+      </svg>
+    `;
+
+    [btnFav, mobMiniFav, mobDrawerFav].forEach(btn => {
+      if (!btn) return;
+      if (isFav) {
+        btn.classList.remove('text-tertiary', 'text-gray-400', 'text-on-surface-variant');
+        btn.classList.add('text-pink-500', 'drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]');
+        btn.title = 'Đã yêu thích (Nhấn để hủy)';
+        btn.innerHTML = activeSvg;
+      } else {
+        btn.classList.remove('text-pink-500', 'drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]');
+        btn.classList.add('text-tertiary');
+        btn.title = 'Thêm vào yêu thích';
+        btn.innerHTML = inactiveSvg;
+      }
+    });
   }
 
   async toggleCurrentTrackFavorite() {
@@ -1382,11 +1394,21 @@ class MinhDucAudioEngine {
     const btnPrev = document.getElementById('btn-prev');
     if (btnPrev) btnPrev.addEventListener('click', () => this.prev());
 
-    // Bottom bar favorite button
-    const btnFav = document.getElementById('btn-favorite');
-    if (btnFav) {
-      btnFav.addEventListener('click', () => this.toggleCurrentTrackFavorite());
-    }
+    // Bottom bar & mobile favorite buttons
+    const favButtons = [
+      document.getElementById('btn-favorite'),
+      document.getElementById('mobile-mini-fav-btn'),
+      document.getElementById('mobile-drawer-fav-btn')
+    ];
+    favButtons.forEach(btn => {
+      if (btn && !btn._hasFavBound) {
+        btn._hasFavBound = true;
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.toggleCurrentTrackFavorite();
+        });
+      }
+    });
 
     // Bottom-left track info click to toggle Right Media Player
     const footerTrackInfo = document.getElementById('footer-track-info-container');
@@ -2990,21 +3012,41 @@ class MinhDucAudioEngine {
         this._lastRecordedTime = now;
 
         const uidParam = this.currentUser.id || this.currentUser.email;
-        const formData = new FormData();
-        formData.append('user_id', uidParam);
-        formData.append('track_id', track.db_id || track.id || '');
-        formData.append('youtube_id', track.youtube_id || '');
-        formData.append('title', track.title || '');
-        formData.append('artist', track.artist || '');
-        formData.append('cover_url', track.cover_url || track.cover || '');
-        formData.append('duration', track.duration || 210);
+        const ytId = track.youtube_id || (typeof track.id === 'string' && track.id.startsWith('yt_') && track.id.length > 3 ? track.id.substring(3) : '');
+        const trId = track.db_id || track.id || '';
+        const title = (track.title || '').trim();
+        const artist = (track.artist || 'Nghệ sĩ').trim();
+        const cover = track.cover_url || track.cover || (ytId ? `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg` : '');
+        const duration = track.duration || 210;
 
-        fetch(`api/endpoints/tracks.php?action=history_record&user_id=${encodeURIComponent(uidParam)}`, {
+        if (!ytId && (!title || title === 'Bài hát')) return;
+
+        const queryParams = new URLSearchParams({
+          action: 'history_record',
+          user_id: String(uidParam),
+          track_id: String(trId || ''),
+          youtube_id: String(ytId || ''),
+          title: String(title || ''),
+          artist: String(artist || ''),
+          cover_url: String(cover || ''),
+          duration: String(duration || 210)
+        }).toString();
+
+        fetch(`api/endpoints/tracks.php?${queryParams}`, {
           method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: formData
+          body: JSON.stringify({
+            user_id: uidParam,
+            track_id: trId,
+            youtube_id: ytId,
+            title: title,
+            artist: artist,
+            cover_url: cover,
+            duration: duration
+          })
         }).then(res => res.json()).then(res => {
-          if (res.success && res.track_id) {
+          if (res && res.success && res.track_id && res.track_id !== 'yt_') {
             track.db_id = res.track_id;
           }
         }).catch(() => {});
@@ -3794,9 +3836,14 @@ class MinhDucAudioEngine {
       }
     }
 
+    // Filter out corrupted/dummy placeholder tracks
+    favList = favList.filter(f => f && f.title && f.title !== 'Bài hát' && (f.youtube_id || (f.id && f.id !== 'yt_')));
+
     // Synchronize with local storage favorites
     const favKey = this.getFavoritesStorageKey();
-    const localFavs = JSON.parse(localStorage.getItem(favKey) || '[]');
+    let localFavs = JSON.parse(localStorage.getItem(favKey) || '[]');
+    localFavs = localFavs.filter(f => f && f.title && f.title !== 'Bài hát' && (f.youtube_id || (f.id && f.id !== 'yt_')));
+
     const seen = new Set(favList.map(f => f.youtube_id || f.title));
     localFavs.forEach(lf => {
       if (!seen.has(lf.youtube_id || lf.title)) {
@@ -4865,13 +4912,18 @@ class MinhDucAudioEngine {
   }
   // Toggle favorite helper for cards & rows (MySQL + LocalStorage Sync)
   async toggleFavorite(track, btn) {
-    if (!track) return;
+    if (!track || (!track.title && !track.youtube_id)) return false;
     const trId = track.db_id || track.id || '';
-    const ytId = track.youtube_id || (typeof trId === 'string' && trId.startsWith('yt_') ? trId.substring(3) : '');
-    const title = track.title || '';
-    const artist = track.artist || '';
-    const coverUrl = track.cover_url || track.cover || ('https://i.ytimg.com/vi/' + ytId + '/hqdefault.jpg');
+    const ytId = track.youtube_id || (typeof trId === 'string' && trId.startsWith('yt_') && trId.length > 3 ? trId.substring(3) : '');
+    const title = (track.title || '').trim();
+    const artist = (track.artist || 'Nghệ sĩ').trim();
+    const coverUrl = track.cover_url || track.cover || (ytId ? `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg` : '');
     const duration = track.duration || 210;
+
+    // Reject dummy/corrupted tracks
+    if (!ytId && (!title || title === 'Bài hát')) {
+      return false;
+    }
 
     let isFavResult = false;
     let apiSuccess = false;
@@ -4880,25 +4932,36 @@ class MinhDucAudioEngine {
     if (this.currentUser && (this.currentUser.id || this.currentUser.email)) {
       const uidParam = this.currentUser.id || this.currentUser.email;
       try {
-        const formData = new FormData();
-        formData.append('user_id', uidParam);
-        formData.append('track_id', trId);
-        formData.append('youtube_id', ytId);
-        formData.append('title', title);
-        formData.append('artist', artist);
-        formData.append('cover_url', coverUrl);
-        formData.append('duration', duration);
+        const queryParams = new URLSearchParams({
+          action: 'favorite_toggle',
+          user_id: String(uidParam),
+          track_id: String(trId || ''),
+          youtube_id: String(ytId || ''),
+          title: String(title || ''),
+          artist: String(artist || ''),
+          cover_url: String(coverUrl || ''),
+          duration: String(duration || 210)
+        }).toString();
 
-        const res = await fetch(`api/endpoints/playlists.php?action=favorite_toggle&user_id=${encodeURIComponent(uidParam)}`, {
+        const res = await fetch(`api/endpoints/playlists.php?${queryParams}`, {
           method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: formData
+          body: JSON.stringify({
+            user_id: uidParam,
+            track_id: trId,
+            youtube_id: ytId,
+            title: title,
+            artist: artist,
+            cover_url: coverUrl,
+            duration: duration
+          })
         });
         const result = await res.json();
-        if (result.success) {
+        if (result && result.success) {
           isFavResult = result.is_favorite;
           apiSuccess = true;
-          if (result.track_id) {
+          if (result.track_id && result.track_id !== 'yt_') {
             track.db_id = result.track_id;
           }
           if (this.syncStats && Array.isArray(this.syncStats.favorites) && track.db_id) {
@@ -4937,17 +5000,21 @@ class MinhDucAudioEngine {
       }
     }
 
-    // 2. Synchronize with LocalStorage for current user / guest
+    // 2. Synchronize with LocalStorage for current user / guest & Purge corrupted tracks
     const favKey = this.getFavoritesStorageKey();
     try {
       let localFavs = JSON.parse(localStorage.getItem(favKey) || '[]');
+      // Clean corrupted tracks
+      localFavs = localFavs.filter(f => f && f.title && f.title !== 'Bài hát' && (f.youtube_id || (f.id && f.id !== 'yt_')));
+
       const existsIdx = localFavs.findIndex(f => (f.youtube_id && ytId && f.youtube_id === ytId) || (title && f.title === title));
+      const validTrackId = (track.db_id && track.db_id !== 'yt_') ? track.db_id : (trId && trId !== 'yt_' ? trId : ('yt_' + ytId));
 
       if (apiSuccess) {
         if (isFavResult) {
           if (existsIdx === -1) {
             localFavs.unshift({
-              id: track.db_id || trId || ('yt_' + ytId),
+              id: validTrackId,
               db_id: track.db_id,
               youtube_id: ytId,
               title: title,
@@ -4969,7 +5036,7 @@ class MinhDucAudioEngine {
           isFavResult = false;
         } else {
           localFavs.unshift({
-            id: track.db_id || trId || ('yt_' + ytId),
+            id: validTrackId,
             db_id: track.db_id,
             youtube_id: ytId,
             title: title,
@@ -4986,13 +5053,13 @@ class MinhDucAudioEngine {
     } catch (e) {}
 
     // 3. Update button appearance if it's a row/card heart
-    if (btn && btn.id !== 'btn-favorite') {
+    if (btn && btn.id !== 'btn-favorite' && btn.id !== 'mobile-mini-fav-btn' && btn.id !== 'mobile-drawer-fav-btn') {
       btn.classList.toggle('text-red-500', isFavResult);
       btn.classList.toggle('text-pink-500', isFavResult);
       btn.classList.toggle('text-gray-400', !isFavResult);
     }
 
-    // 4. Update the footer player controller favorite button
+    // 4. Update all footer player controller favorite buttons (desktop + mobile mini + mobile drawer)
     this.updateControllerFavoriteUI();
 
     // 5. User feedback
@@ -5003,6 +5070,8 @@ class MinhDucAudioEngine {
     if (viewFav && !viewFav.classList.contains('hidden')) {
       this.loadFavoritesView(true);
     }
+
+    return isFavResult;
   }
 
 

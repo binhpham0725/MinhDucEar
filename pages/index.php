@@ -3047,8 +3047,18 @@ html.light .bg-surface-container\/80 {
     </div>
   </div>
 
-  <!-- Mobile Quick Action Buttons (Play/Pause, Next, Lyrics) -->
+  <!-- Mobile Quick Action Buttons (Favorite, Play/Pause, Next, Lyrics) -->
   <div class="flex sm:hidden items-center gap-1 shrink-0 ml-2">
+    <button type="button" id="mobile-mini-fav-btn" class="w-8 h-8 rounded text-tertiary hover:scale-110 flex items-center justify-center cursor-pointer active:scale-95 transition-all" title="Yêu thích">
+      <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
+        <rect fill="currentColor" height="3" width="4" x="2" y="2"></rect>
+        <rect fill="currentColor" height="3" width="4" x="10" y="2"></rect>
+        <rect fill="currentColor" height="4" width="14" x="1" y="4"></rect>
+        <rect fill="currentColor" height="3" width="10" x="3" y="8"></rect>
+        <rect fill="currentColor" height="2" width="6" x="5" y="11"></rect>
+        <rect fill="currentColor" height="2" width="2" x="7" y="13"></rect>
+      </svg>
+    </button>
     <button type="button" id="mobile-mini-play-btn" class="w-9 h-9 rounded bg-primary-container text-on-primary flex items-center justify-center pixel-btn pixel-border-primary cursor-pointer active:scale-95" title="Phát / Dừng">
       <svg id="mobile-mini-play-icon" class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
         <polygon fill="#381385" points="4,2 14,8 4,14"></polygon>

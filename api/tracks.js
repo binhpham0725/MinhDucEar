@@ -388,27 +388,38 @@ export default async function handler(req, res) {
 
     // 7. HISTORY RECORD (Vercel Serverless)
     if (action === 'history_record') {
-      const body = req.body || {};
+      let body = {};
+      if (typeof req.body === 'object' && req.body !== null) {
+        body = req.body;
+      } else if (typeof req.body === 'string') {
+        try { body = JSON.parse(req.body); } catch(e) {}
+      }
+
       const userId = url.searchParams.get('user_id') || body.user_id || 'guest';
       const trackId = url.searchParams.get('track_id') || body.track_id || '';
       const ytId = url.searchParams.get('youtube_id') || body.youtube_id || '';
-      const title = body.title || url.searchParams.get('title') || '';
-      const artist = body.artist || url.searchParams.get('artist') || '';
-      const coverUrl = body.cover_url || url.searchParams.get('cover_url') || '';
-      const duration = parseInt(body.duration || url.searchParams.get('duration') || '210', 10);
+      const title = (url.searchParams.get('title') || body.title || '').trim();
+      const artist = (url.searchParams.get('artist') || body.artist || 'Nghệ sĩ').trim();
+      const coverUrl = url.searchParams.get('cover_url') || body.cover_url || (ytId ? `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg` : '');
+      const duration = parseInt(url.searchParams.get('duration') || body.duration || '210', 10);
+
+      // Validate: Reject dummy or empty tracks
+      if (!ytId && (!title || title === 'Bài hát')) {
+        return res.status(400).json({ success: false, message: 'Dữ liệu không hợp lệ' });
+      }
 
       const userKey = String(userId);
-      let list = historyCache.get(userKey) || [];
+      let list = (historyCache.get(userKey) || []).filter(h => h && h.title && h.title !== 'Bài hát' && (h.youtube_id || (h.id && h.id !== 'yt_')));
 
       // Remove previous duplicate of this song
-      const keyMatch = ytId || trackId || title;
-      list = list.filter(h => (ytId && h.youtube_id !== ytId) && (!trackId || h.id != trackId) && (title && h.title !== title));
+      list = list.filter(h => (!ytId || h.youtube_id !== ytId) && (!trackId || trackId === 'yt_' || h.id != trackId) && (!title || h.title.toLowerCase() !== title.toLowerCase()));
 
+      const validId = (trackId && trackId !== 'yt_') ? trackId : ('yt_' + ytId);
       list.unshift({
-        id: trackId || ('yt_' + ytId),
-        track_id: trackId,
+        id: validId,
+        track_id: (trackId && trackId !== 'yt_') ? trackId : null,
         youtube_id: ytId,
-        title,
+        title: title || 'Bản nhạc',
         artist,
         cover_url: coverUrl,
         duration,
@@ -422,7 +433,7 @@ export default async function handler(req, res) {
 
       return res.status(200).json({
         success: true,
-        track_id: trackId || ('yt_' + ytId),
+        track_id: validId,
         message: 'Đã lưu lịch sử phát nhạc'
       });
     }
@@ -432,7 +443,7 @@ export default async function handler(req, res) {
       const userId = url.searchParams.get('user_id') || req.body?.user_id || 'guest';
       const limit = Math.min(60, Math.max(1, parseInt(url.searchParams.get('limit') || '50', 10)));
       const userKey = String(userId);
-      const list = (historyCache.get(userKey) || []).slice(0, limit);
+      const list = (historyCache.get(userKey) || []).filter(h => h && h.title && h.title !== 'Bài hát' && (h.youtube_id || (h.id && h.id !== 'yt_'))).slice(0, limit);
 
       return res.status(200).json({
         success: true,

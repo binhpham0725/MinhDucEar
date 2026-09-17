@@ -24,7 +24,10 @@ export default async function handler(req, res) {
 
   try {
     if (action === 'favorites_list') {
-      const userFavs = cacheStore.favorites.get(String(userId)) || [];
+      const userKey = String(userId);
+      let userFavs = (cacheStore.favorites.get(userKey) || []).filter(f => f && f.title && f.title !== 'Bài hát' && (f.youtube_id || (f.id && f.id !== 'yt_')));
+      cacheStore.favorites.set(userKey, userFavs);
+
       const limit = parseInt(url.searchParams.get('limit') || '50', 10);
       const offset = parseInt(url.searchParams.get('offset') || '0', 10);
       const paged = userFavs.slice(offset, offset + limit);
@@ -40,30 +43,46 @@ export default async function handler(req, res) {
     }
 
     if (action === 'favorite_toggle') {
-      const body = req.body || {};
+      let body = {};
+      if (typeof req.body === 'object' && req.body !== null) {
+        body = req.body;
+      } else if (typeof req.body === 'string') {
+        try { body = JSON.parse(req.body); } catch(e) {}
+      }
+
       const trackId = url.searchParams.get('track_id') || body.track_id || '';
       const ytId = url.searchParams.get('youtube_id') || body.youtube_id || '';
-      const title = body.title || url.searchParams.get('title') || 'Bài hát';
-      const artist = body.artist || url.searchParams.get('artist') || 'Nghệ sĩ';
-      const coverUrl = body.cover_url || url.searchParams.get('cover_url') || '';
-      const duration = parseInt(body.duration || url.searchParams.get('duration') || '210', 10);
+      const title = (url.searchParams.get('title') || body.title || '').trim();
+      const artist = (url.searchParams.get('artist') || body.artist || 'Nghệ sĩ').trim();
+      const coverUrl = url.searchParams.get('cover_url') || body.cover_url || (ytId ? `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg` : '');
+      const duration = parseInt(url.searchParams.get('duration') || body.duration || '210', 10);
+
+      // Validate: Reject dummy or empty tracks
+      if (!ytId && (!title || title === 'Bài hát')) {
+        return res.status(400).json({
+          success: false,
+          message: 'Thông tin bài hát không hợp lệ'
+        });
+      }
 
       const userKey = String(userId);
-      let userFavs = cacheStore.favorites.get(userKey) || [];
+      let userFavs = (cacheStore.favorites.get(userKey) || []).filter(f => f && f.title && f.title !== 'Bài hát' && (f.youtube_id || (f.id && f.id !== 'yt_')));
 
-      const existIdx = userFavs.findIndex(f => (f.youtube_id && ytId && f.youtube_id === ytId) || (trackId && f.id == trackId) || (title && f.title === title));
+      const existIdx = userFavs.findIndex(f => (ytId && f.youtube_id && f.youtube_id === ytId) || (trackId && trackId !== 'yt_' && f.id == trackId) || (title && f.title && f.title.toLowerCase() === title.toLowerCase()));
 
       let isFavorite = false;
+      const validTrackId = (trackId && trackId !== 'yt_') ? trackId : ('yt_' + ytId);
+
       if (existIdx > -1) {
         userFavs.splice(existIdx, 1);
         isFavorite = false;
       } else {
         userFavs.unshift({
-          id: trackId || ('yt_' + ytId),
-          db_id: trackId,
+          id: validTrackId,
+          db_id: (trackId && trackId !== 'yt_') ? trackId : null,
           youtube_id: ytId,
-          title,
-          artist,
+          title: title || 'Bản nhạc',
+          artist: artist,
           cover_url: coverUrl,
           duration,
           format: 'YT AUDIO 320k',
@@ -77,7 +96,7 @@ export default async function handler(req, res) {
       return res.status(200).json({
         success: true,
         is_favorite: isFavorite,
-        track_id: trackId || ('yt_' + ytId),
+        track_id: validTrackId,
         message: isFavorite ? 'Đã thêm bài hát vào yêu thích!' : 'Đã xóa bài hát khỏi yêu thích!'
       });
     }
