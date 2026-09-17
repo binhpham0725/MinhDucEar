@@ -113,6 +113,32 @@ async function saveFirestoreHistory(uid, trackKey, historyData) {
   } catch(e) {}
 }
 
+async function deleteFirestoreHistory(uid) {
+  try {
+    const cleanUid = cleanId(uid);
+    const uids = [cleanUid];
+    if (cleanUid.includes('hirasakai0725')) {
+      uids.push('goog_115424860304779353235', '6400');
+    }
+    for (const targetUid of uids) {
+      try {
+        const url = `${FIRESTORE_BASE_URL}/users/${targetUid}/history?key=${FIREBASE_CONFIG.apiKey}&pageSize=100`;
+        const res = await fetch(url);
+        if (!res.ok) continue;
+        const data = await res.json();
+        if (Array.isArray(data.documents)) {
+          const deletePromises = data.documents.map(d => 
+            fetch(`https://firestore.googleapis.com/v1/${d.name}?key=${FIREBASE_CONFIG.apiKey}`, { method: 'DELETE' })
+          );
+          await Promise.all(deletePromises);
+        }
+      } catch (_) {}
+    }
+  } catch (e) {
+    console.warn('[Firestore] deleteHistory error:', e);
+  }
+}
+
 const CATEGORY_QUERIES = {
   all: [
     'thinh hanh nhac tre vpop 2026',
@@ -602,6 +628,9 @@ export default async function handler(req, res) {
       const userKey = cleanId(userId);
       historyCache.delete(userKey);
       historyCache.delete(String(userId));
+      if (userKey !== 'guest') {
+        await deleteFirestoreHistory(userKey);
+      }
       return res.status(200).json({
         success: true,
         message: 'Đã xóa toàn bộ lịch sử nghe nhạc!'

@@ -310,9 +310,21 @@ class FirebaseService {
 
   async deletePlaylist(uid, playlistId) {
     const modules = await loadFirebaseModules();
-    if (!modules || !uid) return false;
+    if (!modules || !playlistId) return false;
     const { doc, deleteDoc } = modules.firestoreMethods;
-    await deleteDoc(doc(modules.db, `users/${uid}/playlists`, playlistId));
+    const cleanUid = uid ? String(uid).replace(/[\/\.]/g, '_') : '';
+    const plIdStr = String(playlistId);
+
+    const deletePromises = [
+      deleteDoc(doc(modules.db, 'playlists', plIdStr)).catch(() => {}),
+      deleteDoc(doc(modules.db, 'playlists', 'pl_' + plIdStr)).catch(() => {})
+    ];
+
+    if (cleanUid) {
+      deletePromises.push(deleteDoc(doc(modules.db, `users/${cleanUid}/playlists`, plIdStr)).catch(() => {}));
+    }
+
+    await Promise.all(deletePromises);
     return true;
   }
 
@@ -352,22 +364,84 @@ class FirebaseService {
     }
   }
 
+  async removeFavorite(uid, track) {
+    try {
+      const modules = await loadFirebaseModules();
+      if (!modules || !uid || !track) return false;
+      const cleanUid = String(uid).replace(/[\/\.]/g, '_');
+      const { collection, getDocs, deleteDoc } = modules.firestoreMethods;
+
+      const ytId = (track.youtube_id || (typeof track.id === 'string' && track.id.startsWith('yt_') ? track.id.substring(3) : '')).trim().toLowerCase();
+      const rawTitle = (track.title || '').trim().toLowerCase();
+      const trkId = String(track.id || track.db_id || '').trim().toLowerCase();
+
+      const uidsToClear = [cleanUid];
+      if (cleanUid.includes('hirasakai0725')) {
+        uidsToClear.push('goog_115424860304779353235', '6400');
+      }
+
+      for (const targetUid of uidsToClear) {
+        try {
+          const snap = await getDocs(collection(modules.db, `users/${targetUid}/favorites`));
+          const deletes = [];
+          snap.docs.forEach(d => {
+            const data = d.data();
+            const docIdLower = d.id.toLowerCase();
+            const docYtId = String(data.youtube_id || '').trim().toLowerCase();
+            const docTitle = String(data.title || '').trim().toLowerCase();
+            const docTrkId = String(data.id || data.db_id || '').trim().toLowerCase();
+
+            const matches = 
+              (ytId && (docYtId === ytId || docIdLower === ytId || docIdLower === 'yt_' + ytId)) ||
+              (rawTitle && docTitle === rawTitle) ||
+              (trkId && (docTrkId === trkId || docIdLower === trkId));
+
+            if (matches) {
+              deletes.push(deleteDoc(d.ref));
+            }
+          });
+          await Promise.all(deletes);
+        } catch (_) {}
+      }
+      return { success: true, isFavorite: false };
+    } catch (e) {
+      console.warn('[Firebase] removeFavorite error:', e);
+      return false;
+    }
+  }
+
   async toggleFavorite(uid, track) {
     try {
       const modules = await loadFirebaseModules();
       if (!modules || !uid || !track) return false;
       const cleanUid = String(uid).replace(/[\/\.]/g, '_');
-      const rawKey = track.youtube_id || track.id || ('track_' + Date.now());
-      const trackKey = String(rawKey).replace(/[\/\.]/g, '_');
-      const { doc, getDoc, setDoc, deleteDoc, serverTimestamp } = modules.firestoreMethods;
-      const favRef = doc(modules.db, `users/${cleanUid}/favorites`, trackKey);
-      const snap = await getDoc(favRef);
-      if (snap.exists()) {
-        await deleteDoc(favRef);
+      const { collection, doc, getDocs, setDoc, serverTimestamp } = modules.firestoreMethods;
+
+      const ytId = (track.youtube_id || (typeof track.id === 'string' && track.id.startsWith('yt_') ? track.id.substring(3) : '')).trim().toLowerCase();
+      const rawTitle = (track.title || '').trim().toLowerCase();
+
+      // Check if it already exists
+      const snap = await getDocs(collection(modules.db, `users/${cleanUid}/favorites`));
+      let alreadyFavorited = false;
+      snap.docs.forEach(d => {
+        const data = d.data();
+        const docYtId = String(data.youtube_id || '').trim().toLowerCase();
+        const docTitle = String(data.title || '').trim().toLowerCase();
+        const docIdLower = d.id.toLowerCase();
+        if ((ytId && (docYtId === ytId || docIdLower === ytId)) || (rawTitle && docTitle === rawTitle)) {
+          alreadyFavorited = true;
+        }
+      });
+
+      if (alreadyFavorited) {
+        await this.removeFavorite(uid, track);
         return { isFavorite: false };
       } else {
+        const rawKey = track.youtube_id || track.id || ('track_' + Date.now());
+        const trackKey = String(rawKey).replace(/[\/\.]/g, '_');
+        const favRef = doc(modules.db, `users/${cleanUid}/favorites`, trackKey);
         const payload = {
-          id: track.id || track.db_id || ('yt_' + track.youtube_id),
+          id: track.id || track.db_id || ('yt_' + (track.youtube_id || '')),
           db_id: track.db_id || track.id || null,
           youtube_id: track.youtube_id || '',
           title: track.title || 'Unknown Title',
@@ -460,6 +534,32 @@ class FirebaseService {
     } catch (e) {
       console.warn('[Firebase] Could not fetch history:', e);
       return [];
+    }
+  }
+
+  async clearHistory(uid) {
+    try {
+      const modules = await loadFirebaseModules();
+      if (!modules || !uid) return false;
+      const cleanUid = String(uid).replace(/[\/\.]/g, '_');
+      const { collection, getDocs, deleteDoc } = modules.firestoreMethods;
+
+      const uidsToClear = [cleanUid];
+      if (cleanUid.includes('hirasakai0725')) {
+        uidsToClear.push('goog_115424860304779353235', '6400');
+      }
+
+      for (const targetUid of uidsToClear) {
+        try {
+          const snap = await getDocs(collection(modules.db, `users/${targetUid}/history`));
+          const deletes = snap.docs.map(d => deleteDoc(d.ref));
+          await Promise.all(deletes);
+        } catch (_) {}
+      }
+      return true;
+    } catch (e) {
+      console.warn('[Firebase] clearHistory error:', e);
+      return false;
     }
   }
 

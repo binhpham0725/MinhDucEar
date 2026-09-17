@@ -3954,19 +3954,10 @@ class MinhDucAudioEngine {
     const trId = track.db_id || track.id || '';
     const ytId = track.youtube_id || (typeof trId === 'string' && trId.startsWith('yt_') ? trId.substring(3) : '');
     const title = track.title || '';
+    const cloudUid = this.getCloudUid();
+    const uidParam = cloudUid || this.currentUser?.id || this.currentUser?.email || '';
 
-    // 1. Send explicit deletion request to server
-    try {
-      const formData = new FormData();
-      formData.append('track_id', trId);
-      formData.append('youtube_id', ytId);
-      await fetch('api/endpoints/playlists.php?action=favorite_remove', {
-        method: 'POST',
-        body: formData
-      });
-    } catch (err) {}
-
-    // 2. Clean from LocalStorage
+    // 1. Clean from LocalStorage immediately
     try {
       const favKey = this.getFavoritesStorageKey();
       let localFavs = JSON.parse(localStorage.getItem(favKey) || '[]');
@@ -3974,7 +3965,7 @@ class MinhDucAudioEngine {
       localStorage.setItem(favKey, JSON.stringify(localFavs));
     } catch (e) {}
 
-    // 3. Remove from internal state and update counter badge
+    // 2. Remove from internal state and update counter badge
     if (Array.isArray(this.currentFavoritesList)) {
       this.currentFavoritesList = this.currentFavoritesList.filter(f => (ytId ? f.youtube_id !== ytId : true) && f.title !== title);
       const badge = document.getElementById('fav-count-badge');
@@ -3985,7 +3976,7 @@ class MinhDucAudioEngine {
     }
     this.updateControllerFavoriteUI();
 
-    // 4. Smooth remove animation
+    // 3. Smooth remove animation
     if (rowElement) {
       rowElement.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
       rowElement.style.opacity = '0';
@@ -3998,6 +3989,36 @@ class MinhDucAudioEngine {
         }
       }, 300);
     }
+
+    // 4. Delete from Cloud Firestore via Client SDK
+    if (window.__firebaseService && cloudUid) {
+      try {
+        if (typeof window.__firebaseService.removeFavorite === 'function') {
+          await window.__firebaseService.removeFavorite(cloudUid, track);
+        } else if (typeof window.__firebaseService.toggleFavorite === 'function') {
+          await window.__firebaseService.toggleFavorite(cloudUid, track);
+        }
+      } catch (fbErr) {
+        console.warn('[CloudSync] Firebase removeFavorite error:', fbErr);
+      }
+    }
+
+    // 5. Send explicit deletion request to server (PHP MySQL / Vercel API)
+    try {
+      const isPagesDir = window.location.pathname.includes('/pages/');
+      const apiUrl = (isPagesDir ? '../' : '') + `api/endpoints/playlists.php?action=favorite_remove&user_id=${encodeURIComponent(uidParam)}&track_id=${encodeURIComponent(trId)}&youtube_id=${encodeURIComponent(ytId)}&title=${encodeURIComponent(title)}`;
+      await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          user_id: uidParam,
+          track_id: trId,
+          youtube_id: ytId,
+          title: title
+        })
+      });
+    } catch (err) {}
   }
 
   // Infinite Scroll: Load more favorites
@@ -4245,18 +4266,62 @@ class MinhDucAudioEngine {
 
   // Clear listening history
   async clearHistory() {
-    if (confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch sử nghe nhạc không?')) {
-      const key = this.getHistoryStorageKey();
-      localStorage.removeItem(key);
-      localStorage.removeItem('minhduc_recent_history');
-      if (this.currentUser) {
-        try {
-          await fetch('api/endpoints/tracks.php?action=history_clear', { method: 'POST' });
-        } catch (e) {}
+    if (!confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch sử nghe nhạc không?')) return;
+
+    const key = this.getHistoryStorageKey();
+    localStorage.removeItem(key);
+    localStorage.removeItem('minhduc_recent_history');
+    this.allHistoryList = [];
+    this.currentHistoryList = [];
+
+    const cloudUid = this.getCloudUid();
+    const uidParam = cloudUid || this.currentUser?.id || this.currentUser?.email || '';
+
+    // 1. Delete from Cloud Firestore
+    if (window.__firebaseService && cloudUid) {
+      try {
+        if (typeof window.__firebaseService.clearHistory === 'function') {
+          await window.__firebaseService.clearHistory(cloudUid);
+        }
+      } catch (e) {
+        console.warn('[Firebase] clearHistory client error:', e);
       }
-      this.allHistoryList = [];
-      this.currentHistoryList = [];
-      this.loadHistoryView();
+    }
+
+    // 2. Delete from Backend (PHP MySQL / Vercel API)
+    try {
+      const isPagesDir = window.location.pathname.includes('/pages/');
+      const apiUrl = (isPagesDir ? '../' : '') + `api/endpoints/tracks.php?action=history_clear&user_id=${encodeURIComponent(uidParam)}`;
+      await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ user_id: uidParam })
+      });
+    } catch (e) {}
+
+    // 3. Render empty history state directly
+    const container = document.getElementById('history-tracks-container');
+    const badge = document.getElementById('history-count-badge');
+    if (badge) badge.textContent = '0 BÀI HÁT';
+    if (container) {
+      container.innerHTML = `
+        <div class="py-16 text-center flex flex-col items-center justify-center gap-3 bg-black/20 rounded-2xl border border-white/5 p-6">
+          <div class="w-16 h-16 rounded-full bg-secondary/10 text-secondary border border-secondary/30 flex items-center justify-center text-2xl">
+            🕒
+          </div>
+          <h4 class="font-pixel text-xs text-white uppercase tracking-wide mt-2">CHƯA CÓ LỊCH SỬ PHÁT NHẠC</h4>
+          <p class="font-silkscreen text-[9px] text-gray-400 max-w-sm leading-relaxed">
+            Các bài hát bạn thưởng thức sẽ tự động được ghi nhận tại đây kèm mốc thời gian chi tiết!
+          </p>
+          <button type="button" class="mt-2 px-4 py-2 rounded-lg bg-secondary text-black font-bold text-xs pixel-btn cursor-pointer" onclick="minhDucPlayer.switchView('home')">
+            NGHE NHẠC NGAY →
+          </button>
+        </div>
+      `;
+    }
+    if (typeof this.showToast === 'function') {
+      this.showToast('Đã xóa toàn bộ lịch sử nghe nhạc!', 'success');
     }
   }
   // -------------------------------------------------------------
@@ -5333,28 +5398,50 @@ class MinhDucAudioEngine {
     if (btnConfirmDelete) {
       btnConfirmDelete.addEventListener('click', async () => {
         if (!this.pendingDeletePlaylist) return;
+        const pl = this.pendingDeletePlaylist;
+        const plId = pl.id;
+        const plName = pl.name || 'Playlist';
+        const cloudUid = this.getCloudUid();
+        const uidParam = cloudUid || this.currentUser?.id || this.currentUser?.email || '';
+
+        // 1. Clean from LocalStorage immediately
+        try {
+          let localPlaylists = JSON.parse(localStorage.getItem('minhduc_local_playlists') || '[]');
+          localPlaylists = localPlaylists.filter(p => String(p.id) !== String(plId) && p.name !== plName);
+          localStorage.setItem('minhduc_local_playlists', JSON.stringify(localPlaylists));
+        } catch(e) {}
+
+        // 2. Delete from Firebase Client SDK
+        if (window.__firebaseService) {
+          try {
+            if (typeof window.__firebaseService.deletePlaylist === 'function') {
+              await window.__firebaseService.deletePlaylist(cloudUid, plId);
+            }
+          } catch (fbErr) {
+            console.warn('[Firebase] deletePlaylist error:', fbErr);
+          }
+        }
+
+        // 3. Delete from Backend (PHP MySQL / Vercel API)
         try {
           const isPagesDir = window.location.pathname.includes('/pages/');
-          const apiUrl = (isPagesDir ? '../' : '') + 'api/endpoints/playlists.php?action=playlist_delete';
-          const res = await fetch(apiUrl, {
+          const apiUrl = (isPagesDir ? '../' : '') + `api/endpoints/playlists.php?action=playlist_delete&user_id=${encodeURIComponent(uidParam)}&id=${encodeURIComponent(plId)}`;
+          await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: this.pendingDeletePlaylist.id })
+            credentials: 'include',
+            body: JSON.stringify({ id: plId, user_id: uidParam })
           });
-          const result = await res.json();
-          if (result && result.success) {
-            closeDeleteModal();
-            this.loadSidebarPlaylists();
-            if (typeof this.showToast === 'function') {
-              this.showToast('Đã xóa playlist thành công!', 'success');
-            } else {
-              this.showInpageAlert('Đã xóa playlist thành công!', 'success');
-            }
-          } else {
-            alert((result && result.message) || 'Lỗi xóa playlist!');
-          }
-        } catch (err) {
-          alert('Lỗi kết nối máy chủ!');
+        } catch (err) {}
+
+        // 4. Update UI immediately
+        closeDeleteModal();
+        this.currentPlaylists = (this.currentPlaylists || []).filter(p => String(p.id) !== String(plId) && p.name !== plName);
+        this.renderSidebarPlaylists();
+        if (typeof this.showToast === 'function') {
+          this.showToast(`Đã xóa playlist "${plName}" thành công!`, 'success');
+        } else {
+          this.showInpageAlert(`Đã xóa playlist "${plName}" thành công!`, 'success');
         }
       });
     }
@@ -5379,10 +5466,11 @@ class MinhDucAudioEngine {
     try {
       const isGuest = !this.currentUser || this.currentUser.role === 'GUEST' || this.currentUser.is_guest;
 
-      let serverPlaylists = [];
-      if (!isGuest && this.currentUser?.id) {
+      const cloudUid = this.getCloudUid();
+      const uidParam = cloudUid || this.currentUser?.id || this.currentUser?.email || '';
+      if (!isGuest && (this.currentUser || cloudUid)) {
         const isPagesDir = window.location.pathname.includes('/pages/');
-        const apiUrl = (isPagesDir ? '../' : '') + 'api/endpoints/playlists.php?action=playlists_list';
+        const apiUrl = (isPagesDir ? '../' : '') + `api/endpoints/playlists.php?action=playlists_list&user_id=${encodeURIComponent(uidParam)}`;
         try {
           const res = await fetch(apiUrl);
           const data = await res.json();
@@ -5391,9 +5479,9 @@ class MinhDucAudioEngine {
           }
         } catch(e) {}
 
-        if (serverPlaylists.length === 0 && window.__firebaseService && this.currentUser?.uid) {
+        if (serverPlaylists.length === 0 && window.__firebaseService && cloudUid) {
           try {
-            const fbPlaylists = await window.__firebaseService.getUserPlaylists(this.currentUser.uid);
+            const fbPlaylists = await window.__firebaseService.getUserPlaylists(cloudUid);
             if (fbPlaylists && fbPlaylists.length > 0) {
               serverPlaylists = fbPlaylists;
             }
@@ -6153,20 +6241,76 @@ class MinhDucAudioEngine {
             return [];
           }
         },
+        async removeFavorite(uid, track) {
+          try {
+            if (!uid || !track) return false;
+            const cleanUid = String(uid).replace(/[\/\.]/g, '_');
+            const ytId = (track.youtube_id || (typeof track.id === 'string' && track.id.startsWith('yt_') ? track.id.substring(3) : '')).trim().toLowerCase();
+            const rawTitle = (track.title || '').trim().toLowerCase();
+            const trkId = String(track.id || track.db_id || '').trim().toLowerCase();
+
+            const uidsToClear = [cleanUid];
+            if (cleanUid.includes('hirasakai0725')) {
+              uidsToClear.push('goog_115424860304779353235', '6400');
+            }
+
+            for (const targetUid of uidsToClear) {
+              try {
+                const snap = await getDocs(collection(db, `users/${targetUid}/favorites`));
+                const deletes = [];
+                snap.docs.forEach(d => {
+                  const data = d.data();
+                  const docIdLower = d.id.toLowerCase();
+                  const docYtId = String(data.youtube_id || '').trim().toLowerCase();
+                  const docTitle = String(data.title || '').trim().toLowerCase();
+                  const docTrkId = String(data.id || data.db_id || '').trim().toLowerCase();
+
+                  const matches = 
+                    (ytId && (docYtId === ytId || docIdLower === ytId || docIdLower === 'yt_' + ytId)) ||
+                    (rawTitle && docTitle === rawTitle) ||
+                    (trkId && (docTrkId === trkId || docIdLower === trkId));
+
+                  if (matches) {
+                    deletes.push(deleteDoc(d.ref));
+                  }
+                });
+                await Promise.all(deletes);
+              } catch (_) {}
+            }
+            return { success: true, isFavorite: false };
+          } catch (e) {
+            console.warn('[Firebase] removeFavorite error:', e);
+            return false;
+          }
+        },
         async toggleFavorite(uid, track) {
           try {
             if (!uid || !track) return false;
             const cleanUid = String(uid).replace(/[\/\.]/g, '_');
-            const rawKey = track.youtube_id || track.id || ('track_' + Date.now());
-            const trackKey = String(rawKey).replace(/[\/\.]/g, '_');
-            const favRef = doc(db, `users/${cleanUid}/favorites`, trackKey);
-            const snap = await getDoc(favRef);
-            if (snap.exists()) {
-              await deleteDoc(favRef);
+            const ytId = (track.youtube_id || (typeof track.id === 'string' && track.id.startsWith('yt_') ? track.id.substring(3) : '')).trim().toLowerCase();
+            const rawTitle = (track.title || '').trim().toLowerCase();
+
+            const snap = await getDocs(collection(db, `users/${cleanUid}/favorites`));
+            let alreadyFavorited = false;
+            snap.docs.forEach(d => {
+              const data = d.data();
+              const docYtId = String(data.youtube_id || '').trim().toLowerCase();
+              const docTitle = String(data.title || '').trim().toLowerCase();
+              const docIdLower = d.id.toLowerCase();
+              if ((ytId && (docYtId === ytId || docIdLower === ytId)) || (rawTitle && docTitle === rawTitle)) {
+                alreadyFavorited = true;
+              }
+            });
+
+            if (alreadyFavorited) {
+              await this.removeFavorite(uid, track);
               return { isFavorite: false };
             } else {
+              const rawKey = track.youtube_id || track.id || ('track_' + Date.now());
+              const trackKey = String(rawKey).replace(/[\/\.]/g, '_');
+              const favRef = doc(db, `users/${cleanUid}/favorites`, trackKey);
               const payload = {
-                id: track.id || track.db_id || ('yt_' + track.youtube_id),
+                id: track.id || track.db_id || ('yt_' + (track.youtube_id || '')),
                 db_id: track.db_id || track.id || null,
                 youtube_id: track.youtube_id || '',
                 title: track.title || 'Unknown Title',
@@ -6180,9 +6324,6 @@ class MinhDucAudioEngine {
               return { isFavorite: true };
             }
           } catch (err) {
-            if (err && (err.code === 'permission-denied' || String(err).includes('permission-denied'))) {
-              console.warn('[Firebase] Firestore Rules chặn ghi dữ liệu (permission-denied). Hãy vào Firebase Console -> Firestore -> tab Rules và đổi allow read, write: if true;');
-            }
             return false;
           }
         },
@@ -6255,6 +6396,27 @@ class MinhDucAudioEngine {
             return [];
           }
         },
+        async clearHistory(uid) {
+          try {
+            if (!uid) return false;
+            const cleanUid = String(uid).replace(/[\/\.]/g, '_');
+            const uidsToClear = [cleanUid];
+            if (cleanUid.includes('hirasakai0725')) {
+              uidsToClear.push('goog_115424860304779353235', '6400');
+            }
+            for (const targetUid of uidsToClear) {
+              try {
+                const snap = await getDocs(collection(db, `users/${targetUid}/history`));
+                const deletes = snap.docs.map(d => deleteDoc(d.ref));
+                await Promise.all(deletes);
+              } catch (_) {}
+            }
+            return true;
+          } catch (e) {
+            console.warn('[Firebase] clearHistory error:', e);
+            return false;
+          }
+        },
         subscribeFavorites(uid, callback) {
           if (!uid || typeof callback !== 'function') return () => {};
           const cleanUid = String(uid).replace(/[\/\.]/g, '_');
@@ -6295,6 +6457,24 @@ class MinhDucAudioEngine {
             return snap.docs.map(d => ({ id: d.id, ...d.data() }));
           } catch (e) {
             return [];
+          }
+        },
+        async deletePlaylist(uid, playlistId) {
+          try {
+            if (!playlistId) return false;
+            const plIdStr = String(playlistId);
+            const cleanUid = uid ? String(uid).replace(/[\/\.]/g, '_') : '';
+            const deletes = [
+              deleteDoc(doc(db, 'playlists', plIdStr)).catch(() => {}),
+              deleteDoc(doc(db, 'playlists', 'pl_' + plIdStr)).catch(() => {})
+            ];
+            if (cleanUid) {
+              deletes.push(deleteDoc(doc(db, `users/${cleanUid}/playlists`, plIdStr)).catch(() => {}));
+            }
+            await Promise.all(deletes);
+            return true;
+          } catch (e) {
+            return false;
           }
         },
         async signInWithGoogleCredential(idToken) {
@@ -6403,112 +6583,58 @@ class MinhDucAudioEngine {
         // 1. Lấy dữ liệu từ Firebase về
         let fbFavs = await window.__firebaseService.getFavorites(cloudUid);
 
-        // Auto-migration: Nếu cloudUid mới chưa có bài nào, quét các key cũ ('6400', 'goog_115424860304779353235', '1')
-        const legacyKeys = ['6400', '1', 'goog_115424860304779353235'].filter(k => k !== cloudUid);
-        for (const lk of legacyKeys) {
-          try {
-            const oldFavs = await window.__firebaseService.getFavorites(lk);
-            if (Array.isArray(oldFavs) && oldFavs.length > 0) {
-              for (const ofav of oldFavs) {
-                if (ofav && ofav.title && ofav.title !== 'Bài hát') {
-                  await window.__firebaseService.saveFavorite(cloudUid, ofav);
+        // Auto-migration: Chỉ quét 1 lần duy nhất khi tài khoản chưa từng được khởi tạo
+        const migrationKey = 'minhduc_legacy_migrated_' + cloudUid;
+        if (!localStorage.getItem(migrationKey) && (!fbFavs || fbFavs.length === 0)) {
+          const legacyKeys = ['6400', '1', 'goog_115424860304779353235'].filter(k => k !== cloudUid);
+          for (const lk of legacyKeys) {
+            try {
+              const oldFavs = await window.__firebaseService.getFavorites(lk);
+              if (Array.isArray(oldFavs) && oldFavs.length > 0) {
+                for (const ofav of oldFavs) {
+                  if (ofav && ofav.title && ofav.title !== 'Bài hát') {
+                    await window.__firebaseService.saveFavorite(cloudUid, ofav);
+                  }
                 }
+                fbFavs = await window.__firebaseService.getFavorites(cloudUid);
+                break;
               }
-              fbFavs = await window.__firebaseService.getFavorites(cloudUid);
-              break;
-            }
-          } catch(e) {}
+            } catch(e) {}
+          }
+          localStorage.setItem(migrationKey, '1');
         }
 
-        // 2. Đẩy các bài hát đang có ở máy tính lên Firebase nếu trên Firebase chưa có
-        const seenFb = new Set((fbFavs || []).map(f => f.youtube_id || f.id || f.title));
-        let uploadedFavCount = 0;
-        for (const lf of localFavs) {
-          const trkId = lf.youtube_id || lf.id || lf.title;
-          if (!seenFb.has(trkId)) {
-            if (typeof window.__firebaseService.saveFavorite === 'function') {
-              await window.__firebaseService.saveFavorite(cloudUid, lf);
-              uploadedFavCount++;
-            }
-            seenFb.add(trkId);
-          }
-        }
-        if (uploadedFavCount > 0) {
-          console.info(`[CloudSync] Đã đồng bộ ${uploadedFavCount} bài hát yêu thích lên Firebase!`);
-          this.showToast(`Đã đồng bộ ${uploadedFavCount} bài hát yêu thích lên Cloud!`);
-        }
-
-        // 3. Hợp nhất các bài hát từ Firebase vào máy tính/điện thoại
-        if (Array.isArray(fbFavs) && fbFavs.length > 0) {
-          const seenLocal = new Set(localFavs.map(f => f.youtube_id || f.title));
-          let merged = false;
-          fbFavs.forEach(ff => {
-            if (ff && ff.title && ff.title !== 'Bài hát' && (ff.youtube_id || (ff.id && ff.id !== 'yt_'))) {
-              const key = ff.youtube_id || ff.title;
-              if (!seenLocal.has(key)) {
-                localFavs.push(ff);
-                seenLocal.add(key);
-                merged = true;
-              }
-            }
-          });
-          if (merged) {
-            localStorage.setItem(favKey, JSON.stringify(localFavs));
-          }
+        // Firebase Cloud Firestore là nguồn chân lý chính cho bài hát yêu thích
+        if (Array.isArray(fbFavs)) {
+          const validFbFavs = fbFavs.filter(f => f && f.title && f.title !== 'Bài hát' && (f.youtube_id || (f.id && f.id !== 'yt_')));
+          localStorage.setItem(favKey, JSON.stringify(validFbFavs));
+          this.currentFavoritesList = validFbFavs;
         }
       } catch (e) {
         console.warn('[CloudSync] onFirebaseReady favorites sync error:', e);
       }
 
-      // 4. Đồng bộ lịch sử nghe nhạc 2 chiều
+      // 4. Đồng bộ lịch sử nghe nhạc từ Firebase về thiết bị
       try {
         const histKey = this.getHistoryStorageKey();
-        let localHist = JSON.parse(localStorage.getItem(histKey) || '[]');
-        localHist = localHist.filter(h => {
-          const tr = h.track || h;
-          return tr && tr.title && tr.title !== 'Bài hát' && (tr.youtube_id || (tr.id && tr.id !== 'yt_'));
-        });
-        const fbHist = await window.__firebaseService.getHistory(cloudUid, 30);
-        const seenHist = new Set((fbHist || []).map(h => {
-          const tr = h.track || h;
-          return tr.youtube_id || tr.title;
-        }));
-        for (const item of localHist.slice(0, 15)) {
-          const tr = item.track || item;
-          const k = tr.youtube_id || tr.title;
-          if (k && !seenHist.has(k)) {
-            await window.__firebaseService.recordHistory(cloudUid, tr);
-            seenHist.add(k);
-          }
-        }
-        // Kéo bài từ fbHist về localHist nếu local chưa có
-        let histMerged = false;
-        const localHistKeys = new Set(localHist.map(h => {
-          const tr = h.track || h;
-          return tr.youtube_id || tr.title;
-        }));
-        (fbHist || []).forEach(fh => {
-          const tr = fh.track || fh;
-          if (tr && tr.title && tr.title !== 'Bài hát' && (tr.youtube_id || tr.id)) {
-            const k = tr.youtube_id || tr.title;
-            if (!localHistKeys.has(k)) {
-              localHist.push({
-                id: tr.id || ('yt_' + tr.youtube_id),
-                youtube_id: tr.youtube_id,
-                title: tr.title,
-                artist: tr.artist || 'Nghệ sĩ',
-                cover_url: tr.cover_url || ('https://i.ytimg.com/vi/' + tr.youtube_id + '/hqdefault.jpg'),
-                duration: tr.duration || 210,
-                format: tr.format || 'YT 320k',
-                playedAt: fh.playedAt?.toMillis ? fh.playedAt.toMillis() : (fh.playedAt || Date.now())
-              });
-              localHistKeys.add(k);
-              histMerged = true;
-            }
-          }
-        });
-        if (histMerged) {
-          localStorage.setItem(histKey, JSON.stringify(localHist));
+        const fbHist = await window.__firebaseService.getHistory(cloudUid, 50);
+        if (Array.isArray(fbHist)) {
+          const validFbHist = fbHist.map(fh => {
+            const tr = fh.track || fh;
+            return {
+              id: tr.id || ('yt_' + tr.youtube_id),
+              youtube_id: tr.youtube_id,
+              title: tr.title,
+              artist: tr.artist || 'Nghệ sĩ',
+              cover_url: tr.cover_url || ('https://i.ytimg.com/vi/' + tr.youtube_id + '/hqdefault.jpg'),
+              duration: tr.duration || 210,
+              format: tr.format || 'YT 320k',
+              playedAt: fh.playedAt?.toMillis ? fh.playedAt.toMillis() : (fh.playedAt || Date.now())
+            };
+          }).filter(h => h && h.title && h.title !== 'Bài hát' && (h.youtube_id || (h.id && h.id !== 'yt_')));
+          localStorage.setItem(histKey, JSON.stringify(validFbHist));
+          this.allHistoryList = validFbHist;
+          this.currentHistoryList = validFbHist;
         }
       } catch (hErr) {
         console.warn('[CloudSync] onFirebaseReady history sync error:', hErr);

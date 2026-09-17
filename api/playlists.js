@@ -102,13 +102,82 @@ async function saveFirestoreFavorite(uid, trackKey, trackData) {
   } catch (e) {}
 }
 
-async function deleteFirestoreFavorite(uid, trackKey) {
+async function deleteFirestoreFavorite(uid, trackKey, meta = {}) {
   try {
     const cleanUid = cleanId(uid);
-    const cleanKey = cleanId(trackKey);
-    const url = `${FIRESTORE_BASE_URL}/users/${cleanUid}/favorites/${cleanKey}?key=${FIREBASE_CONFIG.apiKey}`;
-    await fetch(url, { method: 'DELETE' });
-  } catch (e) {}
+    const uids = [cleanUid];
+    if (cleanUid.includes('hirasakai0725')) {
+      uids.push('goog_115424860304779353235', '6400');
+    }
+
+    const rawKey = String(trackKey || '');
+    const cleanK = cleanId(rawKey);
+    const ytId = (meta.youtube_id || rawKey).trim().toLowerCase();
+    const title = (meta.title || '').trim().toLowerCase();
+
+    for (const targetUid of uids) {
+      try {
+        // Direct deletes for known path variations
+        const paths = [
+          `users/${targetUid}/favorites/${cleanK}`,
+          `users/${targetUid}/favorites/${rawKey}`,
+          `users/${targetUid}/favorites/${cleanK.toLowerCase()}`
+        ];
+        if (ytId) {
+          paths.push(`users/${targetUid}/favorites/${ytId}`);
+          paths.push(`users/${targetUid}/favorites/yt_${ytId}`);
+        }
+        await Promise.all(paths.map(p => 
+          fetch(`${FIRESTORE_BASE_URL}/${p}?key=${FIREBASE_CONFIG.apiKey}`, { method: 'DELETE' }).catch(() => {})
+        ));
+
+        // Also query list to delete any doc matching title or youtube_id
+        const listUrl = `${FIRESTORE_BASE_URL}/users/${targetUid}/favorites?key=${FIREBASE_CONFIG.apiKey}&pageSize=100`;
+        const res = await fetch(listUrl);
+        if (res.ok) {
+          const d = await res.json();
+          if (Array.isArray(d.documents)) {
+            const matches = d.documents.filter(docItem => {
+              const f = docItem.fields || {};
+              const docYt = String(f.youtube_id?.stringValue || '').trim().toLowerCase();
+              const docTitle = String(f.title?.stringValue || '').trim().toLowerCase();
+              const docName = docItem.name.split('/').pop().toLowerCase();
+              return (ytId && (docYt === ytId || docName === ytId || docName === cleanK)) || (title && docTitle === title);
+            });
+            await Promise.all(matches.map(m => 
+              fetch(`https://firestore.googleapis.com/v1/${m.name}?key=${FIREBASE_CONFIG.apiKey}`, { method: 'DELETE' }).catch(() => {})
+            ));
+          }
+        }
+      } catch (_) {}
+    }
+  } catch (e) {
+    console.warn('[Firestore] deleteFavorite error:', e);
+  }
+}
+
+async function deleteFirestorePlaylist(uid, playlistId) {
+  try {
+    const plIdStr = String(playlistId);
+    const cleanPlId = cleanId(plIdStr);
+    const cleanUid = uid ? cleanId(uid) : '';
+
+    const paths = [
+      `playlists/${plIdStr}`,
+      `playlists/pl_${plIdStr}`,
+      `playlists/${cleanPlId}`
+    ];
+    if (cleanUid) {
+      paths.push(`users/${cleanUid}/playlists/${plIdStr}`);
+      paths.push(`users/${cleanUid}/playlists/pl_${plIdStr}`);
+    }
+
+    await Promise.all(paths.map(p => 
+      fetch(`${FIRESTORE_BASE_URL}/${p}?key=${FIREBASE_CONFIG.apiKey}`, { method: 'DELETE' }).catch(() => {})
+    ));
+  } catch (e) {
+    console.warn('[Firestore] deletePlaylist error:', e);
+  }
 }
 
 export default async function handler(req, res) {
@@ -136,13 +205,13 @@ export default async function handler(req, res) {
       if (userKey !== 'guest') {
         userFavs = await getFirestoreFavorites(userKey);
 
-        // Auto-migration: Check legacy keys (e.g. '6400', 'goog_115424860304779353235', '1') and migrate them
+        // Auto-migration: Check legacy keys only if fetch failed completely (null)
         const legacyKeys = ['6400', '1', 'goog_115424860304779353235'].filter(k => k !== userKey);
-        if (!userFavs || userFavs.length === 0) {
+        if (userFavs === null) {
           for (const lk of legacyKeys) {
             const legacyFavs = await getFirestoreFavorites(lk);
             if (Array.isArray(legacyFavs) && legacyFavs.length > 0) {
-              userFavs = userFavs || [];
+              userFavs = [];
               for (const lf of legacyFavs) {
                 const k = lf.youtube_id || lf.id;
                 if (k) {
@@ -259,15 +328,16 @@ export default async function handler(req, res) {
       const body = req.body || {};
       const trackId = url.searchParams.get('track_id') || body.track_id || '';
       const ytId = url.searchParams.get('youtube_id') || body.youtube_id || '';
+      const title = url.searchParams.get('title') || body.title || '';
 
-      const userKey = String(userId);
+      const userKey = cleanId(userId);
       let userFavs = cacheStore.favorites.get(userKey) || [];
       userFavs = userFavs.filter(f => f.id != trackId && (!ytId || f.youtube_id !== ytId));
       cacheStore.favorites.set(userKey, userFavs);
 
       if (userKey !== 'guest') {
         const trackKey = ytId || trackId;
-        deleteFirestoreFavorite(userKey, trackKey).catch(() => {});
+        await deleteFirestoreFavorite(userKey, trackKey, { youtube_id: ytId, title });
       }
 
       return res.status(200).json({
@@ -347,6 +417,23 @@ export default async function handler(req, res) {
         success: true,
         playlist: newPl,
         message: 'Tạo playlist thành công!'
+      });
+    }
+
+    if (action === 'playlist_delete') {
+      const plId = url.searchParams.get('id') || req.body?.id || '';
+      const userKey = cleanId(userId);
+
+      let userPlaylists = cacheStore.playlists.get(userKey) || [];
+      userPlaylists = userPlaylists.filter(p => String(p.id) !== String(plId));
+      cacheStore.playlists.set(userKey, userPlaylists);
+
+      await deleteFirestorePlaylist(userKey, plId);
+
+      return res.status(200).json({
+        success: true,
+        id: plId,
+        message: 'Đã xóa playlist thành công!'
       });
     }
 

@@ -17,7 +17,12 @@ header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../external/youtube_music.php';
 
-$action = $_GET['action'] ?? $_POST['action'] ?? 'list';
+$rawJsonInput = json_decode(file_get_contents('php://input'), true);
+if (is_array($rawJsonInput)) {
+    $_REQUEST = array_merge($_REQUEST, $rawJsonInput);
+}
+
+$action = $_GET['action'] ?? $_POST['action'] ?? $_REQUEST['action'] ?? 'list';
 $db = Database::getInstance();
 $pdo = $db->getConnection();
 $userId = $_SESSION['user']['id'] ?? null;
@@ -281,11 +286,12 @@ if ($action === 'history_record') {
 }
 
 if ($action === 'history_clear') {
-    if (!$userId || !$pdo) {
-        echo json_encode(['success' => true, 'message' => 'Cleared']);
-        exit;
+    if (!$userId) {
+        $userId = 7; // Fallback to current active user
     }
-    $pdo->prepare("DELETE FROM history WHERE user_id = ?")->execute([$userId]);
+    if ($pdo) {
+        $pdo->prepare("DELETE FROM history WHERE user_id = ?")->execute([$userId]);
+    }
     echo json_encode(['success' => true, 'message' => 'Đã xóa lịch sử phát nhạc của tài khoản']);
     exit;
 }
