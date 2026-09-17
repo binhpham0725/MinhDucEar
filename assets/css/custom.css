@@ -241,6 +241,12 @@ html.light .mobile-mini-player {
 /* FLOATING SYNCHRONIZED LYRICS PANEL (KARAOKE)                 */
 /* ============================================================= */
 #floating-lyrics-panel {
+  position: fixed !important;
+  left: 50% !important;
+  transform: translateX(-50%) translateY(16px);
+  bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px)) !important;
+  z-index: 999 !important;
+  max-width: min(94vw, 600px) !important;
   background: rgba(18, 18, 24, 0.96) !important;
   backdrop-filter: blur(24px) !important;
   -webkit-backdrop-filter: blur(24px) !important;
@@ -248,6 +254,14 @@ html.light .mobile-mini-player {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.85), 0 0 22px rgba(84, 216, 232, 0.4) !important;
   transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
+}
+
+#floating-lyrics-panel.translate-y-0 {
+  transform: translateX(-50%) translateY(0) !important;
+}
+
+#floating-lyrics-panel.translate-y-4 {
+  transform: translateX(-50%) translateY(16px) !important;
 }
 
 #floating-lyrics-single-line {

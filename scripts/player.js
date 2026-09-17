@@ -1878,10 +1878,15 @@ class MinhDucAudioEngine {
 
     // D. Add to Playlist Modal Events
     this.bindAddToPlaylistModal();
-    // Offcanvas Mobile Player Show Event - Refresh UI & Lyrics instantly
+    // Offcanvas Mobile Player Show & Shown Events - Refresh UI & Lyrics instantly
     const mobPlayerOffcanvas = document.getElementById('mobile-player-offcanvas');
     if (mobPlayerOffcanvas) {
       mobPlayerOffcanvas.addEventListener('show.bs.offcanvas', () => {
+        // Temporarily hide floating lyrics pill if visible to prevent layer overlap
+        const flPanel = document.getElementById('floating-lyrics-panel');
+        if (flPanel) flPanel.style.display = 'none';
+
+        this.activeRightLyricIndex = -1;
         this.updateMobilePlayerUI();
         const curTrk = this.currentTrack || (this.tracks && this.tracks[this.currentTrackIndex]);
         if (curTrk) {
@@ -1893,6 +1898,20 @@ class MinhDucAudioEngine {
             this.renderRightLrcLines();
             this.syncRightLyrics(this.currentTime || 0);
           }
+        }
+      });
+
+      mobPlayerOffcanvas.addEventListener('shown.bs.offcanvas', () => {
+        // Reset index so shown event forces an accurate scroll after animation completes
+        this.activeRightLyricIndex = -1;
+        this.syncRightLyrics(this.currentTime || 0);
+      });
+
+      mobPlayerOffcanvas.addEventListener('hide.bs.offcanvas', () => {
+        // Restore floating lyrics pill if it was previously active
+        const flPanel = document.getElementById('floating-lyrics-panel');
+        if (flPanel && this.isFloatingLyricsOpen) {
+          flPanel.style.display = 'flex';
         }
       });
     }
@@ -2813,16 +2832,19 @@ class MinhDucAudioEngine {
     const highlightLines = (box) => {
       if (!box) return;
       const lines = box.querySelectorAll('.right-lyric-line');
+      const boxRect = box.getBoundingClientRect();
+      const parentHeight = box.clientHeight;
+
       lines.forEach((lineEl, idx) => {
-        if (idx === newIndex) {
-          lineEl.className = 'right-lyric-line active-lyric select-none cursor-pointer';
-          const parentHeight = box.clientHeight;
-          const lineTop = lineEl.offsetTop;
+        const isActive = (idx === newIndex);
+        lineEl.classList.toggle('active-lyric', isActive);
+
+        if (isActive) {
+          const lineRect = lineEl.getBoundingClientRect();
+          const relativeLineTop = (lineRect.top - boxRect.top) + box.scrollTop;
           const lineHeight = lineEl.clientHeight;
-          const targetScroll = lineTop - (parentHeight / 2) + (lineHeight / 2);
+          const targetScroll = relativeLineTop - (parentHeight / 2) + (lineHeight / 2);
           box.scrollTo({ top: Math.max(0, targetScroll), behavior: 'smooth' });
-        } else {
-          lineEl.className = 'right-lyric-line select-none cursor-pointer';
         }
       });
     };

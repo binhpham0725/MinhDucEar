@@ -770,11 +770,25 @@ html.light .right-lyric-line.active-lyric {
 
 /* Dark mode styling for Floating Lyrics Pill (Mini Karaoke Bar) */
 #floating-lyrics-panel {
+  position: fixed !important;
+  left: 50% !important;
+  transform: translateX(-50%) translateY(16px);
+  bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px)) !important;
+  z-index: 999 !important;
+  max-width: min(94vw, 600px) !important;
   background: rgba(18, 18, 24, 0.96) !important;
   backdrop-filter: blur(24px) !important;
   -webkit-backdrop-filter: blur(24px) !important;
   border: 1.5px solid rgba(84, 216, 232, 0.75) !important;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.85), 0 0 22px rgba(84, 216, 232, 0.4) !important;
+}
+
+#floating-lyrics-panel.translate-y-0 {
+  transform: translateX(-50%) translateY(0) !important;
+}
+
+#floating-lyrics-panel.translate-y-4 {
+  transform: translateX(-50%) translateY(16px) !important;
 }
 
 #floating-lyrics-single-line {
@@ -1604,7 +1618,7 @@ html.light .bg-surface-container\/80 {
   transform: scale(1.42) !important;
 }
 </style>
-</head><body class="bg-surface font-body-md text-on-surface selection:bg-primary-container selection:text-on-primary relative h-screen w-full overflow-hidden flex flex-col"><div class="fixed inset-0 pointer-events-none z-0 overflow-hidden"><div class="absolute -top-40 left-60 w-[500px] h-[500px] rounded-full bg-primary-container/10 blur-[130px]"></div><div class="absolute top-1/2 -right-20 w-[450px] h-[450px] rounded-full bg-secondary/10 blur-[140px]"></div><div class="absolute bottom-10 left-1/3 w-[600px] h-[300px] rounded-full bg-tertiary-container/10 blur-[150px]"></div></div><header class="relative h-14 shrink-0 border-b border-outline-variant/30 bg-surface-dim/70 backdrop-blur-2xl px-space-lg flex items-center justify-between z-40">
+</head><body class="bg-surface font-body-md text-on-surface selection:bg-primary-container selection:text-on-primary relative h-screen w-full overflow-hidden flex flex-col"><div class="fixed inset-0 pointer-events-none z-0 overflow-hidden"><div class="absolute -top-40 left-60 w-[500px] h-[500px] rounded-full bg-primary-container/10 blur-[130px]"></div><div class="absolute top-1/2 -right-20 w-[450px] h-[450px] rounded-full bg-secondary/10 blur-[140px]"></div><div class="absolute bottom-10 left-1/3 w-[600px] h-[300px] rounded-full bg-tertiary-container/10 blur-[150px]"></div></div><header class="relative h-14 shrink-0 border-b border-outline-variant/30 bg-surface-dim/70 backdrop-blur-2xl px-2.5 sm:px-space-lg flex items-center justify-between z-40 w-full max-w-full overflow-hidden">
   <!-- Left: Logo & Brand -->
   <div class="flex items-center gap-2 sm:gap-3 shrink-0">
     <!-- Mobile Hamburger Menu Button -->
@@ -1659,7 +1673,7 @@ html.light .bg-surface-container\/80 {
   </div>
 
   <!-- Right: Status Badge & Utility Controls -->
-  <div class="flex items-center gap-3 shrink-0">
+  <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
     <div class="hidden xl:flex items-center gap-2.5 pr-3 border-r border-outline-variant/30">
       <svg class="w-4 h-4 pixel-icon text-secondary" fill="none" viewBox="0 0 16 16">
         <rect fill="#54d8e8" height="6" width="2" x="1" y="8"></rect>
@@ -2147,7 +2161,7 @@ html.light .bg-surface-container\/80 {
       </div>
 
       <!-- Scrollable Lyrics Lines Container -->
-      <div id="right-player-lyrics-container" class="flex-1 overflow-y-auto custom-scroll space-y-1.5 py-3 text-center pr-1 select-none">
+      <div id="right-player-lyrics-container" class="relative flex-1 overflow-y-auto custom-scroll space-y-1.5 py-3 text-center pr-1 select-none">
         <div class="py-10 text-center flex flex-col items-center justify-center gap-2 text-gray-500 font-silkscreen text-[9px]">
           <span class="text-xl">🎧</span>
           <span class="text-gray-400">Chưa phát bài hát nào</span>
@@ -2517,20 +2531,22 @@ html.light .bg-surface-container\/80 {
 <!-- ============================================================= -->
 <div id="view-explore" class="flex-1 flex flex-col p-4 md:p-6 overflow-y-auto custom-scroll hidden bg-surface-dim/30 backdrop-blur-sm min-w-0">
   <!-- Header -->
-  <div class="flex items-center justify-between pb-4 mb-5 border-b border-white/10 shrink-0">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-lg bg-secondary/20 text-secondary border border-secondary/40 flex items-center justify-center pixel-border-sm">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 pb-4 mb-5 border-b border-white/10 shrink-0 w-full">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="w-9 h-9 rounded-lg bg-secondary/20 text-secondary border border-secondary/40 flex items-center justify-center pixel-border-sm shrink-0">
         <svg class="w-5 h-5 pixel-icon" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="2" width="8" x="4" y="1"></rect><rect fill="currentColor" height="2" width="12" x="2" y="3"></rect><rect fill="currentColor" height="6" width="14" x="1" y="5"></rect><rect fill="currentColor" height="2" width="12" x="2" y="11"></rect><rect fill="currentColor" height="2" width="8" x="4" y="13"></rect><rect fill="#131316" height="8" width="2" x="7" y="4"></rect><rect fill="#131316" height="2" width="8" x="4" y="7"></rect></svg>
       </div>
-      <div>
+      <div class="min-w-0">
         <h2 class="font-pixel text-sm md:text-base text-secondary uppercase tracking-wider">KHÁM PHÁ ÂM NHẠC / EXPLORE</h2>
-        <p class="font-silkscreen text-[9px] text-gray-400 mt-0.5">Xu hướng YouTube Music, Thể loại nổi bật & Nghệ sĩ thịnh hành</p>
+        <p class="font-silkscreen text-[9px] text-gray-400 mt-0.5 truncate">Xu hướng YouTube Music, Thể loại nổi bật & Nghệ sĩ thịnh hành</p>
       </div>
     </div>
-    <button type="button" id="btn-explore-refresh" class="px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-secondary text-xs font-silkscreen pixel-btn flex items-center gap-1.5 cursor-pointer">
-      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-      <span>LÀM MỚI</span>
-    </button>
+    <div class="flex items-center gap-2 shrink-0">
+      <button type="button" id="btn-explore-refresh" class="px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-secondary text-xs font-silkscreen pixel-btn flex items-center gap-1.5 cursor-pointer">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+        <span>LÀM MỚI</span>
+      </button>
+    </div>
   </div>
 
   <!-- Featured Categories Banner Grid -->
@@ -2666,20 +2682,20 @@ html.light .bg-surface-container\/80 {
 <!-- ============================================================= -->
 <div id="view-favorites" class="flex-1 flex flex-col p-4 md:p-6 overflow-y-auto custom-scroll hidden bg-surface-dim/30 backdrop-blur-sm min-w-0">
   <!-- Header -->
-  <div class="flex items-center justify-between pb-4 mb-5 border-b border-white/10 shrink-0">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-lg bg-pink-500/20 text-pink-400 border border-pink-500/40 flex items-center justify-center pixel-border-sm">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 pb-4 mb-5 border-b border-white/10 shrink-0 w-full">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="w-9 h-9 rounded-lg bg-pink-500/20 text-pink-400 border border-pink-500/40 flex items-center justify-center pixel-border-sm shrink-0">
         <svg class="w-5 h-5 pixel-icon" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="3" width="4" x="2" y="2"></rect><rect fill="currentColor" height="3" width="4" x="10" y="2"></rect><rect fill="currentColor" height="4" width="14" x="1" y="4"></rect><rect fill="currentColor" height="3" width="10" x="3" y="8"></rect><rect fill="currentColor" height="2" width="6" x="5" y="11"></rect><rect fill="currentColor" height="2" width="2" x="7" y="13"></rect></svg>
       </div>
-      <div>
-        <div class="flex items-center gap-2">
+      <div class="min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
           <h2 id="fav-view-title" class="font-pixel text-sm md:text-base text-pink-400 uppercase tracking-wider">BÀI HÁT YÊU THÍCH / FAVORITES</h2>
-          <span id="fav-count-badge" class="font-pixel text-[8px] px-2 py-0.5 rounded bg-pink-500/20 text-pink-300 border border-pink-500/40">0 BÀI HÁT</span>
+          <span id="fav-count-badge" class="font-pixel text-[8px] px-2 py-0.5 rounded bg-pink-500/20 text-pink-300 border border-pink-500/40 shrink-0">0 BÀI HÁT</span>
         </div>
-        <p id="fav-view-desc" class="font-silkscreen text-[9px] text-gray-400 mt-0.5">Kho lưu trữ những bài hát bạn đã đánh dấu trái tim yêu thích</p>
+        <p id="fav-view-desc" class="font-silkscreen text-[9px] text-gray-400 mt-0.5 truncate">Kho lưu trữ những bài hát bạn đã đánh dấu trái tim yêu thích</p>
       </div>
     </div>
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-start sm:justify-end shrink-0">
       <button type="button" id="btn-fav-play-all" class="px-3.5 py-1.5 rounded-lg bg-pink-600 hover:bg-pink-700 text-white font-bold text-xs pixel-btn flex items-center gap-1.5 cursor-pointer shadow-[0_0_12px_rgba(236,72,153,0.4)]">
         <span>▶ PHÁT TẤT CẢ</span>
       </button>
@@ -2687,7 +2703,7 @@ html.light .bg-surface-container\/80 {
         LÀM MỚI
       </button>
       <!-- Nút gạt chuyển đổi giữa Bài hát yêu thích và Album yêu thích -->
-      <div id="fav-type-toggle" class="p-1 rounded-xl bg-surface-container-low/90 border border-white/10 flex items-center gap-1 shadow-inner ml-1">
+      <div id="fav-type-toggle" class="p-1 rounded-xl bg-surface-container-low/90 border border-white/10 flex items-center gap-1 shadow-inner">
         <button type="button" id="btn-fav-tab-songs" class="px-3 py-1.5 rounded-lg font-pixel text-[9px] uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 bg-pink-600 text-white shadow-[0_0_10px_rgba(236,72,153,0.4)] font-bold">
           <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
           <span>BÀI HÁT</span>
@@ -2723,20 +2739,20 @@ html.light .bg-surface-container\/80 {
 <!-- ============================================================= -->
 <div id="view-history" class="flex-1 flex flex-col p-4 md:p-6 overflow-y-auto custom-scroll hidden bg-surface-dim/30 backdrop-blur-sm min-w-0">
   <!-- Header -->
-  <div class="flex items-center justify-between pb-4 mb-5 border-b border-white/10 shrink-0">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-lg bg-secondary/20 text-secondary border border-secondary/40 flex items-center justify-center pixel-border-sm">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 pb-4 mb-5 border-b border-white/10 shrink-0 w-full">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="w-9 h-9 rounded-lg bg-secondary/20 text-secondary border border-secondary/40 flex items-center justify-center pixel-border-sm shrink-0">
         <svg class="w-5 h-5 pixel-icon" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="2" width="8" x="4" y="1"></rect><rect fill="currentColor" height="2" width="12" x="2" y="3"></rect><rect fill="currentColor" height="6" width="14" x="1" y="5"></rect><rect fill="currentColor" height="2" width="12" x="2" y="11"></rect><rect fill="currentColor" height="2" width="8" x="4" y="13"></rect><rect fill="#131316" height="5" width="2" x="7" y="3"></rect><rect fill="#131316" height="2" width="4" x="8" y="7"></rect></svg>
       </div>
-      <div>
-        <div class="flex items-center gap-2">
+      <div class="min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
           <h2 class="font-pixel text-sm md:text-base text-secondary uppercase tracking-wider">HISTORY / LỊCH SỬ PHÁT NHẠC</h2>
-          <span id="history-count-badge" class="font-pixel text-[8px] px-2 py-0.5 rounded bg-secondary/20 text-secondary border border-secondary/40">0 BÀI HÁT</span>
+          <span id="history-count-badge" class="font-pixel text-[8px] px-2 py-0.5 rounded bg-secondary/20 text-secondary border border-secondary/40 shrink-0">0 BÀI HÁT</span>
         </div>
-        <p class="font-silkscreen text-[9px] text-gray-400 mt-0.5">Nhật ký lịch sử các bản nhạc bạn vừa lắng nghe gần đây</p>
+        <p class="font-silkscreen text-[9px] text-gray-400 mt-0.5 truncate">Nhật ký lịch sử các bản nhạc bạn vừa lắng nghe gần đây</p>
       </div>
     </div>
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-start sm:justify-end shrink-0">
       <button type="button" id="btn-history-play-all" class="px-3.5 py-1.5 rounded-lg bg-secondary text-black font-bold text-xs pixel-btn flex items-center gap-1.5 cursor-pointer shadow-[0_0_12px_rgba(84,216,232,0.4)]">
         <span>▶ PHÁT LẠI</span>
       </button>
@@ -2764,17 +2780,17 @@ html.light .bg-surface-container\/80 {
 <!-- ============================================================= -->
 <div id="view-albums" class="flex-1 flex flex-col p-4 md:p-6 overflow-y-auto custom-scroll hidden bg-surface-dim/30 backdrop-blur-sm min-w-0">
   <!-- Header -->
-  <div class="flex items-center justify-between pb-4 mb-5 border-b border-white/10 shrink-0">
-    <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-lg bg-primary-container/30 text-primary border border-primary/50 flex items-center justify-center pixel-border-sm">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 pb-4 mb-5 border-b border-white/10 shrink-0 w-full">
+    <div class="flex items-center gap-3 min-w-0">
+      <div class="w-9 h-9 rounded-lg bg-primary-container/30 text-primary border border-primary/50 flex items-center justify-center pixel-border-sm shrink-0">
         <svg class="w-5 h-5 pixel-icon" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="2" width="10" x="3" y="1"></rect><rect fill="currentColor" height="10" width="14" x="1" y="3"></rect><rect fill="currentColor" height="2" width="10" x="3" y="13"></rect><rect fill="#131316" height="4" width="4" x="6" y="6"></rect><rect fill="#54d8e8" height="2" width="2" x="7" y="7"></rect></svg>
       </div>
-      <div>
-        <div class="flex items-center gap-2">
+      <div class="min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
           <h2 class="font-pixel text-sm md:text-base text-primary uppercase tracking-wider">DANH MỤC ALBUM / ALBUMS</h2>
-          <span id="albums-view-badge" class="font-pixel text-[8px] px-2 py-0.5 rounded bg-primary-container/20 text-primary border border-primary/40">8 ALBUMS AUDIOPHILE</span>
+          <span id="albums-view-badge" class="font-pixel text-[8px] px-2 py-0.5 rounded bg-primary-container/20 text-primary border border-primary/40 shrink-0">8 ALBUMS AUDIOPHILE</span>
         </div>
-        <p id="albums-view-desc" class="font-silkscreen text-[9px] text-gray-400 mt-0.5">Tuyển tập Album âm thanh chuẩn FLAC, DSD & Master Audio đặc sắc</p>
+        <p id="albums-view-desc" class="font-silkscreen text-[9px] text-gray-400 mt-0.5 truncate">Tuyển tập Album âm thanh chuẩn FLAC, DSD & Master Audio đặc sắc</p>
       </div>
     </div>
   </div>
@@ -2979,11 +2995,11 @@ html.light .bg-surface-container\/80 {
 <!-- ============================================================= -->
 <div id="view-album-detail" class="flex-1 flex flex-col p-4 md:p-6 overflow-y-auto custom-scroll hidden bg-surface-dim/30 backdrop-blur-sm min-w-0">
   <!-- Back Button & Breadcrumbs Navigation -->
-  <div class="flex items-center justify-between pb-4 mb-4 border-b border-white/10 shrink-0">
-    <button type="button" id="btn-album-detail-back" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-primary hover:text-white font-pixel text-xs pixel-btn cursor-pointer transition-colors">
+  <div class="flex items-center justify-between gap-2 flex-wrap pb-4 mb-4 border-b border-white/10 shrink-0 w-full">
+    <button type="button" id="btn-album-detail-back" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-primary hover:text-white font-pixel text-xs pixel-btn cursor-pointer transition-colors shrink-0">
       <span id="album-detail-back-text">← QUAY LẠI</span>
     </button>
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2 flex-wrap shrink-0">
       <span id="album-detail-breadcrumb-cat" class="font-silkscreen text-[9px] text-gray-400">DANH MỤC ALBUM</span>
       <span class="text-gray-600 text-xs">/</span>
       <span id="album-detail-breadcrumb" class="font-pixel text-[9px] text-primary truncate max-w-[200px]">FAREWELL OF VOYAGER STAR</span>
@@ -3060,7 +3076,7 @@ html.light .bg-surface-container\/80 {
 <!-- ============================================================= -->
 <!-- GLOBAL BOTTOM PLAYER FOOTER BAR                               -->
 <!-- ============================================================= -->
-<footer class="h-16 shrink-0 bg-surface-container-lowest/90 backdrop-blur-3xl border-t border-outline-variant/30 px-3 sm:px-space-lg flex items-center justify-between z-50">
+<footer class="h-16 shrink-0 bg-surface-container-lowest/90 backdrop-blur-3xl border-t border-outline-variant/30 px-2.5 sm:px-space-lg flex items-center justify-between z-50 w-full max-w-full">
   <!-- Track Info & Vinyl Animation (Clickable to open Right Media Player) -->
   <div id="footer-track-info-container" class="flex items-center gap-2 sm:gap-space-sm min-w-0 flex-1 sm:w-1/4 sm:flex-initial cursor-pointer group hover:opacity-90 select-none transition-all" title="Bấm để mở Media Player & Lời bài hát bên phải">
     <div id="footer-vinyl-container" class="relative w-12 h-12 shrink-0 flex items-center justify-center select-none group-hover:scale-105 transition-transform">
@@ -3367,7 +3383,7 @@ html.light .bg-surface-container\/80 {
           <span class="font-silkscreen text-[10px] text-secondary font-bold">LỜI BÀI HÁT ĐỒNG BỘ</span>
         </div>
       </div>
-      <div id="mobile-drawer-lyrics-container" class="flex-1 overflow-y-auto custom-scroll space-y-2 text-center py-2 select-none">
+      <div id="mobile-drawer-lyrics-container" class="relative flex-1 overflow-y-auto custom-scroll space-y-2 text-center py-2 select-none">
         <div class="text-gray-500 font-silkscreen text-[10px] py-8">Đang đồng bộ lời bài hát...</div>
       </div>
     </div>
@@ -3375,7 +3391,7 @@ html.light .bg-surface-container\/80 {
 </div>
 
 <!-- COMPACT SINGLE-LINE FLOATING LYRICS PILL (KARAOKE MINI BAR) -->
-<div id="floating-lyrics-panel" class="fixed left-1/2 -translate-x-1/2 bottom-[76px] sm:bottom-[80px] z-[60] max-w-[94vw] sm:max-w-2xl bg-[#111116]/95 backdrop-blur-xl border border-secondary/60 rounded-full shadow-[0_4px_25px_rgba(0,0,0,0.85),0_0_20px_rgba(84,216,232,0.3)] transition-all duration-300 transform translate-y-4 opacity-0 pointer-events-none px-4 py-2 text-on-surface flex items-center justify-between gap-3 select-none">
+<div id="floating-lyrics-panel" class="fixed left-1/2 -translate-x-1/2 bottom-[84px] sm:bottom-[84px] z-[999] max-w-[94vw] sm:max-w-2xl bg-[#111116]/95 backdrop-blur-xl border border-secondary/60 rounded-full shadow-[0_4px_25px_rgba(0,0,0,0.85),0_0_20px_rgba(84,216,232,0.3)] transition-all duration-300 transform translate-y-4 opacity-0 pointer-events-none px-4 py-2 text-on-surface flex items-center justify-between gap-3 select-none">
   <div class="flex items-center gap-2.5 min-w-0 flex-1 justify-center">
     <span class="text-xs text-secondary animate-pulse shrink-0">🎤</span>
     <p id="floating-lyrics-single-line" class="font-sans font-bold text-sm sm:text-base text-white tracking-wide text-center truncate transition-all duration-200">
@@ -3686,7 +3702,7 @@ html.light .bg-surface-container\/80 {
     </div>
   </div>
 </div>
-  <script type="module" src="<?= (strpos($_SERVER['REQUEST_URI'] ?? '', '/pages/') !== false) ? '../' : '' ?>scripts/index.js"></script>
+  <script type="module" src="scripts/index.js"></script>
   <!-- Bootstrap 5.3.3 Bundle JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
