@@ -28,15 +28,16 @@ import { bindLyricsModalClose } from '../components/lyricsModal.js';
 import { firebaseService } from '../services/firebaseService.js';
 
 // ─── Bootstrap ─────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', async () => {
+const bootstrap = async () => {
   // 1. Initialize Google Firebase
   try {
     const isReady = await firebaseService.init();
     if (isReady) {
       console.info('[MinhDucEar] Google Firebase Cloud Firestore & Auth initialized.');
       window.__firebaseService = firebaseService;
-      if (window.audioEngine && typeof window.audioEngine.onFirebaseReady === 'function') {
-        window.audioEngine.onFirebaseReady();
+      const playerInst = window.player || window.minhDucPlayer || window.audioEngine;
+      if (playerInst && typeof playerInst.onFirebaseReady === 'function') {
+        playerInst.onFirebaseReady();
       }
     }
   } catch (err) {
@@ -49,8 +50,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   // 3. Bind lyrics modal close behaviour
   bindLyricsModalClose();
 
-  // 4. The existing MinhDucAudioEngine class (in assets/js/player.js) handles
-  //    all audio playback, UI rendering, and view switching during the migration
-  //    period.
   console.info('[MinhDucEar] index.js controller loaded. User:', user?.username || 'guest');
-});
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootstrap);
+} else {
+  bootstrap();
+}

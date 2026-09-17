@@ -142,7 +142,12 @@ class MinhDucAudioEngine {
       }
     ];
 
+    window.audioEngine = this;
+    window.player = this;
+    window.minhDucPlayer = this;
+
     this.init();
+    this.initFirebase();
   }
 
   init() {
@@ -6051,6 +6056,158 @@ class MinhDucAudioEngine {
           );
         }
       });
+    }
+  }
+
+  async initFirebase() {
+    if (this._firebaseInitializing) return;
+    this._firebaseInitializing = true;
+    try {
+      if (window.__firebaseService && typeof window.__firebaseService.getFavorites === 'function') {
+        console.info('[MinhDucEar] Firebase already available via window.__firebaseService.');
+        await this.onFirebaseReady();
+        return;
+      }
+
+      const cfg = window.__FIREBASE_CONFIG__ || {
+        apiKey: "AIzaSyA_dQjex_0sZj4h2rZl4Fb0Gk_aumJ-c0",
+        authDomain: "minhducear-f955d.firebaseapp.com",
+        projectId: "minhducear-f955d",
+        storageBucket: "minhducear-f955d.firebasestorage.app",
+        messagingSenderId: "682003556218",
+        appId: "1:682003556218:web:a66ed9671fdfd3921fed7e",
+        measurementId: "G-DJ1M200QYC"
+      };
+
+      const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+      const { getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, deleteDoc, query, orderBy, limit, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+      const { getAuth, GoogleAuthProvider, signInWithCredential } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+
+      const app = getApps().length > 0 ? getApps()[0] : initializeApp(cfg);
+      const db = getFirestore(app);
+      const auth = getAuth(app);
+
+      window.__firebaseService = {
+        app,
+        db,
+        auth,
+        async getFavorites(uid) {
+          try {
+            if (!uid) return [];
+            const cleanUid = String(uid).replace(/[\/\.]/g, '_');
+            let snap;
+            try {
+              const q = query(collection(db, `users/${cleanUid}/favorites`), orderBy('addedAt', 'desc'));
+              snap = await getDocs(q);
+            } catch (e) {
+              snap = await getDocs(collection(db, `users/${cleanUid}/favorites`));
+            }
+            return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          } catch (err) {
+            if (err && (err.code === 'permission-denied' || String(err).includes('permission-denied'))) {
+              console.warn('[Firebase] Firestore Rules chặn truy cập (permission-denied). Hãy vào Firebase Console -> Firestore -> tab Rules và đổi allow read, write: if true;');
+            }
+            return [];
+          }
+        },
+        async toggleFavorite(uid, track) {
+          try {
+            if (!uid || !track) return false;
+            const cleanUid = String(uid).replace(/[\/\.]/g, '_');
+            const rawKey = track.youtube_id || track.id || ('track_' + Date.now());
+            const trackKey = String(rawKey).replace(/[\/\.]/g, '_');
+            const favRef = doc(db, `users/${cleanUid}/favorites`, trackKey);
+            const snap = await getDoc(favRef);
+            if (snap.exists()) {
+              await deleteDoc(favRef);
+              return { isFavorite: false };
+            } else {
+              const payload = {
+                id: track.id || track.db_id || ('yt_' + track.youtube_id),
+                db_id: track.db_id || track.id || null,
+                youtube_id: track.youtube_id || '',
+                title: track.title || 'Unknown Title',
+                artist: track.artist || 'Unknown Artist',
+                cover_url: track.cover_url || track.cover || '',
+                duration: track.duration || 210,
+                format: track.format || 'YT AUDIO 320k',
+                addedAt: serverTimestamp()
+              };
+              await setDoc(favRef, payload);
+              return { isFavorite: true };
+            }
+          } catch (err) {
+            if (err && (err.code === 'permission-denied' || String(err).includes('permission-denied'))) {
+              console.warn('[Firebase] Firestore Rules chặn ghi dữ liệu (permission-denied). Hãy vào Firebase Console -> Firestore -> tab Rules và đổi allow read, write: if true;');
+            }
+            return false;
+          }
+        },
+        async recordHistory(uid, track, durationPlayed = 0) {
+          try {
+            if (!uid || !track) return;
+            const cleanUid = String(uid).replace(/[\/\.]/g, '_');
+            await addDoc(collection(db, `users/${cleanUid}/history`), {
+              track: {
+                id: track.id || track.db_id || ('yt_' + track.youtube_id),
+                db_id: track.db_id || track.id || null,
+                youtube_id: track.youtube_id || '',
+                title: track.title || 'Unknown Title',
+                artist: track.artist || 'Unknown Artist',
+                cover_url: track.cover_url || track.cover || '',
+                duration: track.duration || 210,
+                format: track.format || 'YT 320k'
+              },
+              durationPlayed,
+              playedAt: serverTimestamp()
+            });
+          } catch (e) {
+            console.warn('[Firebase] recordHistory error:', e);
+          }
+        },
+        async getHistory(uid, maxLimit = 50) {
+          try {
+            if (!uid) return [];
+            const cleanUid = String(uid).replace(/[\/\.]/g, '_');
+            let snap;
+            try {
+              const q = query(collection(db, `users/${cleanUid}/history`), orderBy('playedAt', 'desc'), limit(maxLimit));
+              snap = await getDocs(q);
+            } catch (e) {
+              snap = await getDocs(collection(db, `users/${cleanUid}/history`));
+            }
+            return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          } catch (err) {
+            return [];
+          }
+        },
+        async getUserPlaylists(uid) {
+          try {
+            if (!uid) return [];
+            const cleanUid = String(uid).replace(/[\/\.]/g, '_');
+            const snap = await getDocs(collection(db, `users/${cleanUid}/playlists`));
+            return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          } catch (e) {
+            return [];
+          }
+        },
+        async signInWithGoogleCredential(idToken) {
+          try {
+            if (!idToken) return null;
+            const credential = GoogleAuthProvider.credential(idToken);
+            const result = await signInWithCredential(auth, credential);
+            return result?.user || null;
+          } catch (e) {
+            console.warn('[Firebase] signInWithGoogleCredential notice:', e);
+            return null;
+          }
+        }
+      };
+
+      console.info('[MinhDucEar] Firebase Cloud Firestore standalone initialized.');
+      await this.onFirebaseReady();
+    } catch (e) {
+      console.warn('[MinhDucEar] initFirebase notice:', e);
     }
   }
 
