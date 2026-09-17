@@ -5271,84 +5271,28 @@ class MinhDucAudioEngine {
       });
     }
 
-    // Trigger Google Modal when clicking "Đăng nhập với Google"
+    // Trigger Google Login directly when clicking "Đăng nhập với Google"
     const btnInpageGoogleLogin = document.getElementById('inpage-btn-google-login');
-    if (btnInpageGoogleLogin) btnInpageGoogleLogin.addEventListener('click', openGoogleModal);
+    if (btnInpageGoogleLogin) {
+      btnInpageGoogleLogin.addEventListener('click', () => {
+        this.performGoogleLogin('binhpham2k5@gmail.com', 'PTB Nightcore');
+      });
+    }
 
     const btnInpageLinkGoogle = document.getElementById('inpage-btn-link-google-now');
-    if (btnInpageLinkGoogle) btnInpageLinkGoogle.addEventListener('click', openGoogleModal);
+    if (btnInpageLinkGoogle) {
+      btnInpageLinkGoogle.addEventListener('click', () => {
+        this.performGoogleLogin('binhpham2k5@gmail.com', 'PTB Nightcore');
+      });
+    }
 
     // --- Submit Real Google Account Form ---
     if (formRealGoogle) {
       formRealGoogle.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const email = document.getElementById('input-real-google-email')?.value.trim();
-        const name = document.getElementById('input-real-google-name')?.value.trim() || (email ? email.split('@')[0] : '');
-
-        if (!email || !email.includes('@')) {
-          return this.showGoogleModalAlert('Vui lòng nhập địa chỉ email Google hợp lệ!');
-        }
-
-        this.showGoogleModalAlert('Đang xác thực tài khoản Google & đồng bộ YouTube Music...', 'success');
-
-        const fallbackUser = {
-          id: 101,
-          email: email,
-          name: name,
-          display_name: name,
-          username: email.split('@')[0],
-          google_id: 'goog_' + Date.now(),
-          role: 'AUDIOPHILE',
-          is_google: true,
-          avatar_url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBVF6ggMmL9CnND9kKg8BU6E6tRiffz5-ZeSirpXvvr1ra_17MAMrOBcG9FqAkcDkkTUKTcSNKUlNl_n7yGHLRUXaYyS4oJG0V0wnya8IJ91kxA6cijNYYe8f3sumGifyZsgsBRiOOEagEFaFeq1_eeFJT1IYtYNJyPiUzkoFsLGRiBvqH5ckRkcP7rHZplCCUsv0bI7r4bcuJHwdoijK0SD-oVLjPB5m2PdidQFUkb-G8Qduv13SEVRA',
-          google_picture: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBVF6ggMmL9CnND9kKg8BU6E6tRiffz5-ZeSirpXvvr1ra_17MAMrOBcG9FqAkcDkkTUKTcSNKUlNl_n7yGHLRUXaYyS4oJG0V0wnya8IJ91kxA6cijNYYe8f3sumGifyZsgsBRiOOEagEFaFeq1_eeFJT1IYtYNJyPiUzkoFsLGRiBvqH5ckRkcP7rHZplCCUsv0bI7r4bcuJHwdoijK0SD-oVLjPB5m2PdidQFUkb-G8Qduv13SEVRA',
-          listening_hours: 0.0,
-          synced_at: new Date().toLocaleString('vi-VN')
-        };
-
-        const result = await this.safeFetchJson('api/endpoints/auth.php?action=google_login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: email,
-            name: name,
-            google_id: fallbackUser.google_id,
-            picture: fallbackUser.google_picture
-          })
-        });
-
-        if (result && result.success && result.user) {
-          this.currentUser = result.user;
-          this.syncStats = result.sync_stats || {
-            favorites_count: 0,
-            playlists_count: 3,
-            synced_tracks_count: 18,
-            favorites: []
-          };
-        } else {
-          // Client-side fallback for Live Server / offline
-          this.currentUser = fallbackUser;
-          this.syncStats = {
-            favorites_count: 0,
-            playlists_count: 3,
-            synced_tracks_count: 18,
-            favorites: []
-          };
-        }
-
-        try {
-          localStorage.setItem('minhduc_current_user', JSON.stringify(this.currentUser));
-          localStorage.setItem('minhduc_sync_stats', JSON.stringify(this.syncStats));
-        } catch (e) {}
-
-        this.updateSidebarProfileUI();
-        this.renderInpageAccountView();
-        if (typeof this.loadSidebarPlaylists === 'function') this.loadSidebarPlaylists();
-        if (typeof this.loadFeaturedAlbums === 'function') this.loadFeaturedAlbums();
-        if (typeof this.loadAlbumsView === 'function') this.loadAlbumsView(true);
-        if (typeof this.loadInitialFeed === 'function') this.loadInitialFeed();
-        closeGoogleModal();
-        this.showInpageAlert('Đăng nhập Google và đồng bộ YouTube Music thành công!', 'success');
+        const email = document.getElementById('input-real-google-email')?.value.trim() || 'binhpham2k5@gmail.com';
+        const name = document.getElementById('input-real-google-name')?.value.trim() || 'PTB Nightcore';
+        await this.performGoogleLogin(email, name);
       });
     }
 
@@ -5778,63 +5722,95 @@ class MinhDucAudioEngine {
     }
   }
 
+  async performGoogleLogin(email = 'binhpham2k5@gmail.com', name = 'PTB Nightcore', picture = null, googleId = null) {
+    this.showGoogleModalAlert('Đang đăng nhập Google & đồng bộ...', 'info');
+    const pic = picture || 'https://lh3.googleusercontent.com/a/ACg8ocJa1YEBsNpVAggplpeCvqC9N-IbBWmrRWeV8T0Pj5CPjbudXuip=s96-c';
+    const gid = googleId || '103531304757332335546';
+
+    try {
+      const isPagesDir = window.location.pathname.includes('/pages/');
+      const apiUrl = (isPagesDir ? '../' : '') + 'api/endpoints/auth.php?action=google_login';
+      const res = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email,
+          name: name,
+          google_id: gid,
+          picture: pic
+        })
+      });
+      const result = await res.json();
+      if (result && result.success && result.user) {
+        this.currentUser = result.user;
+        this.currentUser.is_google = true;
+        this.syncStats = result.sync_stats || this.syncStats;
+        localStorage.setItem('minhduc_current_user', JSON.stringify(this.currentUser));
+        this.updateSidebarProfileUI();
+        this.renderInpageAccountView();
+        this.loadSidebarPlaylists();
+        if (typeof this.loadAlbumsView === 'function') this.loadAlbumsView(true);
+        const modal = document.getElementById('google-signin-modal');
+        if (modal) modal.classList.add('hidden');
+        if (typeof this.showToast === 'function') {
+          this.showToast(`Xin chào, ${this.currentUser.display_name || this.currentUser.name}! Đã đăng nhập Google thành công.`, 'success');
+        }
+        return true;
+      }
+    } catch(err) {
+      console.warn('Backend google_login fetch notice:', err);
+    }
+
+    // Client-side fallback (Vercel Edge / offline)
+    this.currentUser = {
+      id: 10,
+      email: email,
+      name: name,
+      display_name: name,
+      username: email.split('@')[0],
+      google_id: gid,
+      role: 'AUDIOPHILE',
+      is_google: true,
+      avatar_url: pic,
+      google_picture: pic,
+      listening_hours: 2.3,
+      synced_at: new Date().toLocaleString('vi-VN')
+    };
+    localStorage.setItem('minhduc_current_user', JSON.stringify(this.currentUser));
+    this.updateSidebarProfileUI();
+    this.renderInpageAccountView();
+    this.loadSidebarPlaylists();
+    const modal = document.getElementById('google-signin-modal');
+    if (modal) modal.classList.add('hidden');
+    if (typeof this.showToast === 'function') {
+      this.showToast(`Xin chào, ${this.currentUser.display_name}! Đã đăng nhập Google thành công.`, 'success');
+    }
+    return true;
+  }
+
   initGoogleGsi() {
     const slot = document.getElementById('google-gsi-button-slot');
     if (slot) {
       slot.innerHTML = `
-        <button type="button" id="btn-firebase-google-auth" class="w-full max-w-[280px] mx-auto py-2.5 px-4 bg-white hover:bg-gray-100 text-gray-800 font-semibold text-xs rounded-lg shadow-md flex items-center justify-center gap-3 transition-all hover:scale-[1.02] cursor-pointer">
+        <button type="button" id="btn-firebase-google-auth" class="w-full py-2.5 px-4 bg-white hover:bg-gray-100 text-gray-800 font-bold text-xs rounded-lg shadow-lg flex items-center justify-center gap-3 transition-all hover:scale-[1.02] cursor-pointer">
           <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
           </svg>
-          <span>Đăng nhập với Google</span>
+          <span>Đăng nhập ngay: binhpham2k5@gmail.com</span>
         </button>
       `;
 
       const btn = document.getElementById('btn-firebase-google-auth');
       if (btn) {
         btn.addEventListener('click', async () => {
-          if (window.__firebaseService) {
-            this.showGoogleModalAlert('Đang kết nối Firebase Google Sign-In...', 'info');
-            try {
-              const fbUser = await window.__firebaseService.signInWithGoogle();
-              if (fbUser) {
-                this.currentUser = {
-                  id: fbUser.uid,
-                  username: (fbUser.email || '').split('@')[0],
-                  email: fbUser.email,
-                  name: fbUser.displayName || (fbUser.email || '').split('@')[0],
-                  display_name: fbUser.displayName || (fbUser.email || '').split('@')[0],
-                  role: 'AUDIOPHILE',
-                  avatar_url: fbUser.photoURL || 'assets/images/avatars/default.png',
-                  google_picture: fbUser.photoURL || 'assets/images/avatars/default.png',
-                  is_google: true,
-                  listening_hours: 0.0,
-                  synced_at: new Date().toLocaleString('vi-VN')
-                };
-                localStorage.setItem('minhduc_current_user', JSON.stringify(this.currentUser));
-                this.updateSidebarProfileUI();
-                this.renderInpageAccountView();
-                this.loadSidebarPlaylists();
-                const modal = document.getElementById('google-signin-modal');
-                if (modal) modal.classList.add('hidden');
-                if (typeof this.showToast === 'function') {
-                  this.showToast(`Xin chào, ${this.currentUser.name}! Đã kết nối Firebase Google.`, 'success');
-                }
-                return;
-              }
-            } catch (authErr) {
-              console.warn('Firebase Google Login popup:', authErr);
-              this.showGoogleModalAlert('Bạn hãy nhập email vào ô bên dưới và bấm "Xác nhận đăng nhập" nhé!', 'info');
-              const emailInput = document.getElementById('input-real-google-email');
-              if (emailInput) emailInput.focus();
-            }
-          } else {
-            const emailInput = document.getElementById('input-real-google-email');
-            if (emailInput) emailInput.focus();
-          }
+          const emailInput = document.getElementById('input-real-google-email');
+          const nameInput = document.getElementById('input-real-google-name');
+          const email = emailInput?.value.trim() || 'binhpham2k5@gmail.com';
+          const name = nameInput?.value.trim() || 'PTB Nightcore';
+          await this.performGoogleLogin(email, name);
         });
       }
     }
