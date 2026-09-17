@@ -5816,7 +5816,6 @@ class MinhDucAudioEngine {
     const slot = document.getElementById('google-gsi-button-slot');
     if (!slot) return;
 
-    // Render official style Google Sign-In button powered by user's Firebase project
     slot.innerHTML = `
       <button type="button" id="btn-firebase-google-auth" class="w-full py-3 px-4 bg-white hover:bg-gray-100 text-gray-800 font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-3 transition-all hover:scale-[1.01] cursor-pointer">
         <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24">
@@ -5832,9 +5831,11 @@ class MinhDucAudioEngine {
     const btn = document.getElementById('btn-firebase-google-auth');
     if (btn) {
       btn.addEventListener('click', async () => {
-        // Try Firebase Google Auth first (uses user's minhducear-f055d authorized project)
-        if (window.__firebaseService) {
-          try {
+        this.showGoogleModalAlert('Đang mở cửa sổ đăng nhập Google...', 'info');
+
+        try {
+          // 1. If global Firebase service ready, use it
+          if (window.__firebaseService) {
             const fbUser = await window.__firebaseService.signInWithGoogle();
             if (fbUser && fbUser.email) {
               await this.performGoogleLogin(
@@ -5847,28 +5848,50 @@ class MinhDucAudioEngine {
             } else if (fbUser === null) {
               return;
             }
-          } catch (authErr) {
-            console.warn('Firebase Google Auth note:', authErr);
           }
-        }
 
-        // Check if user already typed an email below
-        const emailInput = document.getElementById('input-real-google-email');
-        let userEmail = emailInput?.value?.trim();
+          // 2. Direct Modular Firebase Auth popup
+          const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+          const { getAuth, signInWithPopup, GoogleAuthProvider } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
 
-        // If no email entered yet, prompt user for their Gmail
-        if (!userEmail || !userEmail.includes('@')) {
-          userEmail = prompt('Nhập địa chỉ Gmail của bạn để đăng nhập:', '');
-          if (userEmail) userEmail = userEmail.trim();
-        }
+          const config = {
+            apiKey: "AIzaSyA_J0jnx_St1ZpHvUJZiaf4bSU_axmJ-c8",
+            authDomain: "minhducear-f055d.firebaseapp.com",
+            projectId: "minhducear-f055d",
+            storageBucket: "minhducear-f055d.firebasestorage.app",
+            messagingSenderId: "682003556218",
+            appId: "1:682003556218:web:aaeee68209a9420322d8c3"
+          };
 
-        if (userEmail && userEmail.includes('@')) {
-          if (emailInput) emailInput.value = userEmail;
-          const nameInput = document.getElementById('input-real-google-name');
-          const userName = nameInput?.value?.trim() || userEmail.split('@')[0];
-          await this.performGoogleLogin(userEmail, userName);
-        } else if (emailInput) {
-          emailInput.focus();
+          const app = getApps().length ? getApps()[0] : initializeApp(config);
+          const auth = getAuth(app);
+          const provider = new GoogleAuthProvider();
+          provider.setCustomParameters({ prompt: 'select_account' });
+
+          const result = await signInWithPopup(auth, provider);
+          if (result && result.user) {
+            const u = result.user;
+            await this.performGoogleLogin(
+              u.email,
+              u.displayName || u.email.split('@')[0],
+              u.photoURL,
+              u.uid
+            );
+            return;
+          }
+        } catch (authErr) {
+          console.warn('[Google Sign-In Error]:', authErr);
+          if (authErr.code === 'auth/popup-closed-by-user') {
+            this.showGoogleModalAlert('Bạn đã đóng cửa sổ Google.', 'info');
+            return;
+          }
+          if (authErr.code === 'auth/operation-not-allowed') {
+            this.showGoogleModalAlert('Tài khoản Google chưa được kích hoạt trong Firebase Console (Authentication > Sign-in method > Google).', 'danger');
+            return;
+          }
+          this.showGoogleModalAlert('Cửa sổ Google chưa phản hồi. Bạn có thể nhập email vào form bên dưới để đăng nhập ngay nhé!', 'info');
+          const emailInput = document.getElementById('input-real-google-email');
+          if (emailInput) emailInput.focus();
         }
       });
     }
