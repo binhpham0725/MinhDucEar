@@ -5686,6 +5686,21 @@ class MinhDucAudioEngine {
     if (typeof this.loadHistoryView === 'function') this.loadHistoryView();
     if (typeof this.loadFavoritesView === 'function') this.loadFavoritesView(true);
     this.loadInitialFeed();
+
+    // Listen for Firebase auth changes (handles redirect login after page reload)
+    if (window.__firebaseService && typeof window.__firebaseService.onAuthChange === 'function') {
+      window.__firebaseService.onAuthChange(async (fbUser) => {
+        if (fbUser && fbUser.email && !this.currentUser) {
+          // Firebase user signed in (e.g. after redirect) but PHP session not set yet
+          await this.performGoogleLogin(
+            fbUser.email,
+            fbUser.displayName || fbUser.email.split('@')[0],
+            fbUser.photoURL,
+            fbUser.uid
+          );
+        }
+      });
+    }
   }
 
   updateSidebarProfileUI() {
@@ -5825,6 +5840,7 @@ class MinhDucAudioEngine {
             try {
               const fbUser = await window.__firebaseService.signInWithGoogle();
               if (fbUser && fbUser.email) {
+                // Popup succeeded — log in immediately
                 await this.performGoogleLogin(
                   fbUser.email,
                   fbUser.displayName || fbUser.email.split('@')[0],
@@ -5832,9 +5848,13 @@ class MinhDucAudioEngine {
                   fbUser.uid
                 );
                 return;
+              } else if (fbUser === null) {
+                // Redirect flow initiated — page will reload after Google auth
+                this.showGoogleModalAlert('Đang chuyển hướng đến Google... Trang sẽ tự tải lại sau khi đăng nhập.', 'info');
+                return;
               }
             } catch (authErr) {
-              console.warn('Firebase Google Login popup:', authErr);
+              console.warn('Firebase Google Login:', authErr);
               this.showGoogleModalAlert('Cửa sổ Google bị đóng hoặc bị chặn. Bạn hãy nhập email vào ô bên dưới để đăng nhập trực tiếp nhé!', 'info');
               const emailInput = document.getElementById('input-real-google-email');
               if (emailInput) emailInput.focus();
