@@ -129,12 +129,31 @@ export default async function handler(req, res) {
     // 1. FAVORITES LIST
     // -------------------------------------------------------------
     if (action === 'favorites_list') {
-      const userKey = String(userId);
+      const userKey = cleanId(userId);
       let userFavs = null;
 
       // Try fetching from Firestore if user is logged in
       if (userKey !== 'guest') {
         userFavs = await getFirestoreFavorites(userKey);
+
+        // Auto-migration: Check legacy keys (e.g. '6400', 'goog_115424860304779353235', '1') and migrate them
+        const legacyKeys = ['6400', '1', 'goog_115424860304779353235'].filter(k => k !== userKey);
+        if (!userFavs || userFavs.length === 0) {
+          for (const lk of legacyKeys) {
+            const legacyFavs = await getFirestoreFavorites(lk);
+            if (Array.isArray(legacyFavs) && legacyFavs.length > 0) {
+              userFavs = userFavs || [];
+              for (const lf of legacyFavs) {
+                const k = lf.youtube_id || lf.id;
+                if (k) {
+                  await saveFirestoreFavorite(userKey, k, lf);
+                  userFavs.push(lf);
+                }
+              }
+              break;
+            }
+          }
+        }
       }
 
       // Fallback to cacheStore
@@ -184,7 +203,7 @@ export default async function handler(req, res) {
         });
       }
 
-      const userKey = String(userId);
+      const userKey = cleanId(userId);
       let userFavs = cacheStore.favorites.get(userKey) || [];
       if (userKey !== 'guest' && userFavs.length === 0) {
         const dbFavs = await getFirestoreFavorites(userKey);

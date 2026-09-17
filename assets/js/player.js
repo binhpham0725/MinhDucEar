@@ -2890,62 +2890,71 @@ class MinhDucAudioEngine {
     return new Date(timestamp).toLocaleDateString('vi-VN');
   }
 
+  getCloudUid() {
+    if (!this.currentUser) {
+      try {
+        const saved = localStorage.getItem('minhduc_current_user');
+        if (saved) this.currentUser = JSON.parse(saved);
+      } catch(e) {}
+    }
+    if (!this.currentUser) return null;
+    // Canonical cloud user ID: Always lowercase clean email first
+    if (this.currentUser.email) {
+      return this.currentUser.email.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+    }
+    if (this.currentUser.google_id) {
+      return 'goog_' + String(this.currentUser.google_id).toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+    }
+    if (this.currentUser.uid) {
+      return String(this.currentUser.uid).trim().replace(/[\/\.]/g, '_');
+    }
+    if (this.currentUser.id) {
+      return 'user_' + String(this.currentUser.id);
+    }
+    return null;
+  }
+
   getHistoryStorageKey() {
-    if (this.currentUser) {
-      if (this.currentUser.email) {
-        const clean = this.currentUser.email.toLowerCase().replace(/[^a-z0-9]/g, '_');
-        const emailKey = `minhduc_history_user_${clean}`;
-        if (this.currentUser.id) {
-          const oldKey = `minhduc_history_user_${this.currentUser.id}`;
-          if (oldKey !== emailKey && localStorage.getItem(oldKey) && !localStorage.getItem(emailKey)) {
-            try { localStorage.setItem(emailKey, localStorage.getItem(oldKey)); } catch(e){}
-          }
+    const cloudUid = this.getCloudUid();
+    if (cloudUid) {
+      const emailKey = `minhduc_history_user_${cloudUid}`;
+      if (this.currentUser?.id) {
+        const oldKey = `minhduc_history_user_${this.currentUser.id}`;
+        if (oldKey !== emailKey && localStorage.getItem(oldKey) && !localStorage.getItem(emailKey)) {
+          try { localStorage.setItem(emailKey, localStorage.getItem(oldKey)); } catch(e){}
         }
-        return emailKey;
       }
-      if (this.currentUser.id) {
-        return `minhduc_history_user_${this.currentUser.id}`;
-      }
+      return emailKey;
     }
     return 'minhduc_history_guest';
   }
 
   getFavoritesStorageKey() {
-    if (this.currentUser) {
-      if (this.currentUser.email) {
-        const clean = this.currentUser.email.toLowerCase().replace(/[^a-z0-9]/g, '_');
-        const emailKey = `minhduc_favs_user_${clean}`;
-        if (this.currentUser.id) {
-          const oldKey = `minhduc_favs_user_${this.currentUser.id}`;
-          if (oldKey !== emailKey && localStorage.getItem(oldKey) && !localStorage.getItem(emailKey)) {
-            try { localStorage.setItem(emailKey, localStorage.getItem(oldKey)); } catch(e){}
-          }
+    const cloudUid = this.getCloudUid();
+    if (cloudUid) {
+      const emailKey = `minhduc_favs_user_${cloudUid}`;
+      if (this.currentUser?.id) {
+        const oldKey = `minhduc_favs_user_${this.currentUser.id}`;
+        if (oldKey !== emailKey && localStorage.getItem(oldKey) && !localStorage.getItem(emailKey)) {
+          try { localStorage.setItem(emailKey, localStorage.getItem(oldKey)); } catch(e){}
         }
-        return emailKey;
       }
-      if (this.currentUser.id) {
-        return `minhduc_favs_user_${this.currentUser.id}`;
-      }
+      return emailKey;
     }
     return 'minhduc_favs_guest';
   }
 
   getFavoriteAlbumsStorageKey() {
-    if (this.currentUser) {
-      if (this.currentUser.email) {
-        const clean = this.currentUser.email.toLowerCase().replace(/[^a-z0-9]/g, '_');
-        const emailKey = `minhduc_fav_albums_user_${clean}`;
-        if (this.currentUser.id) {
-          const oldKey = `minhduc_fav_albums_user_${this.currentUser.id}`;
-          if (oldKey !== emailKey && localStorage.getItem(oldKey) && !localStorage.getItem(emailKey)) {
-            try { localStorage.setItem(emailKey, localStorage.getItem(oldKey)); } catch(e){}
-          }
+    const cloudUid = this.getCloudUid();
+    if (cloudUid) {
+      const emailKey = `minhduc_fav_albums_user_${cloudUid}`;
+      if (this.currentUser?.id) {
+        const oldKey = `minhduc_fav_albums_user_${this.currentUser.id}`;
+        if (oldKey !== emailKey && localStorage.getItem(oldKey) && !localStorage.getItem(emailKey)) {
+          try { localStorage.setItem(emailKey, localStorage.getItem(oldKey)); } catch(e){}
         }
-        return emailKey;
       }
-      if (this.currentUser.id) {
-        return `minhduc_fav_albums_user_${this.currentUser.id}`;
-      }
+      return emailKey;
     }
     return 'minhduc_fav_albums_guest';
   }
@@ -3016,7 +3025,8 @@ class MinhDucAudioEngine {
         this._lastRecordedTrKey = trIdKey;
         this._lastRecordedTime = now;
 
-        const uidParam = this.currentUser.id || this.currentUser.email;
+        const cloudUid = this.getCloudUid();
+        const uidParam = cloudUid || this.currentUser.id || this.currentUser.email;
         const ytId = track.youtube_id || (typeof track.id === 'string' && track.id.startsWith('yt_') && track.id.length > 3 ? track.id.substring(3) : '');
         const trId = track.db_id || track.id || '';
         const title = (track.title || '').trim();
@@ -3057,7 +3067,6 @@ class MinhDucAudioEngine {
         }).catch(() => {});
 
         // Cloud Firestore Sync (cross-device)
-        const cloudUid = this.currentUser?.uid || (this.currentUser?.email ? this.currentUser.email.toLowerCase().replace(/[^a-z0-9]/g, '_') : this.currentUser?.google_id);
         if (window.__firebaseService && cloudUid) {
           try {
             window.__firebaseService.recordHistory(cloudUid, {
@@ -3807,8 +3816,9 @@ class MinhDucAudioEngine {
     `;
 
     let favList = [];
+    const cloudUid = this.getCloudUid();
     try {
-      const uidParam = this.currentUser?.id || this.currentUser?.email || '';
+      const uidParam = cloudUid || this.currentUser?.id || this.currentUser?.email || '';
       const userParam = uidParam ? `&user_id=${encodeURIComponent(uidParam)}` : '';
       const res = await fetch(`api/endpoints/playlists.php?action=favorites_list&limit=${this.favLimit}&offset=0${userParam}`, {
         credentials: 'include'
@@ -3823,7 +3833,6 @@ class MinhDucAudioEngine {
     } catch (e) {}
 
     // Cloud Firestore favorites sync across mobile/desktop
-    const cloudUid = this.currentUser?.uid || (this.currentUser?.email ? this.currentUser.email.toLowerCase().replace(/[^a-z0-9]/g, '_') : this.currentUser?.google_id);
     if (window.__firebaseService && cloudUid) {
       try {
         const fbFavs = await window.__firebaseService.getFavorites(cloudUid);
@@ -4051,34 +4060,39 @@ class MinhDucAudioEngine {
     try {
       history = JSON.parse(localStorage.getItem(key) || '[]');
     } catch (e) {}
+    // Filter dummy or corrupted tracks
+    history = history.filter(h => h && h.title && h.title !== 'Bài hát' && (h.youtube_id || (h.id && h.id !== 'yt_')));
 
     // If logged in, also fetch server history from MySQL / Vercel AND Firebase Cloud
-    if (this.currentUser && (this.currentUser.id || this.currentUser.email)) {
-      const uidParam = this.currentUser.id || this.currentUser.email;
+    const cloudUid = this.getCloudUid();
+    if (this.currentUser || cloudUid) {
+      const uidParam = cloudUid || this.currentUser?.id || this.currentUser?.email || '';
       try {
         const res = await fetch(`api/endpoints/tracks.php?action=history_list&limit=50&user_id=${encodeURIComponent(uidParam)}`, {
           credentials: 'include'
         });
         const d = await res.json();
         if (d.success && Array.isArray(d.history) && d.history.length > 0) {
-          const dbHistory = d.history.map(t => ({
-            id: t.id || ('yt_' + t.youtube_id),
-            db_id: t.id,
-            title: t.title,
-            artist: t.artist || 'Nghệ sĩ',
-            album: t.album || 'YouTube Music',
-            duration: t.duration || 210,
-            format: t.format || 'YT 320k',
-            cover_url: t.cover_url || ('https://i.ytimg.com/vi/' + t.youtube_id + '/hqdefault.jpg'),
-            youtube_id: t.youtube_id,
-            playedAt: t.playedAt || Date.now()
-          }));
+          const dbHistory = d.history
+            .filter(t => t && t.title && t.title !== 'Bài hát' && (t.youtube_id || (t.id && t.id !== 'yt_')))
+            .map(t => ({
+              id: t.id || ('yt_' + t.youtube_id),
+              db_id: t.id,
+              title: t.title,
+              artist: t.artist || 'Nghệ sĩ',
+              album: t.album || 'YouTube Music',
+              duration: t.duration || 210,
+              format: t.format || 'YT 320k',
+              cover_url: t.cover_url || ('https://i.ytimg.com/vi/' + t.youtube_id + '/hqdefault.jpg'),
+              youtube_id: t.youtube_id,
+              playedAt: t.playedAt || Date.now()
+            }));
           // Merge local unpushed with db
           const seen = new Set();
           const merged = [];
           [...history, ...dbHistory].forEach(item => {
             const id = item.youtube_id || item.title;
-            if (!seen.has(id)) {
+            if (id && !seen.has(id)) {
               seen.add(id);
               merged.push(item);
             }
@@ -4091,7 +4105,6 @@ class MinhDucAudioEngine {
       }
 
       // Cloud Firestore fetch
-      const cloudUid = this.currentUser?.uid || (this.currentUser?.email ? this.currentUser.email.toLowerCase().replace(/[^a-z0-9]/g, '_') : this.currentUser?.google_id);
       if (window.__firebaseService && cloudUid) {
         try {
           const fbHistory = await window.__firebaseService.getHistory(cloudUid, 50);
@@ -4099,19 +4112,21 @@ class MinhDucAudioEngine {
             const seen = new Set(history.map(h => h.youtube_id || h.title));
             fbHistory.forEach(item => {
               const tr = item.track || item;
-              const keyId = tr.youtube_id || tr.title;
-              if (!seen.has(keyId)) {
-                seen.add(keyId);
-                history.push({
-                  id: tr.id || ('yt_' + tr.youtube_id),
-                  youtube_id: tr.youtube_id,
-                  title: tr.title,
-                  artist: tr.artist || 'Nghệ sĩ',
-                  cover_url: tr.cover_url || ('https://i.ytimg.com/vi/' + tr.youtube_id + '/hqdefault.jpg'),
-                  duration: tr.duration || 210,
-                  format: tr.format || 'YT 320k',
-                  playedAt: item.playedAt?.toMillis ? item.playedAt.toMillis() : Date.now()
-                });
+              if (tr && tr.title && tr.title !== 'Bài hát' && (tr.youtube_id || tr.id)) {
+                const keyId = tr.youtube_id || tr.title;
+                if (!seen.has(keyId)) {
+                  seen.add(keyId);
+                  history.push({
+                    id: tr.id || ('yt_' + tr.youtube_id),
+                    youtube_id: tr.youtube_id,
+                    title: tr.title,
+                    artist: tr.artist || 'Nghệ sĩ',
+                    cover_url: tr.cover_url || ('https://i.ytimg.com/vi/' + tr.youtube_id + '/hqdefault.jpg'),
+                    duration: tr.duration || 210,
+                    format: tr.format || 'YT 320k',
+                    playedAt: item.playedAt?.toMillis ? item.playedAt.toMillis() : (item.playedAt || Date.now())
+                  });
+                }
               }
             });
             localStorage.setItem(key, JSON.stringify(history));
@@ -4934,8 +4949,9 @@ class MinhDucAudioEngine {
     let apiSuccess = false;
 
     // 1. If logged in, sync with MySQL / Vercel database & Firebase Cloud
-    if (this.currentUser && (this.currentUser.id || this.currentUser.email)) {
-      const uidParam = this.currentUser.id || this.currentUser.email;
+    const cloudUid = this.getCloudUid();
+    if (this.currentUser || cloudUid) {
+      const uidParam = cloudUid || this.currentUser?.id || this.currentUser?.email || '';
       try {
         const queryParams = new URLSearchParams({
           action: 'favorite_toggle',
@@ -4982,7 +4998,6 @@ class MinhDucAudioEngine {
       } catch (err) {}
 
       // 1.1 Cloud Firestore sync (real-time cross-device)
-      const cloudUid = this.currentUser?.uid || (this.currentUser?.email ? this.currentUser.email.toLowerCase().replace(/[^a-z0-9]/g, '_') : this.currentUser?.google_id);
       if (window.__firebaseService && cloudUid) {
         try {
           const fbRes = await window.__firebaseService.toggleFavorite(cloudUid, {
@@ -6108,7 +6123,7 @@ class MinhDucAudioEngine {
       };
 
       const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
-      const { getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, deleteDoc, query, orderBy, limit, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+      const { getFirestore, collection, doc, getDoc, getDocs, setDoc, addDoc, deleteDoc, query, orderBy, limit, serverTimestamp, onSnapshot } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
       const { getAuth, GoogleAuthProvider, signInWithCredential } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
 
       const app = getApps().length > 0 ? getApps()[0] : initializeApp(cfg);
@@ -6202,11 +6217,15 @@ class MinhDucAudioEngine {
           try {
             if (!uid || !track) return;
             const cleanUid = String(uid).replace(/[\/\.]/g, '_');
-            await addDoc(collection(db, `users/${cleanUid}/history`), {
+            const ytId = track.youtube_id || (typeof track.id === 'string' && track.id.startsWith('yt_') && track.id.length > 3 ? track.id.substring(3) : '');
+            const rawKey = ytId || track.db_id || track.id || track.title;
+            const trackKey = String(rawKey).replace(/[\/\.]/g, '_');
+            const histRef = doc(db, `users/${cleanUid}/history`, trackKey);
+            await setDoc(histRef, {
               track: {
-                id: track.id || track.db_id || ('yt_' + track.youtube_id),
+                id: track.id || track.db_id || ('yt_' + ytId),
                 db_id: track.db_id || track.id || null,
-                youtube_id: track.youtube_id || '',
+                youtube_id: ytId,
                 title: track.title || 'Unknown Title',
                 artist: track.artist || 'Unknown Artist',
                 cover_url: track.cover_url || track.cover || '',
@@ -6215,7 +6234,7 @@ class MinhDucAudioEngine {
               },
               durationPlayed,
               playedAt: serverTimestamp()
-            });
+            }, { merge: true });
           } catch (e) {
             console.warn('[Firebase] recordHistory error:', e);
           }
@@ -6234,6 +6253,38 @@ class MinhDucAudioEngine {
             return snap.docs.map(d => ({ id: d.id, ...d.data() }));
           } catch (err) {
             return [];
+          }
+        },
+        subscribeFavorites(uid, callback) {
+          if (!uid || typeof callback !== 'function') return () => {};
+          const cleanUid = String(uid).replace(/[\/\.]/g, '_');
+          try {
+            return onSnapshot(collection(db, `users/${cleanUid}/favorites`), (snap) => {
+              const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+              callback(list);
+            }, (err) => {
+              console.warn('[Firebase] subscribeFavorites notice:', err);
+            });
+          } catch(e) {
+            return () => {};
+          }
+        },
+        subscribeHistory(uid, callback) {
+          if (!uid || typeof callback !== 'function') return () => {};
+          const cleanUid = String(uid).replace(/[\/\.]/g, '_');
+          try {
+            const q = query(collection(db, `users/${cleanUid}/history`), orderBy('playedAt', 'desc'), limit(50));
+            return onSnapshot(q, (snap) => {
+              const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+              callback(list);
+            }, (err) => {
+              return onSnapshot(collection(db, `users/${cleanUid}/history`), (snap2) => {
+                const list2 = snap2.docs.map(d => ({ id: d.id, ...d.data() }));
+                callback(list2);
+              }, () => {});
+            });
+          } catch(e) {
+            return () => {};
           }
         },
         async getUserPlaylists(uid) {
@@ -6266,6 +6317,60 @@ class MinhDucAudioEngine {
     }
   }
 
+  handleRemoteFavoritesUpdate(remoteFavs) {
+    if (!Array.isArray(remoteFavs)) return;
+    const validRemote = remoteFavs.filter(f => f && f.title && f.title !== 'Bài hát' && (f.youtube_id || (f.id && f.id !== 'yt_')));
+    const favKey = this.getFavoritesStorageKey();
+    localStorage.setItem(favKey, JSON.stringify(validRemote));
+    this.currentFavoritesList = validRemote;
+
+    const badge = document.getElementById('favorites-count-badge');
+    if (badge) badge.textContent = `${validRemote.length} BÀI HÁT`;
+
+    if (this.currentView === 'favorites' && typeof this.renderFavoritesBatch === 'function') {
+      const container = document.getElementById('favorites-tracks-container');
+      if (container) {
+        container.innerHTML = '';
+        this.renderFavoritesBatch(validRemote, false);
+      }
+    }
+
+    this.updateControllerFavoriteUI();
+  }
+
+  handleRemoteHistoryUpdate(remoteHist) {
+    if (!Array.isArray(remoteHist)) return;
+    const key = this.getHistoryStorageKey();
+    const validList = remoteHist.map(h => {
+      const tr = h.track || h;
+      return {
+        id: tr.id || ('yt_' + tr.youtube_id),
+        youtube_id: tr.youtube_id,
+        title: tr.title,
+        artist: tr.artist || 'Nghệ sĩ',
+        cover_url: tr.cover_url || (tr.youtube_id ? `https://i.ytimg.com/vi/${tr.youtube_id}/hqdefault.jpg` : ''),
+        duration: tr.duration || 210,
+        format: tr.format || 'YT 320k',
+        playedAt: h.playedAt?.toMillis ? h.playedAt.toMillis() : (h.playedAt || Date.now())
+      };
+    }).filter(h => h && h.title && h.title !== 'Bài hát' && (h.youtube_id || (h.id && h.id !== 'yt_')));
+
+    localStorage.setItem(key, JSON.stringify(validList));
+    this.allHistoryList = validList;
+    this.currentHistoryList = validList;
+
+    const badge = document.getElementById('history-count-badge');
+    if (badge) badge.textContent = `${validList.length} BÀI HÁT`;
+
+    if (this.currentView === 'history' && typeof this.renderHistoryBatch === 'function') {
+      const container = document.getElementById('history-tracks-container');
+      if (container) {
+        container.innerHTML = '';
+        this.renderHistoryBatch(validList.slice(0, this.historyLimit || 10), false);
+      }
+    }
+  }
+
   async onFirebaseReady() {
     console.info('[MinhDucEar] Firebase Cloud service ready, syncing cloud favorites & history...');
     if (!this.currentUser) {
@@ -6276,109 +6381,172 @@ class MinhDucAudioEngine {
         }
       } catch(e) {}
     }
-    if (this.currentUser) {
-      const cloudUid = this.currentUser.uid || (this.currentUser.email ? this.currentUser.email.toLowerCase().replace(/[^a-z0-9]/g, '_') : this.currentUser.google_id);
-      if (cloudUid && window.__firebaseService) {
+    const cloudUid = this.getCloudUid();
+    if (cloudUid && window.__firebaseService) {
+      try {
+        const favKey = this.getFavoritesStorageKey();
+        let localFavs = JSON.parse(localStorage.getItem(favKey) || '[]');
+        localFavs = localFavs.filter(f => f && f.title && f.title !== 'Bài hát' && (f.youtube_id || (f.id && f.id !== 'yt_')));
+
+        // Bổ sung các bài hát đã thích ở chế độ khách (nếu có)
         try {
-          const favKey = this.getFavoritesStorageKey();
-          let localFavs = JSON.parse(localStorage.getItem(favKey) || '[]');
-          localFavs = localFavs.filter(f => f && f.title && f.title !== 'Bài hát' && (f.youtube_id || (f.id && f.id !== 'yt_')));
-
-          // Bổ sung các bài hát đã thích ở chế độ khách (nếu có)
-          try {
-            const guestFavs = JSON.parse(localStorage.getItem('minhduc_favs_guest') || '[]');
-            const currentKeys = new Set(localFavs.map(f => f.youtube_id || f.title));
-            guestFavs.forEach(gf => {
-              if (gf && gf.title && gf.title !== 'Bài hát' && !currentKeys.has(gf.youtube_id || gf.title)) {
-                localFavs.push(gf);
-                currentKeys.add(gf.youtube_id || gf.title);
-              }
-            });
-          } catch(e) {}
-
-          // 1. Lấy dữ liệu từ Firebase về
-          const fbFavs = await window.__firebaseService.getFavorites(cloudUid);
-
-          // 2. Đẩy các bài hát đang có ở máy tính lên Firebase nếu trên Firebase chưa có (Auto-Migrate)
-          const seenFb = new Set((fbFavs || []).map(f => f.youtube_id || f.id || f.title));
-          let uploadedFavCount = 0;
-          for (const lf of localFavs) {
-            const trkId = lf.youtube_id || lf.id || lf.title;
-            if (!seenFb.has(trkId)) {
-              if (typeof window.__firebaseService.saveFavorite === 'function') {
-                await window.__firebaseService.saveFavorite(cloudUid, lf);
-                uploadedFavCount++;
-              } else if (typeof window.__firebaseService.toggleFavorite === 'function') {
-                await window.__firebaseService.toggleFavorite(cloudUid, lf);
-                uploadedFavCount++;
-              }
-              seenFb.add(trkId);
+          const guestFavs = JSON.parse(localStorage.getItem('minhduc_favs_guest') || '[]');
+          const currentKeys = new Set(localFavs.map(f => f.youtube_id || f.title));
+          guestFavs.forEach(gf => {
+            if (gf && gf.title && gf.title !== 'Bài hát' && !currentKeys.has(gf.youtube_id || gf.title)) {
+              localFavs.push(gf);
+              currentKeys.add(gf.youtube_id || gf.title);
             }
-          }
-          if (uploadedFavCount > 0) {
-            console.info(`[CloudSync] Đã đồng bộ ${uploadedFavCount} bài hát yêu thích lên Firebase!`);
-            this.showToast(`Đã đồng bộ ${uploadedFavCount} bài hát yêu thích lên Cloud!`);
-          }
+          });
+        } catch(e) {}
 
-          // 3. Hợp nhất các bài hát từ Firebase vào máy tính/điện thoại
-          if (Array.isArray(fbFavs) && fbFavs.length > 0) {
-            const seenLocal = new Set(localFavs.map(f => f.youtube_id || f.title));
-            let merged = false;
-            fbFavs.forEach(ff => {
-              if (ff && ff.title && ff.title !== 'Bài hát' && (ff.youtube_id || (ff.id && ff.id !== 'yt_'))) {
-                const key = ff.youtube_id || ff.title;
-                if (!seenLocal.has(key)) {
-                  localFavs.push(ff);
-                  seenLocal.add(key);
-                  merged = true;
+        // 1. Lấy dữ liệu từ Firebase về
+        let fbFavs = await window.__firebaseService.getFavorites(cloudUid);
+
+        // Auto-migration: Nếu cloudUid mới chưa có bài nào, quét các key cũ ('6400', 'goog_115424860304779353235', '1')
+        const legacyKeys = ['6400', '1', 'goog_115424860304779353235'].filter(k => k !== cloudUid);
+        for (const lk of legacyKeys) {
+          try {
+            const oldFavs = await window.__firebaseService.getFavorites(lk);
+            if (Array.isArray(oldFavs) && oldFavs.length > 0) {
+              for (const ofav of oldFavs) {
+                if (ofav && ofav.title && ofav.title !== 'Bài hát') {
+                  await window.__firebaseService.saveFavorite(cloudUid, ofav);
                 }
               }
-            });
-            if (merged) {
-              localStorage.setItem(favKey, JSON.stringify(localFavs));
+              fbFavs = await window.__firebaseService.getFavorites(cloudUid);
+              break;
             }
-          }
-        } catch (e) {
-          console.warn('[CloudSync] onFirebaseReady favorites sync error:', e);
+          } catch(e) {}
         }
 
-        // 4. Đồng bộ lịch sử nghe nhạc 2 chiều
-        try {
-          const histKey = this.getHistoryStorageKey ? this.getHistoryStorageKey() : 'minhduc_history';
-          let localHist = JSON.parse(localStorage.getItem(histKey) || '[]');
-          const fbHist = await window.__firebaseService.getHistory(cloudUid, 30);
-          const seenHist = new Set((fbHist || []).map(h => {
-            const tr = h.track || h;
-            return tr.youtube_id || tr.title;
-          }));
-          for (const item of localHist.slice(0, 15)) {
-            const tr = item.track || item;
+        // 2. Đẩy các bài hát đang có ở máy tính lên Firebase nếu trên Firebase chưa có
+        const seenFb = new Set((fbFavs || []).map(f => f.youtube_id || f.id || f.title));
+        let uploadedFavCount = 0;
+        for (const lf of localFavs) {
+          const trkId = lf.youtube_id || lf.id || lf.title;
+          if (!seenFb.has(trkId)) {
+            if (typeof window.__firebaseService.saveFavorite === 'function') {
+              await window.__firebaseService.saveFavorite(cloudUid, lf);
+              uploadedFavCount++;
+            }
+            seenFb.add(trkId);
+          }
+        }
+        if (uploadedFavCount > 0) {
+          console.info(`[CloudSync] Đã đồng bộ ${uploadedFavCount} bài hát yêu thích lên Firebase!`);
+          this.showToast(`Đã đồng bộ ${uploadedFavCount} bài hát yêu thích lên Cloud!`);
+        }
+
+        // 3. Hợp nhất các bài hát từ Firebase vào máy tính/điện thoại
+        if (Array.isArray(fbFavs) && fbFavs.length > 0) {
+          const seenLocal = new Set(localFavs.map(f => f.youtube_id || f.title));
+          let merged = false;
+          fbFavs.forEach(ff => {
+            if (ff && ff.title && ff.title !== 'Bài hát' && (ff.youtube_id || (ff.id && ff.id !== 'yt_'))) {
+              const key = ff.youtube_id || ff.title;
+              if (!seenLocal.has(key)) {
+                localFavs.push(ff);
+                seenLocal.add(key);
+                merged = true;
+              }
+            }
+          });
+          if (merged) {
+            localStorage.setItem(favKey, JSON.stringify(localFavs));
+          }
+        }
+      } catch (e) {
+        console.warn('[CloudSync] onFirebaseReady favorites sync error:', e);
+      }
+
+      // 4. Đồng bộ lịch sử nghe nhạc 2 chiều
+      try {
+        const histKey = this.getHistoryStorageKey();
+        let localHist = JSON.parse(localStorage.getItem(histKey) || '[]');
+        localHist = localHist.filter(h => {
+          const tr = h.track || h;
+          return tr && tr.title && tr.title !== 'Bài hát' && (tr.youtube_id || (tr.id && tr.id !== 'yt_'));
+        });
+        const fbHist = await window.__firebaseService.getHistory(cloudUid, 30);
+        const seenHist = new Set((fbHist || []).map(h => {
+          const tr = h.track || h;
+          return tr.youtube_id || tr.title;
+        }));
+        for (const item of localHist.slice(0, 15)) {
+          const tr = item.track || item;
+          const k = tr.youtube_id || tr.title;
+          if (k && !seenHist.has(k)) {
+            await window.__firebaseService.recordHistory(cloudUid, tr);
+            seenHist.add(k);
+          }
+        }
+        // Kéo bài từ fbHist về localHist nếu local chưa có
+        let histMerged = false;
+        const localHistKeys = new Set(localHist.map(h => {
+          const tr = h.track || h;
+          return tr.youtube_id || tr.title;
+        }));
+        (fbHist || []).forEach(fh => {
+          const tr = fh.track || fh;
+          if (tr && tr.title && tr.title !== 'Bài hát' && (tr.youtube_id || tr.id)) {
             const k = tr.youtube_id || tr.title;
-            if (k && !seenHist.has(k)) {
-              await window.__firebaseService.recordHistory(cloudUid, tr);
-              seenHist.add(k);
+            if (!localHistKeys.has(k)) {
+              localHist.push({
+                id: tr.id || ('yt_' + tr.youtube_id),
+                youtube_id: tr.youtube_id,
+                title: tr.title,
+                artist: tr.artist || 'Nghệ sĩ',
+                cover_url: tr.cover_url || ('https://i.ytimg.com/vi/' + tr.youtube_id + '/hqdefault.jpg'),
+                duration: tr.duration || 210,
+                format: tr.format || 'YT 320k',
+                playedAt: fh.playedAt?.toMillis ? fh.playedAt.toMillis() : (fh.playedAt || Date.now())
+              });
+              localHistKeys.add(k);
+              histMerged = true;
             }
           }
-        } catch (hErr) {
-          console.warn('[CloudSync] onFirebaseReady history sync error:', hErr);
+        });
+        if (histMerged) {
+          localStorage.setItem(histKey, JSON.stringify(localHist));
         }
+      } catch (hErr) {
+        console.warn('[CloudSync] onFirebaseReady history sync error:', hErr);
+      }
+
+      // 5. KÍCH HOẠT LẮNG NGHE REALTIME (onSnapshot) GIỮA CÁC THIẾT BỊ
+      try {
+        if (typeof window.__firebaseService.subscribeFavorites === 'function') {
+          if (this._unsubFavs) { try { this._unsubFavs(); } catch(e){} }
+          this._unsubFavs = window.__firebaseService.subscribeFavorites(cloudUid, (remoteFavs) => {
+            this.handleRemoteFavoritesUpdate(remoteFavs);
+          });
+        }
+        if (typeof window.__firebaseService.subscribeHistory === 'function') {
+          if (this._unsubHist) { try { this._unsubHist(); } catch(e){} }
+          this._unsubHist = window.__firebaseService.subscribeHistory(cloudUid, (remoteHist) => {
+            this.handleRemoteHistoryUpdate(remoteHist);
+          });
+        }
+      } catch(snapErr) {
+        console.warn('[CloudSync] Realtime subscribe error:', snapErr);
+      }
 
         try {
           if (typeof this.loadFavoritesView === 'function') {
             await this.loadFavoritesView(true);
           }
         } catch(e) {}
-        try {
-          if (typeof this.loadHistoryView === 'function') {
-            await this.loadHistoryView();
-          }
-        } catch(e) {}
-        try {
-          if (typeof this.loadSidebarPlaylists === 'function') {
-            await this.loadSidebarPlaylists();
-          }
-        } catch(e) {}
-      }
+      try {
+        if (typeof this.loadHistoryView === 'function') {
+          await this.loadHistoryView();
+        }
+      } catch(e) {}
+      try {
+        if (typeof this.loadSidebarPlaylists === 'function') {
+          await this.loadSidebarPlaylists();
+        }
+      } catch(e) {}
     }
   }
 

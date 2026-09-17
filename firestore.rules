@@ -1,0 +1,49 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // =========================================================================
+    // MinhDucEar - Firestore Security Rules
+    // Bảo mật dữ liệu người dùng, bài hát và danh sách phát
+    // =========================================================================
+
+    // 1. Danh sách phát mẫu (Curated Playlists) & Danh mục công khai
+    match /curated_playlists/{playlistId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // 2. Bộ nhớ đệm bài hát toàn hệ thống (Global Tracks Catalog)
+    match /tracks/{trackId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // 3. Hồ sơ người dùng & Dữ liệu tài khoản
+    // Hỗ trợ cả Firebase Authentication SDK lẫn Vercel Serverless REST API
+    match /users/{userId} {
+      allow read, write: if true;
+
+      // Danh sách bài hát yêu thích (Favorites)
+      match /favorites/{favoriteId} {
+        allow read, write: if true;
+      }
+
+      // Danh sách phát cá nhân (Playlists)
+      match /playlists/{playlistId} {
+        allow read, write: if true;
+      }
+
+      // Lịch sử nghe nhạc (History)
+      match /history/{historyId} {
+        allow read, write: if true;
+      }
+
+      // Gu âm nhạc cá nhân (Music Taste)
+      match /taste/{tasteId} {
+        allow read, write: if true;
+      }
+    }
+  }
+}

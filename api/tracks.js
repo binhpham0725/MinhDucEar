@@ -6,6 +6,113 @@
 
 const historyCache = new Map(); // key: userId -> array of history items
 
+const FIREBASE_CONFIG = {
+  projectId: process.env.FIREBASE_PROJECT_ID || 'minhducear-f055d',
+  apiKey: process.env.FIREBASE_API_KEY || 'AIzaSyA_dQjex_0sZj4h2rZl4Fb0Gk_aumJ-c0'
+};
+
+const FIRESTORE_BASE_URL = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents`;
+
+function cleanId(str) {
+  return String(str || '').trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
+}
+
+function toFirestoreFields(obj) {
+  const fields = {};
+  for (const [key, val] of Object.entries(obj)) {
+    if (val === undefined || val === null) {
+      fields[key] = { nullValue: null };
+    } else if (typeof val === 'boolean') {
+      fields[key] = { booleanValue: val };
+    } else if (typeof val === 'number') {
+      if (Number.isInteger(val)) {
+        fields[key] = { integerValue: String(val) };
+      } else {
+        fields[key] = { doubleValue: val };
+      }
+    } else if (typeof val === 'string') {
+      fields[key] = { stringValue: val };
+    } else if (Array.isArray(val)) {
+      fields[key] = {
+        arrayValue: {
+          values: val.map(item => {
+            if (typeof item === 'object' && item !== null) {
+              return { mapValue: { fields: toFirestoreFields(item) } };
+            }
+            return { stringValue: String(item) };
+          })
+        }
+      };
+    } else if (typeof val === 'object') {
+      fields[key] = { mapValue: { fields: toFirestoreFields(val) } };
+    }
+  }
+  return fields;
+}
+
+function fromFirestoreFields(fields = {}) {
+  const obj = {};
+  for (const [key, valObj] of Object.entries(fields)) {
+    if ('stringValue' in valObj) obj[key] = valObj.stringValue;
+    else if ('integerValue' in valObj) obj[key] = parseInt(valObj.integerValue, 10);
+    else if ('doubleValue' in valObj) obj[key] = parseFloat(valObj.doubleValue);
+    else if ('booleanValue' in valObj) obj[key] = valObj.booleanValue;
+    else if ('nullValue' in valObj) obj[key] = null;
+    else if ('timestampValue' in valObj) obj[key] = valObj.timestampValue;
+    else if ('arrayValue' in valObj) {
+      obj[key] = (valObj.arrayValue.values || []).map(v => {
+        if ('mapValue' in v) return fromFirestoreFields(v.mapValue.fields);
+        return Object.values(v)[0];
+      });
+    } else if ('mapValue' in valObj) {
+      obj[key] = fromFirestoreFields(valObj.mapValue.fields || {});
+    }
+  }
+  return obj;
+}
+
+async function getFirestoreHistory(uid, limitCount = 50) {
+  try {
+    const cleanUid = cleanId(uid);
+    const url = `${FIRESTORE_BASE_URL}/users/${cleanUid}/history?key=${FIREBASE_CONFIG.apiKey}&pageSize=${limitCount}`;
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const data = await res.json();
+    if (!data || !data.documents) return [];
+    return data.documents.map(d => {
+      const parsed = fromFirestoreFields(d.fields);
+      const tr = parsed.track || parsed;
+      return {
+        id: tr.id || ('yt_' + tr.youtube_id),
+        track_id: tr.db_id || tr.track_id || null,
+        youtube_id: tr.youtube_id || '',
+        title: tr.title || 'Bản nhạc',
+        artist: tr.artist || 'Nghệ sĩ',
+        cover_url: tr.cover_url || (tr.youtube_id ? `https://i.ytimg.com/vi/${tr.youtube_id}/hqdefault.jpg` : ''),
+        duration: tr.duration || 210,
+        format: tr.format || 'YT 320k',
+        played_at: parsed.played_at || (parsed.playedAt ? new Date(parsed.playedAt).toISOString() : new Date().toISOString()),
+        playedAt: parsed.playedAt || (d.createTime ? new Date(d.createTime).getTime() : Date.now())
+      };
+    }).filter(h => h && h.title && h.title !== 'Bài hát' && (h.youtube_id || (h.id && h.id !== 'yt_')));
+  } catch(e) {
+    return [];
+  }
+}
+
+async function saveFirestoreHistory(uid, trackKey, historyData) {
+  try {
+    const cleanUid = cleanId(uid);
+    const cleanKey = cleanId(trackKey);
+    const url = `${FIRESTORE_BASE_URL}/users/${cleanUid}/history/${cleanKey}?key=${FIREBASE_CONFIG.apiKey}`;
+    await fetch(url, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields: toFirestoreFields(historyData) })
+    });
+  } catch(e) {}
+}
+
 const CATEGORY_QUERIES = {
   all: [
     'thinh hanh nhac tre vpop 2026',
@@ -386,7 +493,7 @@ export default async function handler(req, res) {
       });
     }
 
-    // 7. HISTORY RECORD (Vercel Serverless)
+    // 7. HISTORY RECORD (Vercel Serverless & Cloud Firestore)
     if (action === 'history_record') {
       let body = {};
       if (typeof req.body === 'object' && req.body !== null) {
@@ -408,14 +515,14 @@ export default async function handler(req, res) {
         return res.status(400).json({ success: false, message: 'Dữ liệu không hợp lệ' });
       }
 
-      const userKey = String(userId);
+      const userKey = cleanId(userId);
       let list = (historyCache.get(userKey) || []).filter(h => h && h.title && h.title !== 'Bài hát' && (h.youtube_id || (h.id && h.id !== 'yt_')));
 
       // Remove previous duplicate of this song
       list = list.filter(h => (!ytId || h.youtube_id !== ytId) && (!trackId || trackId === 'yt_' || h.id != trackId) && (!title || h.title.toLowerCase() !== title.toLowerCase()));
 
       const validId = (trackId && trackId !== 'yt_') ? trackId : ('yt_' + ytId);
-      list.unshift({
+      const newHistoryItem = {
         id: validId,
         track_id: (trackId && trackId !== 'yt_') ? trackId : null,
         youtube_id: ytId,
@@ -426,10 +533,31 @@ export default async function handler(req, res) {
         format: 'YT 320k',
         played_at: new Date().toISOString(),
         playedAt: Date.now()
-      });
+      };
+      list.unshift(newHistoryItem);
 
       if (list.length > 60) list = list.slice(0, 60);
       historyCache.set(userKey, list);
+
+      // Save to Cloud Firestore if logged in
+      if (userKey !== 'guest') {
+        const trackKey = ytId || validId;
+        const histPayload = {
+          track: {
+            id: validId,
+            db_id: (trackId && trackId !== 'yt_') ? trackId : null,
+            youtube_id: ytId,
+            title: title || 'Bản nhạc',
+            artist: artist,
+            cover_url: coverUrl,
+            duration: duration,
+            format: 'YT 320k'
+          },
+          playedAt: Date.now(),
+          played_at: new Date().toISOString()
+        };
+        saveFirestoreHistory(userKey, trackKey, histPayload).catch(() => {});
+      }
 
       return res.status(200).json({
         success: true,
@@ -438,22 +566,41 @@ export default async function handler(req, res) {
       });
     }
 
-    // 8. HISTORY LIST (Vercel Serverless)
+    // 8. HISTORY LIST (Vercel Serverless & Cloud Firestore)
     if (action === 'history_list') {
       const userId = url.searchParams.get('user_id') || req.body?.user_id || 'guest';
       const limit = Math.min(60, Math.max(1, parseInt(url.searchParams.get('limit') || '50', 10)));
-      const userKey = String(userId);
-      const list = (historyCache.get(userKey) || []).filter(h => h && h.title && h.title !== 'Bài hát' && (h.youtube_id || (h.id && h.id !== 'yt_'))).slice(0, limit);
+      const userKey = cleanId(userId);
+      let list = (historyCache.get(userKey) || []).filter(h => h && h.title && h.title !== 'Bài hát' && (h.youtube_id || (h.id && h.id !== 'yt_')));
+
+      if (userKey !== 'guest') {
+        const remoteHist = await getFirestoreHistory(userKey, limit);
+        if (Array.isArray(remoteHist) && remoteHist.length > 0) {
+          const seen = new Set();
+          const merged = [];
+          [...remoteHist, ...list].forEach(item => {
+            const k = item.youtube_id || item.title;
+            if (k && !seen.has(k)) {
+              seen.add(k);
+              merged.push(item);
+            }
+          });
+          list = merged;
+          historyCache.set(userKey, list);
+        }
+      }
 
       return res.status(200).json({
         success: true,
-        history: list
+        history: list.slice(0, limit)
       });
     }
 
     // 9. HISTORY CLEAR
     if (action === 'history_clear') {
       const userId = url.searchParams.get('user_id') || req.body?.user_id || 'guest';
+      const userKey = cleanId(userId);
+      historyCache.delete(userKey);
       historyCache.delete(String(userId));
       return res.status(200).json({
         success: true,

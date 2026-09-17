@@ -486,14 +486,15 @@ export default async function handler(req, res) {
       const defaultAvatar = 'https://lh3.googleusercontent.com/aida-public/AB6AXuBVF6ggMmL9CnND9kKg8BU6E6tRiffz5-ZeSirpXvvr1ra_17MAMrOBcG9FqAkcDkkTUKTcSNKUlNl_n7yGHLRUXaYyS4oJG0V0wnya8IJ91kxA6cijNYYe8f3sumGifyZsgsBRiOOEagEFaFeq1_eeFJT1IYtYNJyPiUzkoFsLGRiBvqH5ckRkcP7rHZplCCUsv0bI7r4bcuJHwdoijK0SD-oVLjPB5m2PdidQFUkb-G8Qduv13SEVRA';
       const displayName = name || email.split('@')[0];
       const avatarUrl = picture || defaultAvatar;
+      const canonicalUid = cleanId(email);
       const gid = googleId || ('goog_' + Math.abs(hashCode(email)));
-      const docId = `goog_${cleanId(gid)}`;
+      const legacyDocId = `goog_${cleanId(gid)}`;
 
-      // Check existing user in Firestore
-      let existingUser = await getFirestoreUser(docId) || await findFirestoreUser(email);
+      // Check existing user in Firestore (canonical first, then legacy doc ID or email search)
+      let existingUser = await getFirestoreUser(canonicalUid) || await getFirestoreUser(legacyDocId) || await findFirestoreUser(email);
 
       let user = {
-        uid: docId,
+        uid: canonicalUid,
         id: (Math.abs(hashCode(email)) % 10000) || 101,
         username: email.split('@')[0].toLowerCase().replace(/[^a-z0-9_]/g, '') || 'google_user',
         email: email,
@@ -513,13 +514,13 @@ export default async function handler(req, res) {
         lastLoginAt: new Date().toISOString()
       };
 
-      // Save/Merge into Cloud Firestore
-      await saveFirestoreUser(docId, user);
+      // Save/Merge into Cloud Firestore under canonical UID
+      await saveFirestoreUser(canonicalUid, user);
 
       // Set cookie for session persistence on Vercel
       setUserCookie(res, user);
 
-      const syncStats = await getFirestoreSyncStats(docId);
+      const syncStats = await getFirestoreSyncStats(canonicalUid);
 
       return res.status(200).json({
         success: true,
