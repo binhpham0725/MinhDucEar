@@ -8,13 +8,13 @@
  */
 
 export const firebaseConfig = {
-  apiKey: window.__FIREBASE_CONFIG__?.apiKey || "AIzaSyA_dQjex_0sZj4h2rZl4Fb0Gk_aumJ-c0",
-  authDomain: window.__FIREBASE_CONFIG__?.authDomain || "minhducear-f955d.firebaseapp.com",
-  projectId: window.__FIREBASE_CONFIG__?.projectId || "minhducear-f955d",
-  storageBucket: window.__FIREBASE_CONFIG__?.storageBucket || "minhducear-f955d.firebasestorage.app",
-  messagingSenderId: window.__FIREBASE_CONFIG__?.messagingSenderId || "682003556218",
-  appId: window.__FIREBASE_CONFIG__?.appId || "1:682003556218:web:a66ed9671fdfd3921fed7e",
-  measurementId: window.__FIREBASE_CONFIG__?.measurementId || "G-DJ1M200QYC"
+  apiKey: (typeof window !== 'undefined' && window.__FIREBASE_CONFIG__?.apiKey) || process?.env?.FIREBASE_API_KEY || "AIzaSyA_dQjex_0sZj4h2rZl4Fb0Gk_aumJ-c0",
+  authDomain: (typeof window !== 'undefined' && window.__FIREBASE_CONFIG__?.authDomain) || process?.env?.FIREBASE_AUTH_DOMAIN || "minhducear-f055d.firebaseapp.com",
+  projectId: (typeof window !== 'undefined' && window.__FIREBASE_CONFIG__?.projectId) || process?.env?.FIREBASE_PROJECT_ID || "minhducear-f055d",
+  storageBucket: (typeof window !== 'undefined' && window.__FIREBASE_CONFIG__?.storageBucket) || process?.env?.FIREBASE_STORAGE_BUCKET || "minhducear-f055d.firebasestorage.app",
+  messagingSenderId: (typeof window !== 'undefined' && window.__FIREBASE_CONFIG__?.messagingSenderId) || process?.env?.FIREBASE_MESSAGING_SENDER_ID || "682003556218",
+  appId: (typeof window !== 'undefined' && window.__FIREBASE_CONFIG__?.appId) || process?.env?.FIREBASE_APP_ID || "1:682003556218:web:a66ed9671fdfd3921fed7e",
+  measurementId: (typeof window !== 'undefined' && window.__FIREBASE_CONFIG__?.measurementId) || process?.env?.FIREBASE_MEASUREMENT_ID || "G-DJ1M200QYC"
 };
 
 /**
@@ -26,4 +26,12 @@ export function isFirebaseConfigured() {
     firebaseConfig.apiKey !== "AIzaSy_YOUR_FIREBASE_API_KEY" &&
     !firebaseConfig.apiKey.includes("YOUR_")
   );
+}
+
+/**
+ * URL Firestore REST API Endpoint
+ */
+export function getFirestoreRestUrl(path = '') {
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  return `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents${cleanPath ? '/' + cleanPath : ''}?key=${firebaseConfig.apiKey}`;
 }

@@ -5641,6 +5641,34 @@ class MinhDucAudioEngine {
     if (btnInpageLinkGoogle) {
       btnInpageLinkGoogle.addEventListener('click', openGoogleModal);
     }
+
+    const btnFirebaseGoogleAuth = document.getElementById('btn-firebase-google-auth');
+    if (btnFirebaseGoogleAuth) {
+      btnFirebaseGoogleAuth.addEventListener('click', async () => {
+        if (window.__firebaseService && typeof window.__firebaseService.signInWithGoogle === 'function') {
+          try {
+            this.showGoogleModalAlert('Đang mở cửa sổ đăng nhập Google...', 'info');
+            const fbUser = await window.__firebaseService.signInWithGoogle();
+            if (fbUser && fbUser.email) {
+              await this.performGoogleLogin(
+                fbUser.email,
+                fbUser.displayName || fbUser.email.split('@')[0],
+                fbUser.photoURL,
+                fbUser.uid
+              );
+            }
+          } catch(err) {
+            console.warn('[Firebase Google Auth Notice]:', err);
+            if (err && (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request')) {
+              this.showGoogleModalAlert('Bạn đã đóng cửa sổ đăng nhập.', 'info');
+            } else {
+              this.showGoogleModalAlert('Vui lòng hoàn tất đăng nhập trong popup hoặc nhập email phía dưới.', 'info');
+            }
+          }
+        }
+      });
+    }
+
     this.initGoogleGsi();
 
     // --- Submit Real Google Account Form ---
@@ -6071,9 +6099,9 @@ class MinhDucAudioEngine {
 
       const cfg = window.__FIREBASE_CONFIG__ || {
         apiKey: "AIzaSyA_dQjex_0sZj4h2rZl4Fb0Gk_aumJ-c0",
-        authDomain: "minhducear-f955d.firebaseapp.com",
-        projectId: "minhducear-f955d",
-        storageBucket: "minhducear-f955d.firebasestorage.app",
+        authDomain: "minhducear-f055d.firebaseapp.com",
+        projectId: "minhducear-f055d",
+        storageBucket: "minhducear-f055d.firebasestorage.app",
         messagingSenderId: "682003556218",
         appId: "1:682003556218:web:a66ed9671fdfd3921fed7e",
         measurementId: "G-DJ1M200QYC"

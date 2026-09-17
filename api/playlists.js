@@ -1,13 +1,115 @@
 /**
  * MinhDucEar - Vercel Serverless Function: Playlists & Favorites API
+ * Powered by Google Cloud Firestore (minhducear-f055d)
  * Handles favorites, playlists, and album bookmarks on Vercel
  */
+
+const FIREBASE_CONFIG = {
+  projectId: process.env.FIREBASE_PROJECT_ID || 'minhducear-f055d',
+  apiKey: process.env.FIREBASE_API_KEY || 'AIzaSyA_dQjex_0sZj4h2rZl4Fb0Gk_aumJ-c0'
+};
+
+const FIRESTORE_BASE_URL = `https://firestore.googleapis.com/v1/projects/${FIREBASE_CONFIG.projectId}/databases/(default)/documents`;
 
 const cacheStore = {
   favorites: new Map(),
   albums: new Map(),
   playlists: new Map()
 };
+
+function cleanId(str) {
+  return String(str || '').trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
+}
+
+function toFirestoreFields(obj) {
+  const fields = {};
+  for (const [key, val] of Object.entries(obj)) {
+    if (val === undefined || val === null) {
+      fields[key] = { nullValue: null };
+    } else if (typeof val === 'boolean') {
+      fields[key] = { booleanValue: val };
+    } else if (typeof val === 'number') {
+      if (Number.isInteger(val)) {
+        fields[key] = { integerValue: String(val) };
+      } else {
+        fields[key] = { doubleValue: val };
+      }
+    } else if (typeof val === 'string') {
+      fields[key] = { stringValue: val };
+    } else if (Array.isArray(val)) {
+      fields[key] = {
+        arrayValue: {
+          values: val.map(item => {
+            if (typeof item === 'object' && item !== null) {
+              return { mapValue: { fields: toFirestoreFields(item) } };
+            }
+            return { stringValue: String(item) };
+          })
+        }
+      };
+    } else if (typeof val === 'object') {
+      fields[key] = { mapValue: { fields: toFirestoreFields(val) } };
+    }
+  }
+  return fields;
+}
+
+function fromFirestoreFields(fields = {}) {
+  const obj = {};
+  for (const [key, valObj] of Object.entries(fields)) {
+    if ('stringValue' in valObj) obj[key] = valObj.stringValue;
+    else if ('integerValue' in valObj) obj[key] = parseInt(valObj.integerValue, 10);
+    else if ('doubleValue' in valObj) obj[key] = parseFloat(valObj.doubleValue);
+    else if ('booleanValue' in valObj) obj[key] = valObj.booleanValue;
+    else if ('nullValue' in valObj) obj[key] = null;
+    else if ('timestampValue' in valObj) obj[key] = valObj.timestampValue;
+    else if ('arrayValue' in valObj) {
+      obj[key] = (valObj.arrayValue.values || []).map(v => {
+        if ('mapValue' in v) return fromFirestoreFields(v.mapValue.fields);
+        return Object.values(v)[0];
+      });
+    } else if ('mapValue' in valObj) {
+      obj[key] = fromFirestoreFields(valObj.mapValue.fields || {});
+    }
+  }
+  return obj;
+}
+
+async function getFirestoreFavorites(uid) {
+  try {
+    const cleanUid = cleanId(uid);
+    const url = `${FIRESTORE_BASE_URL}/users/${cleanUid}/favorites?key=${FIREBASE_CONFIG.apiKey}&pageSize=100`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data || !data.documents) return [];
+    return data.documents.map(d => fromFirestoreFields(d.fields));
+  } catch (e) {
+    return null;
+  }
+}
+
+async function saveFirestoreFavorite(uid, trackKey, trackData) {
+  try {
+    const cleanUid = cleanId(uid);
+    const cleanKey = cleanId(trackKey);
+    const url = `${FIRESTORE_BASE_URL}/users/${cleanUid}/favorites/${cleanKey}?key=${FIREBASE_CONFIG.apiKey}`;
+    await fetch(url, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields: toFirestoreFields(trackData) })
+    });
+  } catch (e) {}
+}
+
+async function deleteFirestoreFavorite(uid, trackKey) {
+  try {
+    const cleanUid = cleanId(uid);
+    const cleanKey = cleanId(trackKey);
+    const url = `${FIRESTORE_BASE_URL}/users/${cleanUid}/favorites/${cleanKey}?key=${FIREBASE_CONFIG.apiKey}`;
+    await fetch(url, { method: 'DELETE' });
+  } catch (e) {}
+}
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -23,9 +125,23 @@ export default async function handler(req, res) {
   const userId = url.searchParams.get('user_id') || req.body?.user_id || 'guest';
 
   try {
+    // -------------------------------------------------------------
+    // 1. FAVORITES LIST
+    // -------------------------------------------------------------
     if (action === 'favorites_list') {
       const userKey = String(userId);
-      let userFavs = (cacheStore.favorites.get(userKey) || []).filter(f => f && f.title && f.title !== 'Bài hát' && (f.youtube_id || (f.id && f.id !== 'yt_')));
+      let userFavs = null;
+
+      // Try fetching from Firestore if user is logged in
+      if (userKey !== 'guest') {
+        userFavs = await getFirestoreFavorites(userKey);
+      }
+
+      // Fallback to cacheStore
+      if (!userFavs) {
+        userFavs = cacheStore.favorites.get(userKey) || [];
+      }
+      userFavs = userFavs.filter(f => f && f.title && f.title !== 'Bài hát' && (f.youtube_id || (f.id && f.id !== 'yt_')));
       cacheStore.favorites.set(userKey, userFavs);
 
       const limit = parseInt(url.searchParams.get('limit') || '50', 10);
@@ -42,6 +158,9 @@ export default async function handler(req, res) {
       });
     }
 
+    // -------------------------------------------------------------
+    // 2. FAVORITE TOGGLE
+    // -------------------------------------------------------------
     if (action === 'favorite_toggle') {
       let body = {};
       if (typeof req.body === 'object' && req.body !== null) {
@@ -66,18 +185,27 @@ export default async function handler(req, res) {
       }
 
       const userKey = String(userId);
-      let userFavs = (cacheStore.favorites.get(userKey) || []).filter(f => f && f.title && f.title !== 'Bài hát' && (f.youtube_id || (f.id && f.id !== 'yt_')));
+      let userFavs = cacheStore.favorites.get(userKey) || [];
+      if (userKey !== 'guest' && userFavs.length === 0) {
+        const dbFavs = await getFirestoreFavorites(userKey);
+        if (dbFavs) userFavs = dbFavs;
+      }
+      userFavs = userFavs.filter(f => f && f.title && f.title !== 'Bài hát' && (f.youtube_id || (f.id && f.id !== 'yt_')));
 
       const existIdx = userFavs.findIndex(f => (ytId && f.youtube_id && f.youtube_id === ytId) || (trackId && trackId !== 'yt_' && f.id == trackId) || (title && f.title && f.title.toLowerCase() === title.toLowerCase()));
 
       let isFavorite = false;
       const validTrackId = (trackId && trackId !== 'yt_') ? trackId : ('yt_' + ytId);
+      const trackKey = ytId || validTrackId;
 
       if (existIdx > -1) {
         userFavs.splice(existIdx, 1);
         isFavorite = false;
+        if (userKey !== 'guest') {
+          deleteFirestoreFavorite(userKey, trackKey).catch(() => {});
+        }
       } else {
-        userFavs.unshift({
+        const newFav = {
           id: validTrackId,
           db_id: (trackId && trackId !== 'yt_') ? trackId : null,
           youtube_id: ytId,
@@ -87,8 +215,12 @@ export default async function handler(req, res) {
           duration,
           format: 'YT AUDIO 320k',
           created_at: new Date().toISOString()
-        });
+        };
+        userFavs.unshift(newFav);
         isFavorite = true;
+        if (userKey !== 'guest') {
+          saveFirestoreFavorite(userKey, trackKey, newFav).catch(() => {});
+        }
       }
 
       cacheStore.favorites.set(userKey, userFavs);
@@ -101,6 +233,9 @@ export default async function handler(req, res) {
       });
     }
 
+    // -------------------------------------------------------------
+    // 3. FAVORITE REMOVE
+    // -------------------------------------------------------------
     if (action === 'favorite_remove') {
       const body = req.body || {};
       const trackId = url.searchParams.get('track_id') || body.track_id || '';
@@ -111,6 +246,11 @@ export default async function handler(req, res) {
       userFavs = userFavs.filter(f => f.id != trackId && (!ytId || f.youtube_id !== ytId));
       cacheStore.favorites.set(userKey, userFavs);
 
+      if (userKey !== 'guest') {
+        const trackKey = ytId || trackId;
+        deleteFirestoreFavorite(userKey, trackKey).catch(() => {});
+      }
+
       return res.status(200).json({
         success: true,
         is_favorite: false,
@@ -119,6 +259,9 @@ export default async function handler(req, res) {
       });
     }
 
+    // -------------------------------------------------------------
+    // 4. ALBUM BOOKMARKS
+    // -------------------------------------------------------------
     if (action === 'favorite_albums_list') {
       const userAlbums = cacheStore.albums.get(String(userId)) || [];
       return res.status(200).json({
@@ -151,6 +294,9 @@ export default async function handler(req, res) {
       });
     }
 
+    // -------------------------------------------------------------
+    // 5. PLAYLISTS LIST & CREATE
+    // -------------------------------------------------------------
     if (action === 'playlists_list' || action === 'list') {
       const userPlaylists = cacheStore.playlists.get(String(userId)) || [];
       return res.status(200).json({

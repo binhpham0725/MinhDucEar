@@ -7,6 +7,22 @@
   
   <script>
     window.__GOOGLE_CLIENT_ID__ = '682003556218-uinu1m45sorg1r7hqtchpv33l6c8l6vl.apps.googleusercontent.com';
+    window.__FIREBASE_CONFIG__ = {
+      apiKey: "AIzaSyA_dQjex_0sZj4h2rZl4Fb0Gk_aumJ-c0",
+      authDomain: "minhducear-f055d.firebaseapp.com",
+      projectId: "minhducear-f055d",
+      storageBucket: "minhducear-f055d.firebasestorage.app",
+      messagingSenderId: "682003556218",
+      appId: "1:682003556218:web:a66ed9671fdfd3921fed7e",
+      measurementId: "G-DJ1M200QYC"
+    };
+  </script>
+  <script type="module">
+    import { firebaseService } from './services/firebaseService.js';
+    window.__firebaseService = firebaseService;
+    firebaseService.init().then(() => {
+      console.info('[MinhDucEar Auth] Firebase Service initialized.');
+    }).catch(e => console.warn('[MinhDucEar Auth] Firebase init notice:', e));
   </script>
   <!-- Google Identity Services (Sign-In & Cloud Sync) -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -262,13 +278,15 @@
           body: JSON.stringify({ username, password })
         });
         const result = await res.json();
-        if (result.success) {
+        if (result.success && result.user) {
+          localStorage.setItem('minhduc_current_user', JSON.stringify(result.user));
+          if (result.sync_stats) localStorage.setItem('minhduc_sync_stats', JSON.stringify(result.sync_stats));
           showAlert('Đăng nhập thành công! Đang chuyển hướng...', true);
           setTimeout(() => {
             window.location.href = accountUrl;
-          }, 700);
+          }, 600);
         } else {
-          showAlert(result.error || 'Đăng nhập thất bại!');
+          showAlert(result.error || result.message || 'Đăng nhập thất bại!');
         }
       } catch (err) {
         showAlert('Lỗi kết nối máy chủ!');
@@ -294,13 +312,15 @@
           body: JSON.stringify({ username, display_name, email, password })
         });
         const result = await res.json();
-        if (result.success) {
-          showAlert('Đăng ký tài khoản thành công! Đang chuyển tới trang quản lý...', true);
+        if (result.success && result.user) {
+          localStorage.setItem('minhduc_current_user', JSON.stringify(result.user));
+          if (result.sync_stats) localStorage.setItem('minhduc_sync_stats', JSON.stringify(result.sync_stats));
+          showAlert('Đăng ký tài khoản thành công! Dữ liệu đã lưu trữ an toàn trên Firebase.', true);
           setTimeout(() => {
             window.location.href = accountUrl;
-          }, 800);
+          }, 700);
         } else {
-          showAlert(result.error || 'Đăng ký thất bại!');
+          showAlert(result.error || result.message || 'Đăng ký thất bại!');
         }
       } catch (err) {
         showAlert('Lỗi kết nối máy chủ!');

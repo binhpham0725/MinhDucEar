@@ -222,14 +222,43 @@ class FirebaseService {
     const modules = await loadFirebaseModules();
     if (!modules || !user) return;
     const { doc, setDoc, serverTimestamp } = modules.firestoreMethods;
-    const userRef = doc(modules.db, 'users', user.uid);
+    const uid = user.uid || (user.email ? user.email.toLowerCase().replace(/[^a-z0-9_]/g, '_') : 'user_' + Date.now());
+    const userRef = doc(modules.db, 'users', uid);
+    const dName = customName || user.displayName || user.display_name || user.name || (user.email ? user.email.split('@')[0] : 'Người dùng MinhDucEar');
+    const pUrl = user.photoURL || user.avatar_url || user.picture || 'assets/images/avatars/default.png';
+    const isGoogle = Boolean(user.is_google || (user.providerData && user.providerData.some(p => p.providerId === 'google.com')));
+
     await setDoc(userRef, {
-      uid: user.uid,
+      uid: uid,
+      username: user.username || (user.email ? user.email.split('@')[0] : 'audiophile'),
       email: user.email || '',
-      displayName: customName || user.displayName || 'Người dùng MinhDucEar',
-      photoURL: user.photoURL || '',
+      displayName: dName,
+      display_name: dName,
+      name: dName,
+      photoURL: pUrl,
+      avatar_url: pUrl,
+      role: user.role || 'AUDIOPHILE',
+      is_google: isGoogle,
+      google_id: user.google_id || (isGoogle ? uid : ''),
+      listening_hours: Number(user.listening_hours || user.listeningHours || 0.0),
+      listeningHours: Number(user.listening_hours || user.listeningHours || 0.0),
+      total_listening_seconds: Number(user.total_listening_seconds || 0),
+      synced_at: new Date().toLocaleString('vi-VN'),
       lastLoginAt: serverTimestamp()
     }, { merge: true });
+  }
+
+  async getUserProfile(uid) {
+    const modules = await loadFirebaseModules();
+    if (!modules || !uid) return null;
+    const { doc, getDoc } = modules.firestoreMethods;
+    try {
+      const snap = await getDoc(doc(modules.db, 'users', uid));
+      return snap.exists() ? snap.data() : null;
+    } catch (e) {
+      console.warn('[Firebase] Could not get user profile:', e);
+      return null;
+    }
   }
 
   // -------------------------------------------------------------

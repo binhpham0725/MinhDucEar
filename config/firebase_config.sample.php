@@ -12,11 +12,11 @@
  */
 
 return [
-    'project_id' => 'minhducear-f955d',
+    'project_id' => 'minhducear-f055d',
     'api_key' => 'AIzaSyA_dQjex_0sZj4h2rZl4Fb0Gk_aumJ-c0',
-    'auth_domain' => 'minhducear-f955d.firebaseapp.com',
-    'database_url' => 'https://minhducear-f955d-default-rtdb.firebaseio.com',
-    'storage_bucket' => 'minhducear-f955d.firebasestorage.app',
+    'auth_domain' => 'minhducear-f055d.firebaseapp.com',
+    'database_url' => 'https://minhducear-f055d-default-rtdb.firebaseio.com',
+    'storage_bucket' => 'minhducear-f055d.firebasestorage.app',
     'messaging_sender_id' => '682003556218',
     'app_id' => '1:682003556218:web:a66ed9671fdfd3921fed7e',
 
