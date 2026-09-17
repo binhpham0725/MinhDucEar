@@ -19,6 +19,8 @@ async function loadFirebaseModules() {
     const { 
       getAuth, 
       signInWithPopup, 
+      signInWithRedirect,
+      getRedirectResult,
       GoogleAuthProvider, 
       signInWithEmailAndPassword, 
       createUserWithEmailAndPassword, 
@@ -56,6 +58,8 @@ async function loadFirebaseModules() {
       db,
       authMethods: {
         signInWithPopup,
+        signInWithRedirect,
+        getRedirectResult,
         GoogleAuthProvider,
         signInWithEmailAndPassword,
         createUserWithEmailAndPassword,
@@ -109,6 +113,17 @@ class FirebaseService {
       });
     });
 
+    // Handle redirect result (from signInWithRedirect on mobile/blocked popup)
+    try {
+      const redirectResult = await modules.authMethods.getRedirectResult(modules.auth);
+      if (redirectResult && redirectResult.user) {
+        await this.saveUserProfile(redirectResult.user);
+        console.info('[Firebase] Redirect sign-in success:', redirectResult.user.email);
+      }
+    } catch (redirectErr) {
+      console.warn('[Firebase] getRedirectResult error:', redirectErr.code);
+    }
+
     return true;
   }
 
@@ -126,13 +141,26 @@ class FirebaseService {
     const modules = await loadFirebaseModules();
     if (!modules) throw new Error('Firebase chưa sẵn sàng');
     const provider = new modules.authMethods.GoogleAuthProvider();
-    const result = await modules.authMethods.signInWithPopup(modules.auth, provider);
-    
-    // Sync/upsert user document in Firestore
-    if (result.user) {
-      await this.saveUserProfile(result.user);
+
+    // Try popup first (desktop), fall back to redirect (mobile / popup blocked)
+    try {
+      const result = await modules.authMethods.signInWithPopup(modules.auth, provider);
+      if (result.user) await this.saveUserProfile(result.user);
+      return result.user;
+    } catch (popupErr) {
+      const redirectCodes = [
+        'auth/popup-blocked',
+        'auth/cancelled-popup-request',
+        'auth/popup-closed-by-user',
+        'auth/unauthorized-domain'
+      ];
+      if (redirectCodes.includes(popupErr.code)) {
+        // Redirect flow — page will reload, result handled in init()
+        await modules.authMethods.signInWithRedirect(modules.auth, provider);
+        return null;
+      }
+      throw popupErr;
     }
-    return result.user;
   }
 
   async signInWithEmail(email, password) {
