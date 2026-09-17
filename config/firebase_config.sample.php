@@ -12,13 +12,13 @@
  */
 
 return [
-    'project_id' => 'minhduc-ear-project',
-    'api_key' => 'AIzaSyYourApiKeyHere...',
-    'auth_domain' => 'minhduc-ear-project.firebaseapp.com',
-    'database_url' => 'https://minhduc-ear-project-default-rtdb.firebaseio.com',
-    'storage_bucket' => 'minhduc-ear-project.appspot.com',
-    'messaging_sender_id' => '1234567890',
-    'app_id' => '1:1234567890:web:abcdef123456',
+    'project_id' => 'minhducear-f055d',
+    'api_key' => 'AIzaSyA_J0jnx_St1ZpHvUJZiaf4bSU_axmJ-c8',
+    'auth_domain' => 'minhducear-f055d.firebaseapp.com',
+    'database_url' => 'https://minhducear-f055d-default-rtdb.firebaseio.com',
+    'storage_bucket' => 'minhducear-f055d.firebasestorage.app',
+    'messaging_sender_id' => '682003556218',
+    'app_id' => '1:682003556218:web:aaeee68209a9420322d8c3',
 
     // Đường dẫn tới Service Account JSON (nếu gọi Firebase Admin SDK từ PHP/Node)
     'service_account_path' => __DIR__ . '/service_account.json',
