@@ -6256,21 +6256,40 @@ class MinhDucAudioEngine {
           let localFavs = JSON.parse(localStorage.getItem(favKey) || '[]');
           localFavs = localFavs.filter(f => f && f.title && f.title !== 'Bài hát' && (f.youtube_id || (f.id && f.id !== 'yt_')));
 
+          // Bổ sung các bài hát đã thích ở chế độ khách (nếu có)
+          try {
+            const guestFavs = JSON.parse(localStorage.getItem('minhduc_favs_guest') || '[]');
+            const currentKeys = new Set(localFavs.map(f => f.youtube_id || f.title));
+            guestFavs.forEach(gf => {
+              if (gf && gf.title && gf.title !== 'Bài hát' && !currentKeys.has(gf.youtube_id || gf.title)) {
+                localFavs.push(gf);
+                currentKeys.add(gf.youtube_id || gf.title);
+              }
+            });
+          } catch(e) {}
+
           // 1. Lấy dữ liệu từ Firebase về
           const fbFavs = await window.__firebaseService.getFavorites(cloudUid);
 
           // 2. Đẩy các bài hát đang có ở máy tính lên Firebase nếu trên Firebase chưa có (Auto-Migrate)
           const seenFb = new Set((fbFavs || []).map(f => f.youtube_id || f.id || f.title));
+          let uploadedFavCount = 0;
           for (const lf of localFavs) {
             const trkId = lf.youtube_id || lf.id || lf.title;
             if (!seenFb.has(trkId)) {
               if (typeof window.__firebaseService.saveFavorite === 'function') {
                 await window.__firebaseService.saveFavorite(cloudUid, lf);
+                uploadedFavCount++;
               } else if (typeof window.__firebaseService.toggleFavorite === 'function') {
                 await window.__firebaseService.toggleFavorite(cloudUid, lf);
+                uploadedFavCount++;
               }
               seenFb.add(trkId);
             }
+          }
+          if (uploadedFavCount > 0) {
+            console.info(`[CloudSync] Đã đồng bộ ${uploadedFavCount} bài hát yêu thích lên Firebase!`);
+            this.showToast(`Đã đồng bộ ${uploadedFavCount} bài hát yêu thích lên Cloud!`);
           }
 
           // 3. Hợp nhất các bài hát từ Firebase vào máy tính/điện thoại
