@@ -5271,27 +5271,27 @@ class MinhDucAudioEngine {
       });
     }
 
-    // Trigger Google Login directly when clicking "Đăng nhập với Google"
+    // Trigger Google Modal Dialog when clicking "Đăng nhập với Google"
     const btnInpageGoogleLogin = document.getElementById('inpage-btn-google-login');
     if (btnInpageGoogleLogin) {
-      btnInpageGoogleLogin.addEventListener('click', () => {
-        this.performGoogleLogin('binhpham2k5@gmail.com', 'PTB Nightcore');
-      });
+      btnInpageGoogleLogin.addEventListener('click', openGoogleModal);
     }
 
     const btnInpageLinkGoogle = document.getElementById('inpage-btn-link-google-now');
     if (btnInpageLinkGoogle) {
-      btnInpageLinkGoogle.addEventListener('click', () => {
-        this.performGoogleLogin('binhpham2k5@gmail.com', 'PTB Nightcore');
-      });
+      btnInpageLinkGoogle.addEventListener('click', openGoogleModal);
     }
 
     // --- Submit Real Google Account Form ---
     if (formRealGoogle) {
       formRealGoogle.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const email = document.getElementById('input-real-google-email')?.value.trim() || 'binhpham2k5@gmail.com';
-        const name = document.getElementById('input-real-google-name')?.value.trim() || 'PTB Nightcore';
+        const email = document.getElementById('input-real-google-email')?.value.trim();
+        const name = document.getElementById('input-real-google-name')?.value.trim();
+        if (!email || !email.includes('@')) {
+          this.showGoogleModalAlert('Vui lòng nhập địa chỉ email Google hợp lệ!', 'danger');
+          return;
+        }
         await this.performGoogleLogin(email, name);
       });
     }
@@ -5722,10 +5722,24 @@ class MinhDucAudioEngine {
     }
   }
 
-  async performGoogleLogin(email = 'binhpham2k5@gmail.com', name = 'PTB Nightcore', picture = null, googleId = null) {
-    this.showGoogleModalAlert('Đang đăng nhập Google & đồng bộ...', 'info');
-    const pic = picture || 'https://lh3.googleusercontent.com/a/ACg8ocJa1YEBsNpVAggplpeCvqC9N-IbBWmrRWeV8T0Pj5CPjbudXuip=s96-c';
-    const gid = googleId || '103531304757332335546';
+  hashCode(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash |= 0;
+    }
+    return Math.abs(hash);
+  }
+
+  async performGoogleLogin(email, name = '', picture = null, googleId = null) {
+    if (!email || !email.includes('@')) {
+      this.showGoogleModalAlert('Vui lòng nhập địa chỉ email Google hợp lệ!', 'danger');
+      return false;
+    }
+    const displayName = name || email.split('@')[0];
+    this.showGoogleModalAlert(`Đang đăng nhập tài khoản ${email} & đồng bộ...`, 'info');
+    const pic = picture || 'https://lh3.googleusercontent.com/aida-public/AB6AXuBVF6ggMmL9CnND9kKg8BU6E6tRiffz5-ZeSirpXvvr1ra_17MAMrOBcG9FqAkcDkkTUKTcSNKUlNl_n7yGHLRUXaYyS4oJG0V0wnya8IJ91kxA6cijNYYe8f3sumGifyZsgsBRiOOEagEFaFeq1_eeFJT1IYtYNJyPiUzkoFsLGRiBvqH5ckRkcP7rHZplCCUsv0bI7r4bcuJHwdoijK0SD-oVLjPB5m2PdidQFUkb-G8Qduv13SEVRA';
+    const gid = googleId || ('goog_' + this.hashCode(email));
 
     try {
       const isPagesDir = window.location.pathname.includes('/pages/');
@@ -5735,7 +5749,7 @@ class MinhDucAudioEngine {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: email,
-          name: name,
+          name: displayName,
           google_id: gid,
           picture: pic
         })
@@ -5763,17 +5777,17 @@ class MinhDucAudioEngine {
 
     // Client-side fallback (Vercel Edge / offline)
     this.currentUser = {
-      id: 10,
+      id: (this.hashCode(email) % 10000) || 101,
       email: email,
-      name: name,
-      display_name: name,
+      name: displayName,
+      display_name: displayName,
       username: email.split('@')[0],
       google_id: gid,
       role: 'AUDIOPHILE',
       is_google: true,
       avatar_url: pic,
       google_picture: pic,
-      listening_hours: 2.3,
+      listening_hours: 0.0,
       synced_at: new Date().toLocaleString('vi-VN')
     };
     localStorage.setItem('minhduc_current_user', JSON.stringify(this.currentUser));
@@ -5792,25 +5806,43 @@ class MinhDucAudioEngine {
     const slot = document.getElementById('google-gsi-button-slot');
     if (slot) {
       slot.innerHTML = `
-        <button type="button" id="btn-firebase-google-auth" class="w-full py-2.5 px-4 bg-white hover:bg-gray-100 text-gray-800 font-bold text-xs rounded-lg shadow-lg flex items-center justify-center gap-3 transition-all hover:scale-[1.02] cursor-pointer">
+        <button type="button" id="btn-firebase-google-auth" class="w-full py-2.5 px-4 bg-white hover:bg-gray-100 text-gray-800 font-bold text-xs rounded-lg shadow-md flex items-center justify-center gap-3 transition-all hover:scale-[1.01] cursor-pointer">
           <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
           </svg>
-          <span>Đăng nhập ngay: binhpham2k5@gmail.com</span>
+          <span>Đăng nhập với Google</span>
         </button>
       `;
 
       const btn = document.getElementById('btn-firebase-google-auth');
       if (btn) {
         btn.addEventListener('click', async () => {
+          if (window.__firebaseService) {
+            this.showGoogleModalAlert('Đang kết nối Google Sign-In...', 'info');
+            try {
+              const fbUser = await window.__firebaseService.signInWithGoogle();
+              if (fbUser && fbUser.email) {
+                await this.performGoogleLogin(
+                  fbUser.email,
+                  fbUser.displayName || fbUser.email.split('@')[0],
+                  fbUser.photoURL,
+                  fbUser.uid
+                );
+                return;
+              }
+            } catch (authErr) {
+              console.warn('Firebase Google Login popup:', authErr);
+              this.showGoogleModalAlert('Cửa sổ Google bị đóng hoặc bị chặn. Bạn hãy nhập email vào ô bên dưới để đăng nhập trực tiếp nhé!', 'info');
+              const emailInput = document.getElementById('input-real-google-email');
+              if (emailInput) emailInput.focus();
+              return;
+            }
+          }
           const emailInput = document.getElementById('input-real-google-email');
-          const nameInput = document.getElementById('input-real-google-name');
-          const email = emailInput?.value.trim() || 'binhpham2k5@gmail.com';
-          const name = nameInput?.value.trim() || 'PTB Nightcore';
-          await this.performGoogleLogin(email, name);
+          if (emailInput) emailInput.focus();
         });
       }
     }
