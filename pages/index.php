@@ -15,6 +15,9 @@
   })();
 </script>
 
+  <script>
+    window.__GOOGLE_CLIENT_ID__ = '682003556218-uinu1m45sorg1r7hqtchpv33l6c8l6vl.apps.googleusercontent.com';
+  </script>
   <!-- Google Identity Services (Sign-In & Cloud Sync) -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <!-- YouTube IFrame API -->

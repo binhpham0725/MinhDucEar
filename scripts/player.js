@@ -5281,6 +5281,7 @@ class MinhDucAudioEngine {
     if (btnInpageLinkGoogle) {
       btnInpageLinkGoogle.addEventListener('click', openGoogleModal);
     }
+    this.initGoogleGsi();
 
     // --- Submit Real Google Account Form ---
     if (formRealGoogle) {
@@ -5816,7 +5817,7 @@ class MinhDucAudioEngine {
     const slot = document.getElementById('google-gsi-button-slot');
     if (!slot) return;
 
-    const clientId = window.__GOOGLE_CLIENT_ID__ || '870603441580-57o6l3flph86rdq8qu3jo4niipka31ha.apps.googleusercontent.com';
+    const clientId = window.__GOOGLE_CLIENT_ID__ || '682003556218-uinu1m45sorg1r7hqtchpv33l6c8l6vl.apps.googleusercontent.com';
 
     // 1. If Google Identity Services (GSI) SDK is loaded, render official Google OAuth button
     if (window.google && window.google.accounts && window.google.accounts.id) {
