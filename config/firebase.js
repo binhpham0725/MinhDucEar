@@ -8,12 +8,13 @@
  */
 
 export const firebaseConfig = {
-  apiKey: window.__FIREBASE_CONFIG__?.apiKey || "AIzaSy_YOUR_FIREBASE_API_KEY",
-  authDomain: window.__FIREBASE_CONFIG__?.authDomain || "minhduc-ear.firebaseapp.com",
-  projectId: window.__FIREBASE_CONFIG__?.projectId || "minhduc-ear",
-  storageBucket: window.__FIREBASE_CONFIG__?.storageBucket || "minhduc-ear.appspot.com",
-  messagingSenderId: window.__FIREBASE_CONFIG__?.messagingSenderId || "123456789012",
-  appId: window.__FIREBASE_CONFIG__?.appId || "1:123456789012:web:abcdef123456"
+  apiKey: window.__FIREBASE_CONFIG__?.apiKey || "AIzaSyA_J0jnx_St1ZpHvUJZiaf4bSU_axmJ-c8",
+  authDomain: window.__FIREBASE_CONFIG__?.authDomain || "minhducear-f055d.firebaseapp.com",
+  projectId: window.__FIREBASE_CONFIG__?.projectId || "minhducear-f055d",
+  storageBucket: window.__FIREBASE_CONFIG__?.storageBucket || "minhducear-f055d.firebasestorage.app",
+  messagingSenderId: window.__FIREBASE_CONFIG__?.messagingSenderId || "682003556218",
+  appId: window.__FIREBASE_CONFIG__?.appId || "1:682003556218:web:aaeee68209a9420322d8c3",
+  measurementId: window.__FIREBASE_CONFIG__?.measurementId || "G-8JJN009GY5"
 };
 
 /**
