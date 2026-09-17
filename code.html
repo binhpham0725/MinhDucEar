@@ -17,6 +17,15 @@
 
   <script>
     window.__GOOGLE_CLIENT_ID__ = '682003556218-uinu1m45sorg1r7hqtchpv33l6c8l6vl.apps.googleusercontent.com';
+    window.__FIREBASE_CONFIG__ = {
+      apiKey: "AIzaSyA_dQjex_0sZj4h2rZl4Fb0Gk_aumJ-c0",
+      authDomain: "minhducear-f955d.firebaseapp.com",
+      projectId: "minhducear-f955d",
+      storageBucket: "minhducear-f955d.firebasestorage.app",
+      messagingSenderId: "682003556218",
+      appId: "1:682003556218:web:a66ed9671fdfd3921fed7e",
+      measurementId: "G-DJ1M200QYC"
+    };
   </script>
   <!-- Google Identity Services (Sign-In & Cloud Sync) -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>

@@ -6054,6 +6054,63 @@ class MinhDucAudioEngine {
     }
   }
 
+  async onFirebaseReady() {
+    console.info('[MinhDucEar] Firebase Cloud service ready, syncing cloud favorites & history...');
+    if (!this.currentUser) {
+      try {
+        const savedUserStr = localStorage.getItem('minhduc_current_user');
+        if (savedUserStr) {
+          this.currentUser = JSON.parse(savedUserStr);
+        }
+      } catch(e) {}
+    }
+    if (this.currentUser) {
+      const cloudUid = this.currentUser.uid || (this.currentUser.email ? this.currentUser.email.toLowerCase().replace(/[^a-z0-9]/g, '_') : this.currentUser.google_id);
+      if (cloudUid && window.__firebaseService) {
+        try {
+          const fbFavs = await window.__firebaseService.getFavorites(cloudUid);
+          if (Array.isArray(fbFavs) && fbFavs.length > 0) {
+            const favKey = this.getFavoritesStorageKey();
+            let localFavs = JSON.parse(localStorage.getItem(favKey) || '[]');
+            const seen = new Set(localFavs.map(f => f.youtube_id || f.title));
+            let merged = false;
+            fbFavs.forEach(ff => {
+              if (ff && ff.title && ff.title !== 'Bài hát' && (ff.youtube_id || (ff.id && ff.id !== 'yt_'))) {
+                const key = ff.youtube_id || ff.title;
+                if (!seen.has(key)) {
+                  localFavs.push(ff);
+                  seen.add(key);
+                  merged = true;
+                }
+              }
+            });
+            if (merged) {
+              localStorage.setItem(favKey, JSON.stringify(localFavs));
+            }
+          }
+        } catch (e) {
+          console.warn('[CloudSync] onFirebaseReady favorites sync error:', e);
+        }
+
+        try {
+          if (typeof this.loadFavoritesView === 'function') {
+            await this.loadFavoritesView(true);
+          }
+        } catch(e) {}
+        try {
+          if (typeof this.loadHistoryView === 'function') {
+            await this.loadHistoryView();
+          }
+        } catch(e) {}
+        try {
+          if (typeof this.loadSidebarPlaylists === 'function') {
+            await this.loadSidebarPlaylists();
+          }
+        } catch(e) {}
+      }
+    }
+  }
+
   updateSidebarProfileUI() {
     try {
       const avatarImg = document.getElementById('sidebar-avatar-img');
@@ -6292,6 +6349,14 @@ class MinhDucAudioEngine {
       if (typeof this.loadFeaturedAlbums === 'function') this.loadFeaturedAlbums();
       if (typeof this.loadAlbumsView === 'function') this.loadAlbumsView(true);
       if (typeof this.loadInitialFeed === 'function') this.loadInitialFeed();
+
+      // Authenticate with Firebase Auth and perform cloud sync
+      if (window.__firebaseService && typeof window.__firebaseService.signInWithGoogleCredential === 'function') {
+        window.__firebaseService.signInWithGoogleCredential(response.credential).catch(() => {});
+      }
+      if (typeof this.onFirebaseReady === 'function') {
+        this.onFirebaseReady().catch(() => {});
+      }
 
       const modal = document.getElementById('google-signin-modal');
       if (modal) modal.classList.add('hidden');

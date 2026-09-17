@@ -22,6 +22,7 @@ async function loadFirebaseModules() {
       signInWithRedirect,
       getRedirectResult,
       GoogleAuthProvider, 
+      signInWithCredential,
       signInWithEmailAndPassword, 
       createUserWithEmailAndPassword, 
       signOut, 
@@ -61,6 +62,7 @@ async function loadFirebaseModules() {
         signInWithRedirect,
         getRedirectResult,
         GoogleAuthProvider,
+        signInWithCredential,
         signInWithEmailAndPassword,
         createUserWithEmailAndPassword,
         signOut,
@@ -170,6 +172,25 @@ class FirebaseService {
     }
   }
 
+  async signInWithGoogleCredential(idToken) {
+    try {
+      const modules = await loadFirebaseModules();
+      if (!modules || !idToken) return null;
+      const { GoogleAuthProvider, signInWithCredential } = modules.authMethods;
+      if (signInWithCredential && GoogleAuthProvider && GoogleAuthProvider.credential) {
+        const credential = GoogleAuthProvider.credential(idToken);
+        const result = await signInWithCredential(modules.auth, credential);
+        if (result && result.user) {
+          this.currentUser = result.user;
+          await this.saveUserProfile(result.user);
+          return result.user;
+        }
+      }
+    } catch (e) {
+      console.warn('[Firebase] signInWithGoogleCredential notice:', e);
+      return null;
+    }
+  }
 
   async signInWithEmail(email, password) {
     const modules = await loadFirebaseModules();
@@ -287,8 +308,14 @@ class FirebaseService {
       if (!modules || !uid) return [];
       const cleanUid = String(uid).replace(/[\/\.]/g, '_');
       const { collection, getDocs, query, orderBy } = modules.firestoreMethods;
-      const q = query(collection(modules.db, `users/${cleanUid}/favorites`), orderBy('addedAt', 'desc'));
-      const snap = await getDocs(q);
+      let snap;
+      try {
+        const q = query(collection(modules.db, `users/${cleanUid}/favorites`), orderBy('addedAt', 'desc'));
+        snap = await getDocs(q);
+      } catch (orderErr) {
+        // Fallback without orderBy if composite index is not yet built
+        snap = await getDocs(collection(modules.db, `users/${cleanUid}/favorites`));
+      }
       return snap.docs.map(d => ({ id: d.id, ...d.data() }));
     } catch (e) {
       console.warn('[Firebase] Could not fetch favorites:', e);
@@ -301,9 +328,10 @@ class FirebaseService {
       const modules = await loadFirebaseModules();
       if (!modules || !uid || !track) return false;
       const cleanUid = String(uid).replace(/[\/\.]/g, '_');
-      const trackKey = track.youtube_id || track.id;
+      const rawKey = track.youtube_id || track.id || ('track_' + Date.now());
+      const trackKey = String(rawKey).replace(/[\/\.]/g, '_');
       const { doc, getDoc, setDoc, deleteDoc, serverTimestamp } = modules.firestoreMethods;
-      const favRef = doc(modules.db, `users/${cleanUid}/favorites`, String(trackKey));
+      const favRef = doc(modules.db, `users/${cleanUid}/favorites`, trackKey);
       const snap = await getDoc(favRef);
       if (snap.exists()) {
         await deleteDoc(favRef);
@@ -364,8 +392,13 @@ class FirebaseService {
       if (!modules || !uid) return [];
       const cleanUid = String(uid).replace(/[\/\.]/g, '_');
       const { collection, getDocs, query, orderBy, limit } = modules.firestoreMethods;
-      const q = query(collection(modules.db, `users/${cleanUid}/history`), orderBy('playedAt', 'desc'), limit(maxLimit));
-      const snap = await getDocs(q);
+      let snap;
+      try {
+        const q = query(collection(modules.db, `users/${cleanUid}/history`), orderBy('playedAt', 'desc'), limit(maxLimit));
+        snap = await getDocs(q);
+      } catch (orderErr) {
+        snap = await getDocs(collection(modules.db, `users/${cleanUid}/history`));
+      }
       return snap.docs.map(d => ({ id: d.id, ...d.data() }));
     } catch (e) {
       console.warn('[Firebase] Could not fetch history:', e);

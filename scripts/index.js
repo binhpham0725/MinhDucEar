@@ -35,6 +35,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (isReady) {
       console.info('[MinhDucEar] Google Firebase Cloud Firestore & Auth initialized.');
       window.__firebaseService = firebaseService;
+      if (window.audioEngine && typeof window.audioEngine.onFirebaseReady === 'function') {
+        window.audioEngine.onFirebaseReady();
+      }
     }
   } catch (err) {
     console.warn('[MinhDucEar] Firebase initialization notice:', err);

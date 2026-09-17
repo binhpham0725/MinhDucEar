@@ -8,13 +8,13 @@
  */
 
 export const firebaseConfig = {
-  apiKey: window.__FIREBASE_CONFIG__?.apiKey || "AIzaSyA_J0jnx_St1ZpHvUJZiaf4bSU_axmJ-c8",
-  authDomain: window.__FIREBASE_CONFIG__?.authDomain || "minhducear-f055d.firebaseapp.com",
-  projectId: window.__FIREBASE_CONFIG__?.projectId || "minhducear-f055d",
-  storageBucket: window.__FIREBASE_CONFIG__?.storageBucket || "minhducear-f055d.firebasestorage.app",
+  apiKey: window.__FIREBASE_CONFIG__?.apiKey || "AIzaSyA_dQjex_0sZj4h2rZl4Fb0Gk_aumJ-c0",
+  authDomain: window.__FIREBASE_CONFIG__?.authDomain || "minhducear-f955d.firebaseapp.com",
+  projectId: window.__FIREBASE_CONFIG__?.projectId || "minhducear-f955d",
+  storageBucket: window.__FIREBASE_CONFIG__?.storageBucket || "minhducear-f955d.firebasestorage.app",
   messagingSenderId: window.__FIREBASE_CONFIG__?.messagingSenderId || "682003556218",
-  appId: window.__FIREBASE_CONFIG__?.appId || "1:682003556218:web:aaeee68209a9420322d8c3",
-  measurementId: window.__FIREBASE_CONFIG__?.measurementId || "G-8JJN009GY5"
+  appId: window.__FIREBASE_CONFIG__?.appId || "1:682003556218:web:a66ed9671fdfd3921fed7e",
+  measurementId: window.__FIREBASE_CONFIG__?.measurementId || "G-DJ1M200QYC"
 };
 
 /**
