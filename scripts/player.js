@@ -1011,6 +1011,20 @@ class MinhDucAudioEngine {
       if (totTimeEl) totTimeEl.textContent = '00:00';
       if (seekProgEl) seekProgEl.style.width = '0%';
       if (seekThumbEl) seekThumbEl.style.left = '0%';
+
+      const rightCurTime = document.getElementById('right-player-curtime');
+      const rightDuration = document.getElementById('right-player-duration');
+      const rightProgress = document.getElementById('right-player-progress');
+      if (rightCurTime) rightCurTime.textContent = '00:00';
+      if (rightDuration) rightDuration.textContent = '00:00';
+      if (rightProgress) rightProgress.style.width = '0%';
+
+      const mobCurTime = document.getElementById('mobile-drawer-cur-time');
+      const mobTotalTime = document.getElementById('mobile-drawer-total-time');
+      const mobProgress = document.getElementById('mobile-drawer-seek-progress');
+      if (mobCurTime) mobCurTime.textContent = '00:00';
+      if (mobTotalTime) mobTotalTime.textContent = '00:00';
+      if (mobProgress) mobProgress.style.width = '0%';
       return;
     }
 
@@ -1097,6 +1111,8 @@ class MinhDucAudioEngine {
         bar.style.height = `${(idx % 3 + 1) * 4}px`;
       });
       this.updateTimelineUI();
+      this.updateRightMediaPlayer();
+      this.updateMobilePlayerUI();
       return;
     }
 
@@ -2427,15 +2443,54 @@ class MinhDucAudioEngine {
     const mediaPlayer = document.getElementById('sidebar-media-player');
     if (!mediaPlayer || mediaPlayer.classList.contains('hidden')) return;
 
-    const track = this.currentTrack || (this.tracks && this.tracks[this.currentTrackIndex]);
-    if (!track) return;
-
+    const track = this.currentTrack;
     const coverImg = document.getElementById('right-player-cover');
+    const placeholderEl = document.getElementById('right-player-placeholder');
+    const gradientEl = document.getElementById('right-player-cover-gradient');
+    const miniVinyl = document.getElementById('right-player-mini-vinyl');
     const titleEl = document.getElementById('right-player-title');
     const artistEl = document.getElementById('right-player-artist');
     const badgeEl = document.getElementById('right-player-badge');
     const favBtn = document.getElementById('right-player-fav-btn');
     const playIcon = document.getElementById('right-player-cover-play-icon');
+
+    if (!track) {
+      if (coverImg) {
+        coverImg.src = '';
+        coverImg.classList.add('hidden');
+      }
+      if (placeholderEl) placeholderEl.classList.remove('hidden');
+      if (gradientEl) gradientEl.classList.add('hidden');
+      if (miniVinyl) miniVinyl.classList.add('hidden');
+      if (titleEl) {
+        titleEl.textContent = 'CHƯA PHÁT BÀI HÁT';
+        titleEl.title = 'Chưa phát bài hát';
+      }
+      if (artistEl) artistEl.textContent = 'Minh Đức Ear';
+      if (badgeEl) badgeEl.textContent = 'STANDBY';
+      if (favBtn) {
+        favBtn.classList.remove('text-red-500');
+        favBtn.classList.add('text-tertiary');
+      }
+      if (playIcon) {
+        playIcon.innerHTML = `<polygon points="6,4 20,12 6,20" fill="currentColor"></polygon>`;
+      }
+      const lyricsContainer = document.getElementById('right-player-lyrics-container');
+      if (lyricsContainer && !lyricsContainer.querySelector('.right-lyrics-line')) {
+        lyricsContainer.innerHTML = `
+          <div class="py-12 text-center flex flex-col items-center justify-center gap-2 text-outline font-silkscreen text-[9px] opacity-70">
+            <span class="text-secondary text-base">🎵</span>
+            <span>Chưa phát bài hát nào</span>
+          </div>
+        `;
+      }
+      return;
+    }
+
+    if (placeholderEl) placeholderEl.classList.add('hidden');
+    if (miniVinyl) miniVinyl.classList.remove('hidden');
+    if (gradientEl) gradientEl.classList.remove('hidden');
+    if (coverImg) coverImg.classList.remove('hidden');
 
     const coverUrl = track.cover || track.cover_url || (track.youtube_id ? `https://i.ytimg.com/vi/${track.youtube_id}/hqdefault.jpg` : 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400');
     const badgeText = track.badge || track.format || "YT AUDIO 320k";
@@ -2473,6 +2528,75 @@ class MinhDucAudioEngine {
     if (this.currentLyricsTrackKey !== trackKey) {
       this.currentLyricsTrackKey = trackKey;
       this.fetchLyricsForRightPlayer(track);
+    }
+  }
+
+  updateMobilePlayerUI() {
+    const coverImg = document.getElementById('mobile-drawer-cover');
+    const placeholderEl = document.getElementById('mobile-drawer-placeholder');
+    const gradientEl = document.getElementById('mobile-drawer-gradient');
+    const titleEl = document.getElementById('mobile-drawer-title');
+    const artistEl = document.getElementById('mobile-drawer-artist');
+    const badgeEl = document.getElementById('mobile-drawer-badge');
+    const favBtn = document.getElementById('mobile-drawer-fav-btn');
+    const playIcon = document.getElementById('mobile-drawer-play-icon');
+
+    const track = this.currentTrack;
+    if (!track) {
+      if (coverImg) {
+        coverImg.src = '';
+        coverImg.classList.add('hidden');
+      }
+      if (placeholderEl) placeholderEl.classList.remove('hidden');
+      if (gradientEl) gradientEl.classList.add('hidden');
+      if (titleEl) titleEl.textContent = 'Chưa chọn bài hát';
+      if (artistEl) artistEl.textContent = 'Minh Đức Ear';
+      if (badgeEl) badgeEl.textContent = 'STANDBY';
+      if (favBtn) {
+        favBtn.classList.remove('text-red-500');
+        favBtn.classList.add('text-tertiary');
+      }
+      if (playIcon) {
+        playIcon.innerHTML = `<polygon fill="currentColor" points="4,2 14,8 4,14"></polygon>`;
+      }
+      const lyricsContainer = document.getElementById('mobile-drawer-lyrics-container');
+      if (lyricsContainer && !lyricsContainer.querySelector('.right-lyrics-line')) {
+        lyricsContainer.innerHTML = `
+          <div class="py-12 text-center flex flex-col items-center justify-center gap-2 text-outline font-silkscreen text-[9px] opacity-70">
+            <span class="text-secondary text-base">🎵</span>
+            <span>Chưa phát bài hát nào</span>
+          </div>
+        `;
+      }
+      return;
+    }
+
+    if (placeholderEl) placeholderEl.classList.add('hidden');
+    if (gradientEl) gradientEl.classList.remove('hidden');
+    if (coverImg) coverImg.classList.remove('hidden');
+
+    const coverUrl = track.cover || track.cover_url || (track.youtube_id ? `https://i.ytimg.com/vi/${track.youtube_id}/hqdefault.jpg` : '');
+    const badgeText = track.badge || track.format || 'YT AUDIO 320k';
+
+    if (coverImg && coverUrl && coverImg.src !== coverUrl) {
+      coverImg.src = coverUrl;
+    }
+    if (titleEl) titleEl.textContent = track.title || 'Đang phát bài hát';
+    if (artistEl) artistEl.textContent = track.artist || 'Minh Đức Ear';
+    if (badgeEl) badgeEl.textContent = badgeText;
+
+    if (favBtn) {
+      const isFav = this.isTrackFavorite(track);
+      favBtn.classList.toggle('text-red-500', isFav);
+      favBtn.classList.toggle('text-tertiary', !isFav);
+    }
+
+    if (playIcon) {
+      if (this.isPlaying) {
+        playIcon.innerHTML = `<rect fill="currentColor" height="12" width="3" x="3" y="2"></rect><rect fill="currentColor" height="12" width="3" x="10" y="2"></rect>`;
+      } else {
+        playIcon.innerHTML = `<polygon fill="currentColor" points="4,2 14,8 4,14"></polygon>`;
+      }
     }
   }
 

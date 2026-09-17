@@ -2002,22 +2002,32 @@ html.light .bg-surface-container\/80 {
     <!-- Rectangular Media Card (Cover art + Title + Format) -->
     <div id="right-player-media-card" class="right-player-card flex flex-col gap-2.5 p-3 rounded-2xl bg-gradient-to-b from-[#181824] to-[#12121a] border border-[#a78bfa]/30 shadow-[0_0_20px_rgba(167,139,250,0.15)] shrink-0 transition-colors">
       <!-- Rectangular Cover Image -->
-      <div class="relative w-full aspect-[16/10] rounded-xl overflow-hidden bg-black/80 shadow-md group border border-white/10">
-        <img id="right-player-cover" src="https://i.ytimg.com/vi/T9PNAndFJ9w/hqdefault.jpg" alt="Cover Art" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+      <div id="right-player-cover-container" class="relative w-full aspect-[16/10] rounded-xl overflow-hidden bg-gradient-to-br from-[#181824] to-[#0f0f15] shadow-md group border border-white/10 flex items-center justify-center">
+        <img id="right-player-cover" src="" alt="Cover Art" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 hidden">
+        <div id="right-player-cover-gradient" class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none hidden"></div>
+
+        <!-- Idle Placeholder when no track is playing -->
+        <div id="right-player-placeholder" class="absolute inset-0 flex flex-col items-center justify-center gap-2 p-4 text-center select-none bg-gradient-to-b from-[#181826] to-[#101016]">
+          <div class="w-11 h-11 rounded-full bg-black/60 border border-secondary/40 flex items-center justify-center shadow-[0_0_15px_rgba(84,216,232,0.2)]">
+            <svg class="w-5 h-5 text-secondary/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+            </svg>
+          </div>
+          <span class="font-silkscreen text-[8px] text-gray-400 tracking-wider">CHƯA PHÁT BÀI HÁT</span>
+        </div>
 
         <!-- Format Badge -->
         <div class="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/80 backdrop-blur-md border border-secondary/60 font-mono text-[9px] font-semibold text-secondary shadow">
-          <span id="right-player-badge">YT AUDIO 320k</span>
+          <span id="right-player-badge">STANDBY</span>
         </div>
 
         <!-- Mini Vinyl Disk Indicator -->
-        <div class="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/90 border border-[#a78bfa]/60 flex items-center justify-center shadow animate-spin-slow">
+        <div id="right-player-mini-vinyl" class="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/90 border border-[#a78bfa]/60 flex items-center justify-center shadow animate-spin-slow hidden">
           <div class="w-2 h-2 rounded-full bg-[#54d8e8]"></div>
         </div>
 
         <!-- Center Play/Pause button on cover -->
-        <button type="button" id="right-player-cover-play-btn" class="absolute inset-0 m-auto w-11 h-11 rounded-full bg-[#a78bfa]/90 hover:bg-[#a78bfa] text-black flex items-center justify-center shadow-xl opacity-90 hover:opacity-100 hover:scale-110 active:scale-95 transition-all cursor-pointer" title="Phát / Tạm dừng">
+        <button type="button" id="right-player-cover-play-btn" class="absolute inset-0 m-auto w-11 h-11 rounded-full bg-[#a78bfa]/90 hover:bg-[#a78bfa] text-black flex items-center justify-center shadow-xl opacity-90 hover:opacity-100 hover:scale-110 active:scale-95 transition-all cursor-pointer" title="Phát bài hát">
           <svg id="right-player-cover-play-icon" class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg>
         </button>
       </div>
@@ -2026,7 +2036,7 @@ html.light .bg-surface-container\/80 {
       <div class="flex items-center justify-between gap-2 min-w-0">
         <div class="flex flex-col min-w-0 flex-1">
           <h4 id="right-player-title" class="text-[13px] font-bold text-white tracking-wide truncate" title="Chưa có bài hát">Chưa có bài hát</h4>
-          <p id="right-player-artist" class="text-[11px] text-[#54d8e8] font-silkscreen truncate">Nghệ sĩ</p>
+          <p id="right-player-artist" class="text-[11px] text-[#54d8e8] font-silkscreen truncate">Minh Đức Ear</p>
         </div>
         <button type="button" id="right-player-fav-btn" class="text-tertiary hover:scale-110 p-1.5 rounded-lg hover:bg-white/5 transition-transform cursor-pointer shrink-0" title="Thêm vào yêu thích">
           <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
@@ -2065,9 +2075,10 @@ html.light .bg-surface-container\/80 {
 
       <!-- Scrollable Lyrics Lines Container -->
       <div id="right-player-lyrics-container" class="flex-1 overflow-y-auto custom-scroll space-y-1.5 py-3 text-center pr-1 select-none">
-        <div class="py-8 text-center flex flex-col items-center justify-center gap-2 text-gray-500 font-silkscreen text-[9px]">
-          <span class="animate-spin text-secondary text-base">⏳</span>
-          <span>Đang tải lời bài hát...</span>
+        <div class="py-10 text-center flex flex-col items-center justify-center gap-2 text-gray-500 font-silkscreen text-[9px]">
+          <span class="text-xl">🎧</span>
+          <span class="text-gray-400">Chưa phát bài hát nào</span>
+          <span class="text-[8px] text-gray-600 font-mono">Chọn bài hát bất kỳ để bắt đầu nghe nhạc</span>
         </div>
       </div>
     </div>
@@ -3214,9 +3225,14 @@ html.light .bg-surface-container\/80 {
   <div class="offcanvas-body p-3.5 flex flex-col gap-2.5 overflow-y-auto custom-scroll">
     <!-- Album Cover & Meta Card (Compact horizontal row for maximum space on mobile) -->
     <div class="flex items-center gap-3 p-2.5 rounded-2xl bg-white/5 border border-white/10 shrink-0">
-      <div class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shadow-xl border border-white/15 bg-black/60 shrink-0">
-        <img id="mobile-drawer-cover" src="https://i.ytimg.com/vi/T9PNAndFJ9w/hqdefault.jpg" alt="Cover Art" class="w-full h-full object-cover">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
+      <div class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shadow-xl border border-white/15 bg-black/60 shrink-0 flex items-center justify-center">
+        <img id="mobile-drawer-cover" src="" alt="Cover Art" class="w-full h-full object-cover hidden">
+        <div id="mobile-drawer-placeholder" class="flex flex-col items-center justify-center text-secondary/60">
+          <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+          </svg>
+        </div>
+        <div id="mobile-drawer-gradient" class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none hidden"></div>
       </div>
       <div class="flex-1 min-w-0 flex flex-col justify-center">
         <h3 id="mobile-drawer-title" class="text-sm sm:text-base font-bold text-white truncate mb-0.5">Chưa chọn bài hát</h3>
