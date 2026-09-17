@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html class="dark" lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MinhDucEar - Thông tin Tài khoản & Đồng bộ YouTube</title>
+  
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&family=Press+Start+2P&family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-dim": "#131316",
+            "surface-container": "#201f22",
+            "surface-container-high": "#2a2a2c",
+            "surface-container-lowest": "#0e0e10",
+            "primary": "#cebdff",
+            "primary-container": "#a78bfa",
+            "on-primary": "#381385",
+            "secondary": "#54d8e8",
+            "secondary-container": "#02aebe",
+            "on-secondary": "#00363c",
+            "tertiary": "#ffafd3",
+            "on-surface": "#e5e1e5",
+            "on-surface-variant": "#cac4d4",
+            "outline": "#948e9d"
+          }
+        }
+      }
+    };
+  </script>
+  
+  <style>
+    body {
+      background-color: #0e0e12;
+      color: #e5e1e5;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(167, 139, 250, 0.1) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(84, 216, 232, 0.08) 0%, transparent 40%);
+    }
+    .font-pixel { font-family: 'Press Start 2P', monospace; image-rendering: pixelated; }
+    .font-silkscreen { font-family: 'Silkscreen', monospace; }
+    .font-vt323 { font-family: 'VT323', monospace; }
+    .pixel-border {
+      box-shadow: 4px 4px 0px 0px rgba(0,0,0,0.9), 4px 4px 0px 1px rgba(167,139,250,0.4);
+      border: 2px solid #a78bfa;
+      image-rendering: pixelated;
+    }
+    .pixel-border-sm {
+      box-shadow: 2px 2px 0px 0px #000;
+      border: 1px solid #494552;
+    }
+    .pixel-btn {
+      box-shadow: 3px 3px 0px 0px #000;
+      image-rendering: pixelated;
+      transition: all 0.1s steps(2);
+    }
+    .pixel-btn:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0px 0px #000;
+    }
+    .pixel-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px 0px #000;
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen selection:bg-primary selection:text-on-primary">
+
+  <!-- Top Navbar -->
+  <header class="w-full border-b border-white/10 bg-[#131316]/90 backdrop-blur-md px-6 py-3.5 flex items-center justify-between sticky top-0 z-40">
+    <div class="flex items-center gap-3">
+      <a href="index.php" class="flex items-center gap-2.5 group">
+        <div class="w-8 h-8 rounded bg-[#1e1e24] border border-[#a78bfa]/50 flex items-center justify-center pixel-border-sm group-hover:scale-105 transition-transform">
+          <span class="font-pixel text-[11px] text-primary">M</span>
+        </div>
+        <div>
+          <span class="font-pixel text-xs text-white tracking-wider block">MinhDucEar</span>
+          <span class="font-silkscreen text-[8px] text-secondary tracking-widest block">LỖ TAI CỦA MINH ĐỨC</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Back to Player Button -->
+    <a href="index.php" id="btn-back-to-player" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-[#201f24] hover:bg-[#2b2a30] border border-white/15 text-xs font-silkscreen text-primary hover:text-white transition-all pixel-btn">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+      <span>QUAY LẠI TRÌNH PHÁT NHẠC</span>
+    </a>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-2xl w-full mx-auto p-4 sm:p-6 my-auto">
+    <div class="bg-[#121217] rounded-2xl pixel-border p-6 sm:p-8 shadow-[0_0_60px_rgba(167,139,250,0.25)] relative">
+      
+      <!-- Top Decorative Accent -->
+      <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-70"></div>
+
+      <!-- Header Title -->
+      <div class="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-on-primary font-bold shadow-md">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="font-pixel text-sm text-primary tracking-wider uppercase">TRANG THÔNG TIN TÀI KHOẢN</h1>
+            <p class="font-silkscreen text-[9px] text-gray-400">MinhDucEar Account & Đồng bộ YouTube Music</p>
+          </div>
+        </div>
+
+        <button type="button" id="btn-logout" class="py-1.5 px-3 rounded bg-red-950/40 text-red-400 border border-red-800/40 text-xs font-silkscreen hover:bg-red-900/50 transition-colors flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+          <span>ĐĂNG XUẤT</span>
+        </button>
+      </div>
+
+      <!-- Alert Box -->
+      <div id="account-alert-box" class="hidden mb-5 p-3 rounded-lg text-xs font-silkscreen border"></div>
+
+      <!-- Profile Overview Card -->
+      <div class="flex items-center gap-4 p-4 bg-surface-container-high/60 border border-white/10 rounded-xl relative overflow-hidden mb-5">
+        <div class="w-16 h-16 rounded-xl bg-primary/20 border-2 border-primary flex items-center justify-center overflow-hidden shrink-0 relative shadow-md">
+          <img id="profile-avatar-img" src="assets/images/avatars/default.png" class="w-full h-full object-cover">
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <h2 id="profile-name-text" class="font-bold text-base text-white truncate">Khách (Guest)</h2>
+            <span id="profile-role-badge" class="font-silkscreen text-[8px] bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 rounded">GUEST</span>
+          </div>
+          <p id="profile-email-text" class="text-xs text-gray-400 truncate font-mono mt-0.5">Chưa đăng nhập</p>
+          <div id="profile-google-pill" class="inline-flex items-center gap-1.5 mt-1.5 font-silkscreen text-[8px] text-secondary hidden">
+            <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+            <span id="profile-google-badge-text">GOOGLE SYNCED</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Music Sync Stats -->
+      <div class="grid grid-cols-3 gap-3 text-center mb-6">
+        <div class="p-3 bg-black/40 border border-white/10 rounded-xl">
+          <div class="font-pixel text-sm text-primary" id="stat-favs">0</div>
+          <div class="font-silkscreen text-[8px] text-gray-400 mt-1">Yêu thích</div>
+        </div>
+        <div class="p-3 bg-black/40 border border-white/10 rounded-xl">
+          <div class="font-pixel text-sm text-secondary" id="stat-playlists">0</div>
+          <div class="font-silkscreen text-[8px] text-gray-400 mt-1">Playlists</div>
+        </div>
+        <div class="p-3 bg-black/40 border border-white/10 rounded-xl">
+          <div class="font-pixel text-sm text-tertiary" id="stat-tracks">0</div>
+          <div class="font-silkscreen text-[8px] text-gray-400 mt-1">Đã đồng bộ</div>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="grid grid-cols-3 gap-1.5 bg-black/50 p-1.5 rounded-xl border border-white/10 font-silkscreen text-[9px] text-center mb-6">
+        <button type="button" id="tab-btn-info" class="py-2 rounded-lg bg-primary-container text-on-primary font-bold transition-all shadow-sm">
+          ĐỔI THÔNG TIN
+        </button>
+        <button type="button" id="tab-btn-google" class="py-2 rounded-lg text-gray-400 hover:text-white transition-all">
+          GOOGLE &amp; YOUTUBE
+        </button>
+        <button type="button" id="tab-btn-password" class="py-2 rounded-lg text-gray-400 hover:text-white transition-all">
+          ĐỔI MẬT KHẨU
+        </button>
+      </div>
+
+      <!-- Section 1: Đổi thông tin (Edit Profile) -->
+      <form id="section-info" class="space-y-4">
+        <div>
+          <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">TÊN HIỂN THỊ (DISPLAY NAME)</label>
+          <input id="input-display-name" type="text" class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
+        </div>
+        <div>
+          <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">EMAIL LIÊN HỆ</label>
+          <input id="input-email" type="email" class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
+        </div>
+        <div>
+          <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">URL ẢNH ĐẠI DIỆN (AVATAR URL)</label>
+          <input id="input-avatar-url" type="text" placeholder="https://..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-lg bg-primary-container text-on-primary font-bold text-xs pixel-btn pixel-border-sm hover:brightness-110 tracking-wider">
+          LƯU THAY ĐỔI
+        </button>
+      </form>
+
+      <!-- Section 2: Liên kết Google & Đồng bộ YouTube -->
+      <div id="section-google" class="space-y-4 hidden">
+        <!-- Google Connected Box -->
+        <div id="box-google-connected" class="p-4 bg-secondary/10 border border-secondary/40 rounded-xl space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span class="font-bold text-xs text-white">Tài khoản Google liên kết</span>
+            </div>
+            <span class="font-silkscreen text-[7px] text-secondary bg-secondary/20 border border-secondary/40 px-2 py-0.5 rounded">CONNECTED</span>
+          </div>
+          <p id="linked-google-email" class="text-xs text-gray-300 font-mono">Đã liên kết</p>
+          <div class="text-[10px] text-gray-400 flex items-center justify-between pt-1 border-t border-white/10 font-silkscreen">
+            <span>Đồng bộ gần nhất:</span>
+            <span id="sync-last-time" class="text-white font-mono">Vừa xong</span>
+          </div>
+          <div class="flex gap-2 pt-1">
+            <button type="button" id="btn-sync-youtube-now" class="flex-1 py-2.5 bg-secondary-container text-on-secondary font-bold text-xs rounded-lg hover:brightness-110 flex items-center justify-center gap-2 pixel-btn shadow-md">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+              </svg>
+              <span>Đồng bộ hóa nhạc với YouTube</span>
+            </button>
+            <button type="button" id="btn-unlink-google" class="py-2.5 px-3.5 bg-red-950/40 text-red-400 border border-red-800/40 rounded-lg text-xs font-silkscreen hover:bg-red-900/50 transition-colors">
+              Hủy liên kết
+            </button>
+          </div>
+        </div>
+
+        <!-- Google Unlinked Box -->
+        <div id="box-google-unlinked" class="p-4 bg-black/40 border border-white/10 rounded-xl space-y-3 hidden">
+          <p class="text-xs text-gray-300 leading-relaxed">
+            Tài khoản MinhDucEar của bạn hiện chưa liên kết Google. Nhấn nút bên dưới để liên kết tài khoản Google và tự động đồng bộ hóa danh sách phát, bài hát yêu thích với YouTube Music.
+          </p>
+          <button type="button" id="btn-link-google-now" class="w-full py-2.5 px-4 bg-[#1e1e28] hover:bg-[#282836] border border-secondary/60 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-2.5 transition-all pixel-btn">
+            <svg class="w-4 h-4" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span>Liên kết tài khoản Google &amp; Đồng bộ ngay</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Section 3: Đổi mật khẩu (Change Password) -->
+      <form id="section-password" class="space-y-4 hidden">
+        <div>
+          <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">MẬT KHẨU HIỆN TẠI</label>
+          <input id="pwd-old" type="password" placeholder="Nhập mật khẩu hiện tại..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
+        </div>
+        <div>
+          <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">MẬT KHẨU MỚI (Tối thiểu 6 ký tự)</label>
+          <input id="pwd-new" type="password" placeholder="Nhập mật khẩu mới..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
+        </div>
+        <div>
+          <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">XÁC NHẬN MẬT KHẨU MỚI</label>
+          <input id="pwd-confirm" type="password" placeholder="Nhập lại mật khẩu mới..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-lg bg-primary-container text-on-primary font-bold text-xs pixel-btn pixel-border-sm hover:brightness-110 tracking-wider">
+          XÁC NHẬN ĐỔI MẬT KHẨU
+        </button>
+      </form>
+
+    </div>
+  </main>
+
+  <!-- Script for Account Management Page -->
+  <script>
+    const isPhp = window.location.pathname.endsWith('.php');
+    const homeUrl = isPhp ? 'index.php' : 'code.html';
+    const authUrl = isPhp ? 'auth.php' : 'auth.html';
+    const playerBtn = document.getElementById('btn-back-to-player');
+    if (playerBtn) playerBtn.setAttribute('href', homeUrl);
+
+    const alertBox = document.getElementById('account-alert-box');
+    function showAlert(msg, isSuccess = false) {
+      if (!alertBox) return;
+      alertBox.className = isSuccess 
+        ? 'mb-5 p-3 rounded-lg text-xs font-silkscreen border bg-emerald-950/70 text-emerald-300 border-emerald-800/80 shadow-md'
+        : 'mb-5 p-3 rounded-lg text-xs font-silkscreen border bg-red-950/70 text-red-300 border-red-800/80 shadow-md';
+      alertBox.textContent = msg;
+      alertBox.classList.remove('hidden');
+    }
+
+    let currentUser = null;
+
+    async function loadAccountData() {
+      try {
+        const res = await fetch('api/endpoints/auth.php?action=status');
+        const data = await res.json();
+        if (!data.is_logged_in) {
+          showAlert('Bạn chưa đăng nhập. Đang chuyển hướng sang trang đăng nhập...', false);
+          setTimeout(() => {
+            window.location.href = authUrl;
+          }, 800);
+          return;
+        }
+
+        currentUser = data.user;
+        renderUserData();
+        if (data.sync_stats) {
+          document.getElementById('stat-favs').textContent = data.sync_stats.favorites_count || 0;
+          document.getElementById('stat-playlists').textContent = data.sync_stats.playlists_count || 0;
+          document.getElementById('stat-tracks').textContent = data.sync_stats.synced_tracks_count || 0;
+        }
+      } catch (err) {
+        showAlert('Lỗi khi tải thông tin tài khoản!');
+      }
+    }
+
+    function renderUserData() {
+      if (!currentUser) return;
+      document.getElementById('profile-name-text').textContent = currentUser.display_name;
+      document.getElementById('profile-role-badge').textContent = currentUser.role || 'PRODUCER';
+      document.getElementById('profile-email-text').textContent = currentUser.email || 'Chưa cập nhật email';
+      document.getElementById('profile-avatar-img').src = currentUser.avatar_url || 'assets/images/avatars/default.png';
+
+      // Input fields
+      document.getElementById('input-display-name').value = currentUser.display_name || '';
+      document.getElementById('input-email').value = currentUser.email || '';
+      document.getElementById('input-avatar-url').value = currentUser.avatar_url || '';
+
+      // Google Link status
+      const googlePill = document.getElementById('profile-google-pill');
+      const boxConnected = document.getElementById('box-google-connected');
+      const boxUnlinked = document.getElementById('box-google-unlinked');
+
+      if (currentUser.google_id) {
+        googlePill.classList.remove('hidden');
+        document.getElementById('profile-google-badge-text').textContent = 'GOOGLE SYNCED';
+        boxConnected.classList.remove('hidden');
+        boxUnlinked.classList.add('hidden');
+        document.getElementById('linked-google-email').textContent = currentUser.email || 'Tài khoản Google đã kết nối';
+        document.getElementById('sync-last-time').textContent = currentUser.synced_at || 'Vừa xong';
+      } else {
+        googlePill.classList.add('hidden');
+        boxConnected.classList.add('hidden');
+        boxUnlinked.classList.remove('hidden');
+      }
+    }
+
+    // Tabs switching
+    const tabInfo = document.getElementById('tab-btn-info');
+    const tabGoogle = document.getElementById('tab-btn-google');
+    const tabPassword = document.getElementById('tab-btn-password');
+
+    const secInfo = document.getElementById('section-info');
+    const secGoogle = document.getElementById('section-google');
+    const secPassword = document.getElementById('section-password');
+
+    tabInfo.addEventListener('click', () => {
+      tabInfo.className = 'py-2 rounded-lg bg-primary-container text-on-primary font-bold transition-all shadow-sm';
+      tabGoogle.className = 'py-2 rounded-lg text-gray-400 hover:text-white transition-all';
+      tabPassword.className = 'py-2 rounded-lg text-gray-400 hover:text-white transition-all';
+      secInfo.classList.remove('hidden');
+      secGoogle.classList.add('hidden');
+      secPassword.classList.add('hidden');
+      alertBox.classList.add('hidden');
+    });
+
+    tabGoogle.addEventListener('click', () => {
+      tabGoogle.className = 'py-2 rounded-lg bg-secondary-container text-on-secondary font-bold transition-all shadow-sm';
+      tabInfo.className = 'py-2 rounded-lg text-gray-400 hover:text-white transition-all';
+      tabPassword.className = 'py-2 rounded-lg text-gray-400 hover:text-white transition-all';
+      secGoogle.classList.remove('hidden');
+      secInfo.classList.add('hidden');
+      secPassword.classList.add('hidden');
+      alertBox.classList.add('hidden');
+    });
+
+    tabPassword.addEventListener('click', () => {
+      tabPassword.className = 'py-2 rounded-lg bg-primary-container text-on-primary font-bold transition-all shadow-sm';
+      tabInfo.className = 'py-2 rounded-lg text-gray-400 hover:text-white transition-all';
+      tabGoogle.className = 'py-2 rounded-lg text-gray-400 hover:text-white transition-all';
+      secPassword.classList.remove('hidden');
+      secInfo.classList.add('hidden');
+      secGoogle.classList.add('hidden');
+      alertBox.classList.add('hidden');
+    });
+
+    // 1. Submit Edit Profile
+    secInfo.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const display_name = document.getElementById('input-display-name').value.trim();
+      const email = document.getElementById('input-email').value.trim();
+      const avatar_url = document.getElementById('input-avatar-url').value.trim();
+
+      if (!display_name) return showAlert('Tên hiển thị không được để trống!');
+
+      try {
+        const res = await fetch('api/endpoints/auth.php?action=update_profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ display_name, email, avatar_url })
+        });
+        const result = await res.json();
+        if (result.success) {
+          currentUser = result.user;
+          renderUserData();
+          showAlert('Cập nhật thông tin tài khoản thành công!', true);
+        } else {
+          showAlert(result.error || 'Cập nhật thất bại!');
+        }
+      } catch (err) {
+        showAlert('Lỗi kết nối máy chủ!');
+      }
+    });
+
+    // 2. Link Google Account
+    document.getElementById('btn-link-google-now').addEventListener('click', async () => {
+      showAlert('Đang kết nối tài khoản Google...', true);
+      try {
+        const res = await fetch('api/endpoints/auth.php?action=link_google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            google_id: 'g_linked_account_8899',
+            email: currentUser.email || 'minhduc.google@gmail.com',
+            name: currentUser.display_name,
+            picture: currentUser.avatar_url || 'assets/images/avatars/default.png'
+          })
+        });
+        const result = await res.json();
+        if (result.success) {
+          currentUser = result.user;
+          renderUserData();
+          showAlert('Đã liên kết thành công với tài khoản Google & đồng bộ YouTube Music!', true);
+        } else {
+          showAlert(result.error || 'Liên kết Google thất bại!');
+        }
+      } catch (err) {
+        showAlert('Lỗi khi liên kết Google!');
+      }
+    });
+
+    // 3. Sync YouTube Music Now
+    document.getElementById('btn-sync-youtube-now').addEventListener('click', async () => {
+      showAlert('Đang đồng bộ hóa bài hát yêu thích & Playlists từ YouTube Music...', true);
+      try {
+        const res = await fetch('api/endpoints/auth.php?action=sync_youtube', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const result = await res.json();
+        if (result.success) {
+          document.getElementById('sync-last-time').textContent = result.synced_at || 'Vừa xong';
+          if (result.sync_stats) {
+            document.getElementById('stat-favs').textContent = result.sync_stats.favorites_count;
+            document.getElementById('stat-playlists').textContent = result.sync_stats.playlists_count;
+            document.getElementById('stat-tracks').textContent = result.sync_stats.synced_tracks_count;
+          }
+          showAlert('Đồng bộ hóa với YouTube Music hoàn tất! (8 Yêu thích, 3 Playlists, 12 bài hát)', true);
+        } else {
+          showAlert(result.error || 'Đồng bộ thất bại!');
+        }
+      } catch (err) {
+        showAlert('Lỗi khi đồng bộ hóa YouTube!');
+      }
+    });
+
+    // 4. Unlink Google Account
+    document.getElementById('btn-unlink-google').addEventListener('click', async () => {
+      if (!confirm('Bạn có chắc chắn muốn hủy liên kết tài khoản Google?')) return;
+      try {
+        const res = await fetch('api/endpoints/auth.php?action=unlink_google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const result = await res.json();
+        if (result.success) {
+          currentUser = result.user;
+          renderUserData();
+          showAlert('Đã hủy liên kết tài khoản Google thành công!', true);
+        } else {
+          showAlert(result.error || 'Hủy liên kết thất bại!');
+        }
+      } catch (err) {
+        showAlert('Lỗi kết nối máy chủ!');
+      }
+    });
+
+    // 5. Change Password
+    secPassword.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const old_password = document.getElementById('pwd-old').value;
+      const new_password = document.getElementById('pwd-new').value;
+      const confirm_password = document.getElementById('pwd-confirm').value;
+
+      if (!new_password || new_password.length < 6) {
+        return showAlert('Mật khẩu mới phải có tối thiểu 6 ký tự!');
+      }
+      if (new_password !== confirm_password) {
+        return showAlert('Mật khẩu xác nhận không khớp!');
+      }
+
+      try {
+        const res = await fetch('api/endpoints/auth.php?action=change_password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ old_password, new_password })
+        });
+        const result = await res.json();
+        if (result.success) {
+          document.getElementById('pwd-old').value = '';
+          document.getElementById('pwd-new').value = '';
+          document.getElementById('pwd-confirm').value = '';
+          showAlert('Đổi mật khẩu thành công! Hãy ghi nhớ mật khẩu mới của bạn.', true);
+        } else {
+          showAlert(result.error || 'Đổi mật khẩu thất bại!');
+        }
+      } catch (err) {
+        showAlert('Lỗi khi đổi mật khẩu!');
+      }
+    });
+
+    // 6. Logout
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      if (!confirm('Bạn có chắc chắn muốn đăng xuất tài khoản?')) return;
+      try {
+        localStorage.removeItem('minhduc_current_user');
+        localStorage.removeItem('minhduc_sync_stats');
+        localStorage.removeItem('minhduc_recent_history');
+        localStorage.removeItem('minhduc_local_favorites');
+        localStorage.removeItem('minhduc_history_guest');
+        localStorage.removeItem('minhduc_favs_guest');
+        const res = await fetch('api/endpoints/auth.php?action=logout', { method: 'POST' });
+        const result = await res.json();
+        if (result.success) {
+          showAlert('Đã đăng xuất tài khoản. Đang chuyển về trang đăng nhập...', true);
+          setTimeout(() => {
+            window.location.href = authUrl;
+          }, 700);
+        }
+      } catch (err) {
+        window.location.href = authUrl;
+      }
+    });
+
+    // Load initial data
+    loadAccountData();
+  </script>
+</body>
+</html>

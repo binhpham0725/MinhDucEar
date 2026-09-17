@@ -1,0 +1,32 @@
+# Dependencies & caches
+node_modules/
+vendor/
+logs/yt_cache/
+logs/*.json
+logs/*.log
+
+# Scratch & development test scripts
+scratch/
+
+# User uploads (keep directory structure with .gitkeep)
+uploads/avatars/*
+!uploads/avatars/.gitkeep
+uploads/covers/*
+!uploads/covers/.gitkeep
+uploads/tracks/*
+!uploads/tracks/.gitkeep
+
+# Sensitive config & secrets
+config/firebase_config.php
+config/service_account.json
+*.env
+*.env.*
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace

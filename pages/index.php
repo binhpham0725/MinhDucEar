@@ -1,0 +1,3609 @@
+<!DOCTYPE html><html class="dark" lang="en" style=""><head>
+<script>
+  (function() {
+    try {
+      var urlP = new URLSearchParams(window.location.search);
+      var saved = urlP.get('theme') || localStorage.getItem('minhduc_theme');
+      if (saved === 'light') {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      } else {
+        document.documentElement.classList.remove('light');
+        document.documentElement.classList.add('dark');
+      }
+    } catch(e) {}
+  })();
+</script>
+
+  <!-- Google Identity Services (Sign-In & Cloud Sync) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- YouTube IFrame API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <!-- Bootstrap 5.3.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>
+/* ══════════════════════════════════════════════════════════
+   LIGHT MODE DESIGN SYSTEM – MinhDucEar Pro
+   Palette matched directly to user reference image:
+     Primary   : Electric Violet #7c3aed / #8b5cf6
+     Secondary : Vibrant Cyan/Teal #0891b2 / #06b6d4
+     Tertiary  : Rose Pink #e11d48 / #f43f5e
+     Surface   : Clean Pure White #ffffff & Soft Pearl Lavender #f8f7fd
+     Sub-panel : Crisp White #ffffff / Tint #f4f2fb
+     Text Main : Slate-900 Navy #0f172a / #1e1b4b
+     Text Sub  : Slate-600 #475569 / #64748b
+     Borders   : Soft Lavender-Gray rgba(216, 210, 240, 0.7) / rgba(226, 232, 240, 0.8)
+   ══════════════════════════════════════════════════════════ */
+
+html.light {
+  color-scheme: light;
+}
+
+/* ── Page Background ─────────────────────────────────────── */
+html.light body {
+  background: #f8f7fd !important;
+  color: #0f172a !important;
+}
+
+/* ── Ambient decorative blobs ────────────────────────────── */
+html.light .bg-primary-container\/10 {
+  background-color: rgba(124, 58, 237, 0.05) !important;
+}
+html.light .bg-secondary\/10 {
+  background-color: rgba(6, 182, 212, 0.05) !important;
+}
+html.light .bg-tertiary-container\/10 {
+  background-color: rgba(244, 63, 94, 0.04) !important;
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+html.light header {
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(20px) !important;
+  border-bottom-color: rgba(226, 232, 240, 0.8) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* ── Sidebar (Left) ──────────────────────────────────────── */
+html.light aside:not(.w-80) {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  border-right-color: rgba(226, 232, 240, 0.8) !important;
+  box-shadow: 2px 0 12px rgba(124, 58, 237, 0.03) !important;
+}
+
+/* ── Player Footer ───────────────────────────────────────── */
+html.light footer {
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(24px) !important;
+  border-top-color: rgba(216, 210, 240, 0.8) !important;
+  box-shadow: 0 -4px 20px rgba(124, 58, 237, 0.05) !important;
+}
+
+/* ── Surface tokens & Tailwind opacity overrides ─────────── */
+html.light .bg-surface,
+html.light .bg-surface-dim,
+html.light .bg-surface-dim\/30,
+html.light .bg-surface-dim\/40,
+html.light .bg-surface-dim\/70 {
+  background-color: #f8f7fd !important;
+}
+
+html.light .bg-surface-container-lowest,
+html.light .bg-surface-container-lowest\/90 {
+  background-color: #ffffff !important;
+  border-color: rgba(216, 210, 240, 0.7) !important;
+}
+
+html.light .bg-surface-container-low,
+html.light .bg-surface-container-low\/80,
+html.light .bg-surface-container-low\/90 {
+  background-color: #ffffff !important;
+  border-color: rgba(216, 210, 240, 0.8) !important;
+}
+
+html.light .bg-surface-container,
+html.light .bg-surface-container\/80 {
+  background-color: #f8f7fd !important;
+}
+
+html.light .bg-surface-container-high,
+html.light .bg-surface-container-high\/60,
+html.light .bg-surface-container-high\/80 {
+  background-color: #fcfbff !important;
+  border-color: rgba(226, 232, 240, 0.9) !important;
+}
+
+html.light .bg-surface-container-highest {
+  background-color: #f1f0fa !important;
+}
+
+/* ── Black/dark translucent overrides (Fix black box bug) ── */
+html.light .bg-black,
+html.light .bg-black\/20,
+html.light .bg-black\/30,
+html.light .bg-black\/40,
+html.light .bg-black\/50,
+html.light .bg-black\/60,
+html.light .bg-black\/70,
+html.light .bg-black\/85,
+html.light .bg-black\/90 {
+  background-color: #f8f7fd !important;
+  border-color: rgba(216, 210, 240, 0.7) !important;
+}
+
+/* ── Typography hierarchy ────────────────────────────────── */
+html.light .text-on-surface,
+html.light h1, html.light h2, html.light h3, html.light h4 {
+  color: #0f172a !important;
+}
+html.light .text-on-surface-variant {
+  color: #475569 !important;
+}
+html.light .text-outline {
+  color: #64748b !important;
+}
+html.light .text-white {
+  color: #0f172a !important;
+}
+html.light .text-gray-400 {
+  color: #64748b !important;
+}
+html.light .text-gray-300 {
+  color: #475569 !important;
+}
+html.light .text-gray-500 {
+  color: #8b80a8 !important;
+}
+html.light p {
+  color: #475569 !important;
+}
+
+/* ── Brand accent tokens ─────────────────────────────────── */
+html.light .text-primary { color: #7c3aed !important; }
+html.light .text-primary\/70 { color: rgba(124, 58, 237, 0.7) !important; }
+html.light .text-primary-container { color: #6d28d9 !important; }
+html.light .text-on-primary-container { color: #5b21b6 !important; }
+html.light .text-inverse-primary { color: #8b5cf6 !important; }
+html.light .text-secondary { color: #0891b2 !important; }
+html.light .text-secondary-container { color: #0e7490 !important; }
+html.light font[color="#54d8e8"] { color: #0891b2 !important; }
+html.light .text-tertiary { color: #e11d48 !important; }
+html.light .text-tertiary-container { color: #be185d !important; }
+
+/* ── Background accents ──────────────────────────────────── */
+html.light .bg-primary { background-color: #7c3aed !important; }
+html.light .bg-primary-container {
+  background: linear-gradient(135deg, #7c3aed, #8b5cf6) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35) !important;
+}
+html.light .bg-primary-container text,
+html.light .bg-primary-container span,
+html.light .bg-primary-container svg {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+html.light .bg-primary-container\/20,
+html.light .bg-primary-container\/30 {
+  background-color: #f3e8ff !important;
+  color: #7c3aed !important;
+  border-color: rgba(124, 58, 237, 0.25) !important;
+}
+html.light .bg-primary\/10 {
+  background-color: #f3e8ff !important;
+  color: #7c3aed !important;
+  border-color: rgba(124, 58, 237, 0.25) !important;
+}
+html.light .bg-primary\/20 { background-color: rgba(124, 58, 237, 0.12) !important; }
+html.light .bg-secondary { background-color: #0891b2 !important; }
+html.light .bg-secondary\/10,
+html.light .bg-secondary\/15,
+html.light .bg-secondary\/20 {
+  background-color: #ccfbf1 !important;
+  color: #0d9488 !important;
+  border-color: rgba(13, 148, 136, 0.3) !important;
+}
+html.light .bg-secondary\/40,
+html.light .bg-secondary\/50,
+html.light .bg-secondary\/60 {
+  background-color: #06b6d4 !important;
+}
+html.light .bg-secondary-container {
+  background-color: #ccfbf1 !important;
+  color: #0d9488 !important;
+}
+html.light .bg-tertiary\/10,
+html.light .bg-tertiary-container\/10 {
+  background-color: #ffe4e6 !important;
+  color: #e11d48 !important;
+  border-color: rgba(225, 29, 72, 0.3) !important;
+}
+
+/* ── Border tokens ───────────────────────────────────────── */
+html.light .border-primary { border-color: #7c3aed !important; }
+html.light .border-primary\/30,
+html.light .border-primary\/40,
+html.light .border-primary\/50 {
+  border-color: rgba(124, 58, 237, 0.30) !important;
+}
+html.light .border-secondary { border-color: #0891b2 !important; }
+html.light .border-secondary\/40,
+html.light .border-secondary\/50 {
+  border-color: rgba(8, 145, 178, 0.35) !important;
+}
+html.light .border-outline-variant\/30,
+html.light .border-outline-variant\/40 {
+  border-color: rgba(226, 232, 240, 0.8) !important;
+}
+html.light .border-white\/5,
+html.light .border-white\/10,
+html.light .border-white\/15 {
+  border-color: rgba(226, 232, 240, 0.8) !important;
+}
+
+/* ── Pixel aesthetic ─────────────────────────────────────── */
+html.light .pixel-btn {
+  box-shadow: 2px 2px 0px 0px rgba(124, 58, 237, 0.18) !important;
+}
+html.light .pixel-btn:hover {
+  box-shadow: 3px 3px 0px 0px rgba(124, 58, 237, 0.25) !important;
+}
+html.light .pixel-border {
+  border-color: rgba(216, 210, 240, 0.8) !important;
+  box-shadow: 2px 2px 0px 0px rgba(124, 58, 237, 0.08) !important;
+}
+html.light .pixel-border-sm {
+  border-color: rgba(216, 210, 240, 0.7) !important;
+  box-shadow: none !important;
+}
+
+/* ── Master Play Button ──────────────────────────────────── */
+html.light .text-on-primary { color: #ffffff !important; }
+html.light #btn-master-play {
+  background: linear-gradient(135deg, #7c3aed, #8b5cf6) !important;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4) !important;
+  border: none !important;
+}
+html.light #btn-master-play polygon,
+html.light #btn-master-play rect { fill: #ffffff !important; }
+html.light #hero-play-btn polygon,
+html.light #hero-play-btn rect   { fill: #ffffff !important; }
+
+/* ── Featured Hero Section ───────────────────────────────── */
+html.light section.rounded-xl {
+  background: #ffffff !important;
+  border: 1px solid rgba(216, 210, 240, 0.8) !important;
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.05) !important;
+}
+
+/* Hero Rank & Indicators Bar */
+html.light section.rounded-xl .bg-surface-container-lowest\/90 {
+  background-color: #f8f7fd !important;
+  border: 1px solid rgba(216, 210, 240, 0.7) !important;
+}
+html.light section.rounded-xl .bg-surface-container-high {
+  background-color: #ede9fe !important;
+  border: 1px solid rgba(167, 139, 250, 0.3) !important;
+}
+html.light #hero-trending-rank {
+  color: #0891b2 !important;
+}
+html.light #hero-play-btn {
+  background: linear-gradient(135deg, #7c3aed, #8b5cf6) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35) !important;
+}
+html.light #hero-save-album-btn {
+  background: #ffffff !important;
+  border: 1px solid rgba(216, 210, 240, 0.9) !important;
+  color: #475569 !important;
+}
+html.light #hero-save-album-btn:hover {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+html.light .hero-album-dot.bg-white\/20 {
+  background-color: rgba(148, 163, 184, 0.3) !important;
+}
+html.light .hero-album-dot.bg-secondary {
+  background-color: #06b6d4 !important;
+  box-shadow: 0 0 8px rgba(6, 182, 212, 0.6) !important;
+}
+
+/* ── Music Cards ─────────────────────────────────────────── */
+html.light .music-card-item {
+  background: #ffffff !important;
+  border: 1px solid rgba(226, 232, 240, 0.9) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03) !important;
+  backdrop-filter: none !important;
+}
+html.light .music-card-item:hover {
+  background: #ffffff !important;
+  border-color: rgba(124, 58, 237, 0.5) !important;
+  box-shadow: 0 8px 25px rgba(124, 58, 237, 0.12) !important;
+  transform: translateY(-2px);
+}
+html.light .music-card-item .border-white\/5,
+html.light .music-card-item .border-white\/10 {
+  border-color: rgba(226, 232, 240, 0.8) !important;
+}
+html.light .music-card-item .bg-white\/5 {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+  border-color: rgba(203, 213, 225, 0.6) !important;
+}
+
+/* ── Explore, Album, Favorites, History cards ────────────── */
+html.light .explore-trend-card,
+html.light .album-card {
+  background: #ffffff !important;
+  border-color: rgba(216, 210, 240, 0.8) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03) !important;
+}
+html.light .explore-trend-card:hover,
+html.light .album-card:hover {
+  border-color: #7c3aed !important;
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.12) !important;
+}
+html.light .explore-artist-btn {
+  background-color: #f8f7fd !important;
+  border-color: rgba(216, 210, 240, 0.8) !important;
+  color: #475569 !important;
+}
+html.light .explore-artist-btn:hover {
+  background-color: #f3e8ff !important;
+  border-color: #7c3aed !important;
+  color: #7c3aed !important;
+}
+html.light .fav-track-row,
+html.light .history-track-row {
+  background: #ffffff !important;
+  border-color: rgba(226, 232, 240, 0.8) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02) !important;
+}
+html.light .fav-track-row:hover,
+html.light .history-track-row:hover {
+  background: #f8f7fd !important;
+  border-color: rgba(124, 58, 237, 0.4) !important;
+}
+
+/* ── Track rows (album detail) ───────────────────────────── */
+html.light .track-row-item {
+  background: #ffffff !important;
+  border-color: rgba(226, 232, 240, 0.8) !important;
+}
+html.light .track-row-item:hover {
+  background: #f8f7fd !important;
+  border-color: rgba(124, 58, 237, 0.3) !important;
+}
+
+/* ── Right sidebar panel (w-80) ──────────────────────────── */
+html.light aside.w-80 {
+  background: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(20px) !important;
+  border-left: 1px solid rgba(226, 232, 240, 0.8) !important;
+}
+html.light aside.w-80 > div {
+  background: #ffffff !important;
+  border-color: rgba(216, 210, 240, 0.8) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Weekly chart inside stats widget */
+html.light aside.w-80 .bg-surface-container-lowest\/90 {
+  background-color: #ffffff !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+}
+html.light aside.w-80 .bg-black\/70 {
+  background-color: #f8f7fd !important;
+  border: 1px solid rgba(216, 210, 240, 0.7) !important;
+}
+
+/* TOP 3 list inside right sidebar */
+html.light aside.w-80 .bg-surface-container-high\/60 {
+  background-color: #ffffff !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+}
+html.light aside.w-80 .bg-surface-container-high\/60:hover {
+  background-color: #f8f7fd !important;
+}
+
+/* VỪA PHÁT list items */
+html.light aside.w-80 .overflow-y-auto .flex.items-center.justify-between {
+  background-color: #ffffff !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+}
+html.light aside.w-80 .overflow-y-auto .flex.items-center.justify-between:hover {
+  background-color: #f8f7fd !important;
+}
+
+/* ── Sidebar Nav active & hover ──────────────────────────── */
+html.light .sidebar-nav-item.bg-primary-container,
+html.light a.bg-primary-container {
+  background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35) !important;
+}
+html.light .sidebar-nav-item.bg-primary-container span,
+html.light .sidebar-nav-item.bg-primary-container svg {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+html.light .sidebar-nav-item:hover:not(.bg-primary-container) {
+  background-color: rgba(124, 58, 237, 0.06) !important;
+  color: #7c3aed !important;
+}
+
+/* Inactive nav icon colors matched to user image */
+html.light #nav-home:not(.bg-primary-container) span { color: #7c3aed !important; }
+html.light #nav-explore:not(.bg-primary-container) span { color: #0891b2 !important; }
+html.light #nav-search:not(.bg-primary-container) span { color: #64748b !important; }
+html.light #nav-favorites:not(.bg-primary-container) span { color: #e11d48 !important; }
+html.light #nav-history:not(.bg-primary-container) span { color: #0891b2 !important; }
+html.light #nav-albums:not(.bg-primary-container) span { color: #7c3aed !important; }
+
+/* ── Sidebar labels & playlists ──────────────────────────── */
+html.light #sidebar-playlists-container a { color: #475569 !important; }
+html.light #sidebar-playlists-container a:hover {
+  background-color: rgba(124, 58, 237, 0.06) !important;
+  color: #7c3aed !important;
+}
+html.light #sidebar-user-profile-btn {
+  background: #f4f2fb !important;
+  border: 1px solid rgba(216, 210, 240, 0.8) !important;
+}
+html.light #sidebar-user-profile-btn:hover {
+  background: #ede9fe !important;
+}
+
+/* ── Search bar ──────────────────────────────────────────── */
+html.light input#global-search-input {
+  background-color: #f1f4f9 !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(203, 213, 225, 0.8) !important;
+  box-shadow: none !important;
+}
+html.light input#global-search-input::placeholder { color: #94a3b8 !important; }
+html.light input#global-search-input:focus {
+  border-color: #7c3aed !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12) !important;
+}
+html.light #search-quick-dropdown {
+  background: #ffffff !important;
+  border: 1px solid rgba(216, 210, 240, 0.8) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08) !important;
+}
+html.light #view-search { background-color: #f8f7fd !important; }
+html.light #view-search-input {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(203, 213, 225, 0.8) !important;
+}
+
+/* ── Album Hero Banner ───────────────────────────────────── */
+html.light #view-album-detail .p-6.rounded-2xl {
+  background: #ffffff !important;
+  border: 1px solid rgba(216, 210, 240, 0.8) !important;
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.05) !important;
+}
+
+/* ── Views backgrounds ───────────────────────────────────── */
+html.light #view-explore,
+html.light #view-favorites,
+html.light #view-history,
+html.light #view-albums,
+html.light #view-album-detail {
+  background: #f8f7fd !important;
+}
+
+/* ── Player controls ─────────────────────────────────────── */
+html.light #player-seekbar { background-color: #ede9fe !important; }
+html.light #player-volume-bar { background-color: #ede9fe !important; }
+html.light #footer-vinyl {
+  background-color: #ffffff !important;
+  border-color: rgba(124, 58, 237, 0.4) !important;
+  box-shadow: 0 0 15px rgba(124, 58, 237, 0.2) !important;
+}
+html.light #footer-track-badge {
+  background-color: #f3e8ff !important;
+  color: #7c3aed !important;
+  border: 1px solid rgba(124, 58, 237, 0.25) !important;
+}
+
+/* ── Account & Modal areas ───────────────────────────────── */
+html.light #view-account { background-color: #f8f7fd !important; }
+html.light #view-account .bg-\[\#121217\],
+html.light #view-account .bg-\[\#181822\],
+html.light #view-account .bg-\[\#1e1e2c\],
+html.light #view-account .bg-\[\#1e1e28\] {
+  background-color: #ffffff !important;
+  border-color: rgba(216, 210, 240, 0.8) !important;
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.04) !important;
+}
+html.light #view-account .text-white { color: #0f172a !important; }
+html.light #view-account .text-gray-300 { color: #475569 !important; }
+html.light #view-account .text-gray-400 { color: #64748b !important; }
+html.light #view-account .bg-black\/40,
+html.light #view-account .bg-black\/50,
+html.light #view-account .bg-black\/60 {
+  background-color: #f8f7fd !important;
+  border-color: rgba(216, 210, 240, 0.7) !important;
+}
+html.light #view-account input {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(203, 213, 225, 0.8) !important;
+}
+html.light #view-account input:focus {
+  border-color: #7c3aed !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15) !important;
+}
+html.light #view-account .border-white\/10,
+html.light #view-account .border-white\/15 {
+  border-color: rgba(226, 232, 240, 0.8) !important;
+}
+
+/* ── Google Sign-in Modal ────────────────────────────────── */
+html.light #google-signin-modal .bg-\[\#14141d\] {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(216, 210, 240, 0.8) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12) !important;
+}
+html.light #google-signin-modal .text-white { color: #0f172a !important; }
+html.light #google-signin-modal .text-gray-300,
+html.light #google-signin-modal .text-gray-400 { color: #64748b !important; }
+html.light #google-signin-modal input {
+  background-color: #f8f7fd !important;
+  color: #0f172a !important;
+  border-color: rgba(203, 213, 225, 0.8) !important;
+}
+
+/* ── Playlist Add Modal ──────────────────────────────────── */
+html.light #modal-add-to-playlist .bg-\[\#14141d\] {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(216, 210, 240, 0.8) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12) !important;
+}
+html.light #modal-add-to-playlist .text-white { color: #0f172a !important; }
+
+/* ── Bootstrap modals ────────────────────────────────────── */
+html.light .modal-content.cyber-modal {
+  background: #ffffff !important;
+  border: 2px solid rgba(124, 58, 237, 0.3) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08) !important;
+  color: #0f172a !important;
+}
+
+/* ── Cyber inputs ────────────────────────────────────────── */
+html.light .cyber-input {
+  background: #ffffff !important;
+  border-color: rgba(203, 213, 225, 0.8) !important;
+  color: #0f172a !important;
+}
+html.light .cyber-input:focus {
+  border-color: #7c3aed !important;
+  box-shadow: 0 0 8px rgba(124, 58, 237, 0.2) !important;
+}
+
+/* ── Offcanvas ───────────────────────────────────────────── */
+html.light .offcanvas.cyber-offcanvas {
+  background: #ffffff !important;
+  border-right: 2px solid rgba(216, 210, 240, 0.8) !important;
+  color: #0f172a !important;
+}
+
+/* ── Custom scrollbar ────────────────────────────────────── */
+html.light .custom-scroll::-webkit-scrollbar-track { background: #f8f7fd; }
+html.light .custom-scroll::-webkit-scrollbar-thumb { background: rgba(124, 58, 237, 0.25); border-radius: 3px; }
+html.light .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(124, 58, 237, 0.45); }
+
+/* ── Mobile bottom dock ──────────────────────────────────── */
+html.light .mobile-bottom-dock {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-top: 1px solid rgba(226, 232, 240, 0.8) !important;
+}
+html.light .mobile-dock-btn { color: #64748b !important; }
+html.light .mobile-dock-btn.active,
+html.light .mobile-dock-btn:hover { color: #7c3aed !important; }
+
+/* ── Mobile mini player ──────────────────────────────────── */
+html.light .mobile-mini-player {
+  background: #ffffff !important;
+  border-color: rgba(216, 210, 240, 0.8) !important;
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.1) !important;
+}
+
+/* ── Global dark bg hex overrides ────────────────────────── */
+html.light .bg-\[\#0e0e10\],
+html.light .bg-\[\#0e0e12\],
+html.light .bg-\[\#121217\],
+html.light .bg-\[\#14141d\],
+html.light .bg-\[\#14141e\]\/95,
+html.light .bg-\[\#15151b\],
+html.light .bg-\[\#15151e\]\/80,
+html.light .bg-\[\#181822\],
+html.light .bg-\[\#1c1c28\],
+html.light .bg-\[\#1e1e28\],
+html.light .bg-\[\#1e1e2c\],
+html.light .bg-\[\#252538\],
+html.light .bg-\[\#282836\] {
+  background-color: #ffffff !important;
+  border-color: rgba(216, 210, 240, 0.8) !important;
+}
+
+/* ── Lyric line highlight ────────────────────────────────── */
+html.light .lyric-line.active {
+  color: #0891b2 !important;
+  background: rgba(8, 145, 178, 0.08) !important;
+  text-shadow: none !important;
+}
+
+/* ── Right Media Player, Lyrics & Floating Lyrics Pill ─────────────────── */
+#right-player-lyrics-status {
+  display: none !important;
+}
+
+/* Dark mode styling for right lyrics lines */
+.right-lyric-line {
+  margin: 3px 6px !important;
+  padding: 6px 14px !important;
+  border-radius: 12px !important;
+  border: 1.5px solid transparent !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  line-height: 1.4 !important;
+}
+
+.right-lyric-line.active-lyric {
+  color: #54d8e8 !important;
+  background: rgba(84, 216, 232, 0.14) !important;
+  border: 1.5px solid rgba(84, 216, 232, 0.55) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 0 16px rgba(84, 216, 232, 0.25), inset 0 0 6px rgba(84, 216, 232, 0.08) !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+}
+
+/* Light mode styling for Right Media Player rectangular card */
+html.light #right-player-media-card,
+html.light .right-player-card {
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1.5px solid rgba(216, 210, 240, 0.85) !important;
+  box-shadow: 0 10px 30px -5px rgba(124, 58, 237, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light #right-player-title {
+  color: #0f172a !important;
+}
+
+html.light #right-player-artist {
+  color: #7c3aed !important;
+}
+
+html.light #right-player-curtime,
+html.light #right-player-duration {
+  color: #64748b !important;
+}
+
+html.light #right-player-progressbar {
+  background-color: rgba(124, 58, 237, 0.12) !important;
+}
+
+html.light #right-player-media-card .border-t {
+  border-color: rgba(226, 232, 240, 0.8) !important;
+}
+
+html.light #sidebar-media-player .border-b {
+  border-color: rgba(226, 232, 240, 0.8) !important;
+}
+
+html.light #btn-close-right-player {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: #64748b !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+html.light #btn-close-right-player:hover {
+  background: rgba(0, 0, 0, 0.1) !important;
+  color: #0f172a !important;
+}
+
+/* Light mode styling for Right Lyrics Box */
+html.light .right-player-lyrics-box,
+html.light #sidebar-media-player .min-h-\[200px\],
+html.light #sidebar-media-player > div.flex-1 {
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1.5px solid rgba(216, 210, 240, 0.85) !important;
+  box-shadow: 0 10px 30px -5px rgba(124, 58, 237, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+}
+
+html.light .right-player-lyrics-box .border-b {
+  border-color: rgba(226, 232, 240, 0.8) !important;
+}
+
+html.light .right-lyric-line {
+  color: #64748b !important;
+}
+
+html.light .right-lyric-line:hover {
+  color: #0f172a !important;
+  background: rgba(124, 58, 237, 0.04) !important;
+}
+
+html.light .right-lyric-line.active-lyric {
+  color: #7c3aed !important;
+  background: rgba(124, 58, 237, 0.09) !important;
+  border: 1.5px solid rgba(124, 58, 237, 0.45) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.14) !important;
+  text-shadow: none !important;
+  font-weight: 700 !important;
+}
+
+/* Light mode styling for Floating Lyrics Pill (Mini Karaoke Bar) */
+html.light #floating-lyrics-panel {
+  background: rgba(255, 255, 255, 0.94) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1.5px solid rgba(124, 58, 237, 0.35) !important;
+  box-shadow: 0 12px 36px -4px rgba(124, 58, 237, 0.18), 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+  color: #0f172a !important;
+}
+
+html.light #floating-lyrics-single-line {
+  color: #7c3aed !important;
+  font-weight: 700 !important;
+  drop-shadow: 0 1px 2px rgba(124, 58, 237, 0.15) !important;
+  text-shadow: none !important;
+}
+
+html.light #btn-close-floating-lyrics {
+  color: #64748b !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+  border-radius: 9999px !important;
+  padding: 2px 6px !important;
+}
+html.light #btn-close-floating-lyrics:hover {
+  color: #0f172a !important;
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ── Smooth global transitions ───────────────────────────── */
+header, aside, footer, main, section,
+.music-card-item, .album-card, .explore-trend-card,
+.fav-track-row, .history-track-row, .track-row-item,
+button, input, .sidebar-nav-item,
+#right-player-media-card, .right-player-lyrics-box, #floating-lyrics-panel {
+  transition:
+    background-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease !important;
+}
+
+/* ── Bootstrap 5 Harmonization & Mobile Utilities ───────── */
+#mobile-player-offcanvas,
+.offcanvas.offcanvas-bottom#mobile-player-offcanvas {
+  --bs-offcanvas-height: 96vh !important;
+  height: 96vh !important;
+  max-height: 96vh !important;
+  top: 4vh !important;
+  bottom: 0 !important;
+  border-top-left-radius: 1.5rem !important;
+  border-top-right-radius: 1.5rem !important;
+  background-color: #131316 !important;
+  color: #e5e1e5 !important;
+  border-color: rgba(73, 69, 82, 0.4) !important;
+}
+a {
+  text-decoration: none !important;
+  color: inherit !important;
+}
+p, h1, h2, h3, h4, h5, h6 {
+  margin-bottom: 0;
+}
+button:focus, input:focus, select:focus, textarea:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+.offcanvas {
+  background-color: #131316 !important;
+  color: #e5e1e5 !important;
+  border-color: rgba(73, 69, 82, 0.4) !important;
+}
+html.light .offcanvas {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(216, 210, 240, 0.8) !important;
+}
+.offcanvas-backdrop.show {
+  opacity: 0.75 !important;
+  backdrop-filter: blur(8px) !important;
+  background-color: rgba(0, 0, 0, 0.6) !important;
+}
+html.light .offcanvas-backdrop.show {
+  background-color: rgba(15, 23, 42, 0.4) !important;
+}
+.btn-close-white {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+html.light .btn-close-white {
+  filter: none !important;
+}
+.mobile-dock-btn.active {
+  color: #54d8e8 !important;
+}
+html.light .mobile-dock-btn.active {
+  color: #7c3aed !important;
+}
+html.light #mobile-bottom-dock {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  border-color: rgba(216, 210, 240, 0.8) !important;
+}
+
+</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      "colors": {
+        "on-secondary": "#00363c",
+        "on-tertiary-fixed": "#3d0026",
+        "on-tertiary-fixed-variant": "#85145a",
+        "surface-container": "#201f22",
+        "surface-dim": "#131316",
+        "on-error": "#690005",
+        "primary-fixed": "#e8ddff",
+        "surface-container-lowest": "#0e0e10",
+        "on-secondary-fixed": "#001f23",
+        "on-surface": "#e5e1e5",
+        "secondary": "#54d8e8",
+        "on-tertiary": "#620040",
+        "primary-container": "#a78bfa",
+        "on-primary": "#381385",
+        "surface-container-highest": "#353437",
+        "on-surface-variant": "#cac4d4",
+        "secondary-fixed": "#91f1ff",
+        "surface-container-high": "#2a2a2c",
+        "secondary-container": "#02aebe",
+        "surface-variant": "#353437",
+        "primary": "#cebdff",
+        "inverse-primary": "#674bb5",
+        "surface-bright": "#39393b",
+        "tertiary": "#ffafd3",
+        "on-secondary-fixed-variant": "#004f57",
+        "surface-container-low": "#1c1b1e",
+        "on-primary-fixed-variant": "#4f319c",
+        "tertiary-container": "#f170b4",
+        "on-primary-container": "#3c1989",
+        "tertiary-fixed": "#ffd8e7",
+        "on-secondary-container": "#003b42",
+        "surface-tint": "#cebdff",
+        "primary-fixed-dim": "#cebdff",
+        "on-background": "#e5e1e5",
+        "on-error-container": "#ffdad6",
+        "inverse-surface": "#e5e1e5",
+        "surface": "#131316",
+        "error": "#ffb4ab",
+        "inverse-on-surface": "#313033",
+        "outline-variant": "#494552",
+        "secondary-fixed-dim": "#54d8e8",
+        "on-primary-fixed": "#21005e",
+        "tertiary-fixed-dim": "#ffafd3",
+        "outline": "#948e9d",
+        "error-container": "#93000a",
+        "background": "#131316",
+        "on-tertiary-container": "#6a0045"
+      },
+      "borderRadius": {
+        "DEFAULT": "0.25rem",
+        "lg": "0.5rem",
+        "xl": "0.75rem",
+        "full": "9999px"
+      },
+      "spacing": {
+        "space-xl": "2.5rem",
+        "space-md": "1rem",
+        "margin-mobile": "1rem",
+        "gutter": "1.5rem",
+        "margin": "2rem",
+        "gutter-mobile": "0.75rem",
+        "space-lg": "1.5rem",
+        "space-xs": "0.25rem",
+        "space-sm": "0.5rem"
+      },
+      "fontFamily": {
+        "code-spec-lg": ["JetBrains Mono"],
+        "code-spec-sm": ["JetBrains Mono"],
+        "display-xl-mobile": ["Inter"],
+        "headline-lg-mobile": ["Inter"],
+        "title-sm": ["Inter"],
+        "body-md": ["Inter"],
+        "title-md": ["Inter"],
+        "label-caps": ["JetBrains Mono"],
+        "headline-md": ["Inter"],
+        "body-sm": ["Inter"],
+        "display-xl": ["Inter"],
+        "headline-lg": ["Inter"],
+        "body-lg": ["Inter"]
+      },
+      "fontSize": {
+        "code-spec-lg": ["13px", {"lineHeight": "18px", "letterSpacing": "0.04em", "fontWeight": "600"}],
+        "code-spec-sm": ["11px", {"lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "500"}],
+        "display-xl-mobile": ["32px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+        "title-sm": ["15px", {"lineHeight": "22px", "letterSpacing": "-0.005em", "fontWeight": "600"}],
+        "body-md": ["14px", {"lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400"}],
+        "title-md": ["18px", {"lineHeight": "26px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+        "label-caps": ["10px", {"lineHeight": "14px", "letterSpacing": "0.12em", "fontWeight": "700"}],
+        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600"}],
+        "body-sm": ["12px", {"lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "400"}],
+        "display-xl": ["56px", {"lineHeight": "64px", "letterSpacing": "-0.03em", "fontWeight": "800"}],
+        "headline-lg": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+        "body-lg": ["16px", {"lineHeight": "26px", "letterSpacing": "0em", "fontWeight": "400"}]
+      }
+    }
+  }
+}</script><link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;family=Silkscreen:wght@400;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=VT323&amp;display=swap" rel="stylesheet"><style>.font-vt323{font-family:'VT323',monospace;image-rendering:pixelated;}.pixel-icon{shape-rendering:crispEdges;image-rendering:pixelated;display:inline-block;vertical-align:middle;}.pixel-btn{box-shadow:3px 3px 0px 0px #000;image-rendering:pixelated;transition:all 0.1s steps(2);}.pixel-btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0px 0px #000;}.pixel-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0px 0px #000;}</style><style>.font-pixel{font-family:'Press Start 2P',monospace;image-rendering:pixelated;}.font-silkscreen{font-family:'Silkscreen',monospace;}.pixel-border{box-shadow:3px 3px 0px 0px rgba(0,0,0,0.8),3px 3px 0px 1px rgba(167,139,250,0.4);border:2px solid #353437;image-rendering:pixelated;}.pixel-border-sm{box-shadow:2px 2px 0px 0px #000;border:1px solid #494552;}.pixel-border-primary{box-shadow:3px 3px 0px 0px #000,4px 4px 0px 0px #a78bfa;border:2px solid #cebdff;}.pixel-border-secondary{box-shadow:3px 3px 0px 0px #000,4px 4px 0px 0px #54d8e8;border:2px solid #54d8e8;}</style>
+<style>
+@keyframes bounceEQ {
+  0% { height: 4px; }
+  50% { height: 18px; }
+  100% { height: 26px; }
+}
+.eq-bar-anim { transition: height 0.15s ease; }
+</style>
+
+<style>
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spinSlow 12s linear infinite;
+}
+.vinyl-paused {
+  animation-play-state: paused !important;
+}
+.vinyl-running {
+  animation-play-state: running !important;
+}
+</style>
+
+<style>
+@keyframes waveEQ {
+  0% { height: 4px; }
+  35% { height: 22px; }
+  70% { height: 10px; }
+  100% { height: 26px; }
+}
+
+.trending-eq-bar {
+  animation: waveEQ 1.3s ease-in-out infinite alternate !important;
+  transform-origin: bottom;
+}
+.trending-eq-bar:nth-child(1) { animation-delay: 0.0s !important; }
+.trending-eq-bar:nth-child(2) { animation-delay: 0.25s !important; }
+.trending-eq-bar:nth-child(3) { animation-delay: 0.5s !important; }
+.trending-eq-bar:nth-child(4) { animation-delay: 0.15s !important; }
+.trending-eq-bar:nth-child(5) { animation-delay: 0.4s !important; }
+.trending-eq-bar:nth-child(6) { animation-delay: 0.65s !important; }
+
+/* Custom Sleek Scrollbar for Main Workspace */
+.custom-scroll::-webkit-scrollbar {
+  display: block !important;
+  width: 6px;
+}
+.custom-scroll::-webkit-scrollbar-track {
+  background: rgba(19, 19, 22, 0.4);
+}
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: rgba(167, 139, 250, 0.35);
+  border-radius: 9999px;
+}
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(167, 139, 250, 0.65);
+}
+</style>
+
+<style>
+/* ══════════════════════════════════════════════════════════
+   LIGHT MODE DESIGN SYSTEM – MinhDucEar Pro
+   Palette extracted from dark mode hues:
+     Primary  : Violet  #6d28d9 / #7c3aed / #a78bfa
+     Secondary: Teal    #0891b2 / #0ea5e9 / #22d3ee
+     Tertiary : Rose    #be185d / #ec4899 / #f9a8d4
+     Surface  : Warm pearl whites & soft lavender
+     Text     : Deep navy #1a1730 / #2d2747
+   ══════════════════════════════════════════════════════════ */
+
+html.light {
+  color-scheme: light;
+}
+
+/* ── Page Background ─────────────────────────────────────── */
+html.light body {
+  background: linear-gradient(145deg, #f3f0ff 0%, #eef2ff 30%, #f0fafb 60%, #fdf4ff 100%) !important;
+  color: #1a1730 !important;
+}
+
+/* ── Ambient decorative blobs ────────────────────────────── */
+html.light .bg-primary-container\/10 {
+  background-color: rgba(109, 40, 217, 0.07) !important;
+}
+html.light .bg-secondary\/10 {
+  background-color: rgba(8, 145, 178, 0.07) !important;
+}
+html.light .bg-tertiary-container\/10 {
+  background-color: rgba(190, 24, 93, 0.05) !important;
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+html.light header {
+  background: rgba(250, 249, 255, 0.90) !important;
+  backdrop-filter: blur(24px) !important;
+  border-bottom-color: rgba(167, 139, 250, 0.25) !important;
+  box-shadow: 0 1px 0 rgba(109, 40, 217, 0.08), 0 4px 20px rgba(109, 40, 217, 0.04) !important;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+html.light aside {
+  background: rgba(248, 246, 255, 0.94) !important;
+  backdrop-filter: blur(20px) !important;
+  border-right-color: rgba(167, 139, 250, 0.22) !important;
+  box-shadow: 2px 0 20px rgba(109, 40, 217, 0.04) !important;
+}
+
+/* ── Player Footer ───────────────────────────────────────── */
+html.light footer {
+  background: rgba(252, 251, 255, 0.97) !important;
+  backdrop-filter: blur(24px) !important;
+  border-top-color: rgba(167, 139, 250, 0.28) !important;
+  box-shadow: 0 -4px 30px rgba(109, 40, 217, 0.07), 0 -1px 0 rgba(167, 139, 250, 0.15) !important;
+}
+
+/* ── Surface tokens ──────────────────────────────────────── */
+html.light .bg-surface-dim,
+html.light .bg-surface-dim\/30 {
+  background-color: #f0edfb !important;
+}
+html.light .bg-surface-container-lowest {
+  background-color: #ffffff !important;
+}
+html.light .bg-surface-container-low {
+  background-color: #faf9ff !important;
+}
+html.light .bg-surface-container {
+  background-color: #f3f0fb !important;
+}
+html.light .bg-surface-container-high {
+  background-color: #e9e4f7 !important;
+}
+html.light .bg-surface-container-highest {
+  background-color: #ddd6f3 !important;
+}
+
+/* ── Typography hierarchy ────────────────────────────────── */
+html.light .text-on-surface,
+html.light h1, html.light h2, html.light h3, html.light h4 {
+  color: #1a1730 !important;
+}
+html.light .text-on-surface-variant {
+  color: #3d3558 !important;
+}
+html.light .text-outline {
+  color: #6b5f8c !important;
+}
+html.light .text-white {
+  color: #1a1730 !important;
+}
+html.light .text-gray-400 {
+  color: #5b5080 !important;
+}
+html.light .text-gray-300 {
+  color: #3d3558 !important;
+}
+html.light .text-gray-500 {
+  color: #6b5f8c !important;
+}
+html.light p {
+  color: #3d3558 !important;
+}
+
+/* ── Brand accent tokens ─────────────────────────────────── */
+html.light .text-primary { color: #6d28d9 !important; }
+html.light .text-primary\/70 { color: rgba(109, 40, 217, 0.7) !important; }
+html.light .text-primary-container { color: #4c1d95 !important; }
+html.light .text-on-primary-container { color: #5b21b6 !important; }
+html.light .text-inverse-primary { color: #7c3aed !important; }
+html.light .text-secondary { color: #0891b2 !important; }
+html.light .text-secondary-container { color: #0e7490 !important; }
+html.light font[color="#54d8e8"] { color: #0891b2 !important; }
+html.light .text-tertiary { color: #be185d !important; }
+html.light .text-tertiary-container { color: #9d174d !important; }
+
+/* ── Background accents ──────────────────────────────────── */
+html.light .bg-primary { background-color: #6d28d9 !important; }
+html.light .bg-primary-container {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(109, 40, 217, 0.35) !important;
+}
+html.light .bg-primary-container text,
+html.light .bg-primary-container span,
+html.light .bg-primary-container svg {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+html.light .bg-primary-container\/20 {
+  background-color: rgba(109, 40, 217, 0.10) !important;
+  color: #5b21b6 !important;
+  border-color: rgba(109, 40, 217, 0.25) !important;
+}
+html.light .bg-primary\/10 { background-color: rgba(109, 40, 217, 0.08) !important; }
+html.light .bg-primary\/20 { background-color: rgba(109, 40, 217, 0.14) !important; }
+html.light .bg-primary\/30 { background-color: rgba(109, 40, 217, 0.20) !important; }
+html.light .bg-secondary { background-color: #0891b2 !important; }
+html.light .bg-secondary\/10 {
+  background-color: rgba(8, 145, 178, 0.10) !important;
+  color: #0e7490 !important;
+  border-color: rgba(8, 145, 178, 0.28) !important;
+}
+html.light .bg-secondary\/20 { background-color: rgba(8, 145, 178, 0.14) !important; }
+html.light .bg-secondary\/40 { background-color: rgba(8, 145, 178, 0.35) !important; }
+html.light .bg-secondary\/50 { background-color: rgba(8, 145, 178, 0.45) !important; }
+html.light .bg-secondary\/60 { background-color: rgba(8, 145, 178, 0.55) !important; }
+html.light .bg-secondary-container { background-color: rgba(8, 145, 178, 0.15) !important; }
+html.light .bg-tertiary\/10 {
+  background-color: rgba(190, 24, 93, 0.10) !important;
+  color: #9d174d !important;
+  border-color: rgba(190, 24, 93, 0.28) !important;
+}
+html.light .bg-tertiary-container\/10 { background-color: rgba(190, 24, 93, 0.07) !important; }
+
+/* ── Border tokens ───────────────────────────────────────── */
+html.light .border-primary { border-color: #7c3aed !important; }
+html.light .border-primary\/30 { border-color: rgba(109, 40, 217, 0.30) !important; }
+html.light .border-primary\/40 { border-color: rgba(109, 40, 217, 0.40) !important; }
+html.light .border-primary\/50 { border-color: rgba(109, 40, 217, 0.50) !important; }
+html.light .border-secondary { border-color: #0891b2 !important; }
+html.light .border-secondary\/40 { border-color: rgba(8, 145, 178, 0.40) !important; }
+html.light .border-secondary\/50 { border-color: rgba(8, 145, 178, 0.50) !important; }
+html.light .border-outline-variant\/30 { border-color: rgba(139, 92, 246, 0.20) !important; }
+html.light .border-outline-variant\/40 { border-color: rgba(139, 92, 246, 0.28) !important; }
+html.light .border-white\/5  { border-color: rgba(109, 40, 217, 0.10) !important; }
+html.light .border-white\/10 { border-color: rgba(109, 40, 217, 0.15) !important; }
+html.light .border-white\/15 { border-color: rgba(109, 40, 217, 0.18) !important; }
+
+/* ── Pixel aesthetic ─────────────────────────────────────── */
+html.light .pixel-btn {
+  box-shadow: 3px 3px 0px 0px rgba(109, 40, 217, 0.18) !important;
+}
+html.light .pixel-btn:hover {
+  box-shadow: 4px 4px 0px 0px rgba(109, 40, 217, 0.22) !important;
+}
+html.light .pixel-border {
+  border-color: #c4b5fd !important;
+  box-shadow: 3px 3px 0px 0px rgba(109, 40, 217, 0.15), 3px 3px 0px 1px rgba(109, 40, 217, 0.08) !important;
+}
+html.light .pixel-border-sm {
+  border-color: #c4b5fd !important;
+  box-shadow: 2px 2px 0px 0px rgba(109, 40, 217, 0.12) !important;
+}
+
+/* ── Master Play Button ──────────────────────────────────── */
+html.light .text-on-primary { color: #ffffff !important; }
+html.light #btn-master-play {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
+  box-shadow: 0 4px 20px rgba(109, 40, 217, 0.45), 3px 3px 0px 0px rgba(167, 139, 250, 0.5) !important;
+}
+html.light #btn-master-play polygon,
+html.light #btn-master-play rect { fill: #ffffff !important; }
+html.light #hero-play-btn polygon,
+html.light #hero-play-btn rect   { fill: #ffffff !important; }
+
+/* ── Featured Hero Section ───────────────────────────────── */
+html.light section.rounded-xl {
+  background: linear-gradient(135deg, rgba(255,255,255,0.97) 0%, rgba(243,240,255,0.95) 50%, rgba(240,249,255,0.95) 100%) !important;
+  border: 1px solid rgba(139, 92, 246, 0.22) !important;
+  box-shadow: 0 8px 32px rgba(109, 40, 217, 0.07), 0 2px 8px rgba(8, 145, 178, 0.04) !important;
+}
+
+/* ── Music Cards ─────────────────────────────────────────── */
+html.light .music-card-item {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(167, 139, 250, 0.20) !important;
+  box-shadow: 0 4px 20px rgba(109, 40, 217, 0.06), 0 1px 4px rgba(109, 40, 217, 0.04) !important;
+  backdrop-filter: blur(8px) !important;
+}
+html.light .music-card-item:hover {
+  background: rgba(255, 255, 255, 0.99) !important;
+  border-color: rgba(124, 58, 237, 0.50) !important;
+  box-shadow: 0 12px 32px rgba(109, 40, 217, 0.16), 0 0 0 1px rgba(109, 40, 217, 0.10) !important;
+  transform: translateY(-3px);
+}
+html.light .music-card-item .border-white\/5,
+html.light .music-card-item .border-white\/10 {
+  border-color: rgba(167, 139, 250, 0.22) !important;
+}
+html.light .music-card-item .bg-white\/5 {
+  background-color: rgba(109, 40, 217, 0.06) !important;
+}
+
+/* ── Explore, Album, Favorites, History cards ────────────── */
+html.light .explore-trend-card,
+html.light .album-card {
+  background: rgba(255, 255, 255, 0.93) !important;
+  border-color: rgba(167, 139, 250, 0.22) !important;
+  box-shadow: 0 4px 18px rgba(109, 40, 217, 0.07) !important;
+}
+html.light .explore-trend-card:hover,
+html.light .album-card:hover {
+  border-color: #7c3aed !important;
+  box-shadow: 0 10px 30px rgba(109, 40, 217, 0.16) !important;
+}
+html.light .explore-artist-btn {
+  background-color: #f5f2ff !important;
+  border-color: rgba(167, 139, 250, 0.35) !important;
+}
+html.light .explore-artist-btn:hover {
+  background-color: #ede8ff !important;
+  border-color: #7c3aed !important;
+}
+html.light .fav-track-row,
+html.light .history-track-row {
+  background: rgba(255, 255, 255, 0.90) !important;
+  border-color: rgba(167, 139, 250, 0.18) !important;
+  box-shadow: 0 2px 10px rgba(109, 40, 217, 0.04) !important;
+}
+html.light .fav-track-row:hover,
+html.light .history-track-row:hover {
+  background: #f5f2ff !important;
+  border-color: rgba(109, 40, 217, 0.40) !important;
+}
+
+/* ── Track rows (album detail) ───────────────────────────── */
+html.light .track-row-item {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(167, 139, 250, 0.15) !important;
+}
+html.light .track-row-item:hover {
+  background: rgba(109, 40, 217, 0.05) !important;
+  border-color: rgba(109, 40, 217, 0.30) !important;
+}
+
+/* ── Charts & Stats widget ───────────────────────────────── */
+html.light .bg-black\/70,
+html.light .bg-black\/40,
+html.light .bg-black\/30 {
+  background-color: rgba(243, 240, 255, 0.85) !important;
+  border-color: rgba(167, 139, 250, 0.22) !important;
+}
+html.light .bg-black\/90 {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  color: #1a1730 !important;
+}
+html.light .bg-black\/20 { background-color: rgba(109, 40, 217, 0.06) !important; }
+html.light .bg-black\/50 { background-color: rgba(243, 240, 255, 0.88) !important; }
+
+/* ── Right stats panel ───────────────────────────────────── */
+html.light .w-80 {
+  background: rgba(248, 246, 255, 0.92) !important;
+  backdrop-filter: blur(20px) !important;
+  border-left: 1px solid rgba(167, 139, 250, 0.20) !important;
+}
+
+/* ── Sidebar Nav active & hover ──────────────────────────── */
+html.light .sidebar-nav-item.bg-primary-container,
+html.light a.bg-primary-container {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(109, 40, 217, 0.35), 3px 3px 0 rgba(109, 40, 217, 0.18) !important;
+}
+html.light .sidebar-nav-item:hover:not(.bg-primary-container) {
+  background-color: rgba(109, 40, 217, 0.07) !important;
+  color: #4c1d95 !important;
+}
+
+/* ── Sidebar labels & playlists ──────────────────────────── */
+html.light #sidebar-playlists-container a { color: #3d3558 !important; }
+html.light #sidebar-playlists-container a:hover {
+  background-color: rgba(109, 40, 217, 0.07) !important;
+  color: #4c1d95 !important;
+}
+html.light #sidebar-user-profile-btn {
+  background: rgba(243, 240, 255, 0.88) !important;
+  border-color: rgba(167, 139, 250, 0.35) !important;
+}
+
+/* ── Search bar ──────────────────────────────────────────── */
+html.light input#global-search-input {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  color: #1a1730 !important;
+  border-color: rgba(139, 92, 246, 0.28) !important;
+  box-shadow: 0 2px 10px rgba(109, 40, 217, 0.06), inset 0 1px 3px rgba(109, 40, 217, 0.04) !important;
+}
+html.light input#global-search-input::placeholder { color: #8b7db5 !important; }
+html.light input#global-search-input:focus {
+  border-color: rgba(109, 40, 217, 0.55) !important;
+  box-shadow: 0 0 0 2px rgba(109, 40, 217, 0.12), 0 4px 16px rgba(109, 40, 217, 0.10) !important;
+}
+html.light #search-quick-dropdown {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: rgba(167, 139, 250, 0.35) !important;
+  box-shadow: 0 16px 48px rgba(109, 40, 217, 0.16), 0 4px 16px rgba(8, 145, 178, 0.06) !important;
+}
+html.light #view-search { background-color: rgba(243, 240, 255, 0.65) !important; }
+html.light #view-search-input {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  color: #1a1730 !important;
+  border-color: rgba(139, 92, 246, 0.30) !important;
+}
+
+/* ── Album Hero Banner ───────────────────────────────────── */
+html.light #view-album-detail .p-6.rounded-2xl {
+  background: linear-gradient(135deg, rgba(243,240,255,0.97) 0%, rgba(255,255,255,0.97) 50%, rgba(240,249,255,0.95) 100%) !important;
+  border-color: rgba(139, 92, 246, 0.28) !important;
+  box-shadow: 0 12px 40px rgba(109, 40, 217, 0.12), 0 2px 8px rgba(8, 145, 178, 0.06) !important;
+}
+
+/* ── Views backgrounds ───────────────────────────────────── */
+html.light #view-explore,
+html.light #view-favorites,
+html.light #view-history,
+html.light #view-albums,
+html.light #view-album-detail {
+  background: rgba(243, 240, 255, 0.50) !important;
+}
+
+/* ── Player controls ─────────────────────────────────────── */
+html.light #player-seekbar { background-color: #ddd6f3 !important; }
+html.light #player-volume-bar { background-color: #ddd6f3 !important; }
+html.light #footer-vinyl {
+  background-color: #ffffff !important;
+  border-color: rgba(109, 40, 217, 0.45) !important;
+  box-shadow: 0 0 20px rgba(109, 40, 217, 0.25), 0 0 10px rgba(8, 145, 178, 0.12) !important;
+}
+html.light #footer-track-badge { color: #0891b2 !important; }
+
+/* ── Account & Modal areas ───────────────────────────────── */
+html.light #view-account { background-color: rgba(243, 240, 255, 0.65) !important; }
+html.light #view-account .bg-\[\#121217\],
+html.light #view-account .bg-\[\#181822\],
+html.light #view-account .bg-\[\#1e1e2c\],
+html.light #view-account .bg-\[\#1e1e28\] {
+  background-color: rgba(255, 255, 255, 0.97) !important;
+  border-color: rgba(167, 139, 250, 0.28) !important;
+  box-shadow: 0 12px 40px rgba(109, 40, 217, 0.10) !important;
+}
+html.light #view-account .text-white  { color: #1a1730 !important; }
+html.light #view-account .text-gray-300 { color: #3d3558 !important; }
+html.light #view-account .text-gray-400 { color: #5b5080 !important; }
+html.light #view-account .bg-black\/40,
+html.light #view-account .bg-black\/50,
+html.light #view-account .bg-black\/60 {
+  background-color: rgba(243, 240, 255, 0.85) !important;
+  border-color: rgba(167, 139, 250, 0.25) !important;
+}
+html.light #view-account input {
+  background-color: rgba(255, 255, 255, 0.98) !important;
+  color: #1a1730 !important;
+  border-color: rgba(139, 92, 246, 0.30) !important;
+}
+html.light #view-account input:focus {
+  border-color: #7c3aed !important;
+  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.15) !important;
+}
+html.light #view-account .border-white\/10,
+html.light #view-account .border-white\/15 { border-color: rgba(167, 139, 250, 0.22) !important; }
+
+/* ── Google Sign-in Modal ────────────────────────────────── */
+html.light #google-signin-modal .bg-\[\#14141d\] {
+  background-color: rgba(255, 255, 255, 0.99) !important;
+  color: #1a1730 !important;
+  border-color: rgba(109, 40, 217, 0.30) !important;
+  box-shadow: 0 24px 60px rgba(109, 40, 217, 0.18), 0 8px 24px rgba(8, 145, 178, 0.08) !important;
+}
+html.light #google-signin-modal .text-white { color: #1a1730 !important; }
+html.light #google-signin-modal .text-gray-300,
+html.light #google-signin-modal .text-gray-400 { color: #5b5080 !important; }
+html.light #google-signin-modal input {
+  background-color: rgba(248, 246, 255, 0.99) !important;
+  color: #1a1730 !important;
+  border-color: rgba(139, 92, 246, 0.28) !important;
+}
+
+/* ── Playlist Add Modal ──────────────────────────────────── */
+html.light #modal-add-to-playlist .bg-\[\#14141d\] {
+  background-color: rgba(255, 255, 255, 0.99) !important;
+  color: #1a1730 !important;
+  border-color: rgba(167, 139, 250, 0.30) !important;
+  box-shadow: 0 20px 50px rgba(109, 40, 217, 0.16) !important;
+}
+html.light #modal-add-to-playlist .text-white { color: #1a1730 !important; }
+
+/* ── Bootstrap modals ────────────────────────────────────── */
+html.light .modal-content.cyber-modal {
+  background: rgba(255, 255, 255, 0.99) !important;
+  border: 2px solid rgba(109, 40, 217, 0.35) !important;
+  box-shadow: 0 0 40px rgba(109, 40, 217, 0.16), 5px 5px 0px rgba(167, 139, 250, 0.35) !important;
+  color: #1a1730 !important;
+}
+
+/* ── Cyber inputs ────────────────────────────────────────── */
+html.light .cyber-input {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: rgba(167, 139, 250, 0.35) !important;
+  color: #1a1730 !important;
+}
+html.light .cyber-input:focus {
+  border-color: #7c3aed !important;
+  box-shadow: 0 0 10px rgba(109, 40, 217, 0.22) !important;
+}
+
+/* ── Offcanvas ───────────────────────────────────────────── */
+html.light .offcanvas.cyber-offcanvas {
+  background: rgba(248, 246, 255, 0.98) !important;
+  border-right: 2px solid rgba(167, 139, 250, 0.28) !important;
+  color: #1a1730 !important;
+}
+
+/* ── Custom scrollbar ────────────────────────────────────── */
+html.light .custom-scroll::-webkit-scrollbar-track { background: rgba(243, 240, 255, 0.6); }
+html.light .custom-scroll::-webkit-scrollbar-thumb { background: rgba(109, 40, 217, 0.25); border-radius: 3px; }
+html.light .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(8, 145, 178, 0.45); }
+
+/* ── Mobile bottom dock ──────────────────────────────────── */
+html.light .mobile-bottom-dock {
+  background: rgba(252, 251, 255, 0.96) !important;
+  border-top: 1px solid rgba(167, 139, 250, 0.25) !important;
+}
+html.light .mobile-dock-btn { color: #6b5f8c !important; }
+html.light .mobile-dock-btn.active,
+html.light .mobile-dock-btn:hover { color: #6d28d9 !important; }
+
+/* ── Mobile mini player ──────────────────────────────────── */
+html.light .mobile-mini-player {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-color: rgba(109, 40, 217, 0.35) !important;
+  box-shadow: 0 6px 24px rgba(109, 40, 217, 0.12), 0 0 12px rgba(8, 145, 178, 0.06) !important;
+}
+
+/* ── Global dark bg overrides ────────────────────────────── */
+html.light .bg-\[\#14141e\],
+html.light .bg-\[\#121217\],
+html.light .bg-\[\#181822\],
+html.light .bg-\[\#1e1e2c\],
+html.light .bg-\[\#1e1e28\] {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  border-color: rgba(167, 139, 250, 0.22) !important;
+}
+
+/* ── Lyric line highlight ────────────────────────────────── */
+html.light .lyric-line.active {
+  color: #0891b2 !important;
+  background: rgba(8, 145, 178, 0.10) !important;
+  text-shadow: 0 0 14px rgba(8, 145, 178, 0.50) !important;
+}
+
+/* ── Smooth global transitions ───────────────────────────── */
+header, aside, footer, main, section,
+.music-card-item, .album-card, .explore-trend-card,
+.fav-track-row, .history-track-row, .track-row-item,
+button, input, .sidebar-nav-item {
+  transition:
+    background-color 0.22s ease,
+    background 0.22s ease,
+    color 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease !important;
+}
+
+/* ── Right sidebar inner elements ───────────────────────── */
+html.light aside.w-80 {
+  background: rgba(248, 246, 255, 0.96) !important;
+}
+html.light aside.w-80 > div {
+  background: rgba(255, 255, 255, 0.90) !important;
+  border-color: rgba(167, 139, 250, 0.22) !important;
+}
+html.light .bg-surface-container-low\/80 {
+  background-color: rgba(250, 249, 255, 0.96) !important;
+}
+html.light .bg-surface-container-high\/60 {
+  background-color: rgba(233, 228, 247, 0.88) !important;
+}
+html.light .bg-surface-dim\/70 {
+  background-color: rgba(240, 237, 251, 0.94) !important;
+}
+html.light .bg-surface-container\/80 {
+  background-color: rgba(243, 240, 251, 0.94) !important;
+}
+
+/* ── Flush Card Images (No Black Letterbox / Pillarbox Borders) ── */
+.music-card-item .aspect-\[16\/10\],
+.music-card-item .aspect-square,
+.music-card-thumb,
+#hero-cover-container,
+#right-player-cover-container {
+  overflow: hidden !important;
+  background-color: transparent !important;
+}
+
+.music-card-item .aspect-\[16\/10\] img,
+.music-card-item .aspect-square img,
+.music-card-thumb img,
+#hero-track-cover,
+#right-player-cover {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center center !important;
+  transform: scale(1.35) !important;
+  transform-origin: center center !important;
+  transition: transform 0.3s ease, filter 0.3s ease !important;
+}
+
+.music-card-item:hover .aspect-\[16\/10\] img,
+.music-card-item:hover .aspect-square img,
+.music-card-thumb:hover img,
+#hero-cover-container:hover #hero-track-cover {
+  transform: scale(1.42) !important;
+}
+</style>
+</head><body class="bg-surface font-body-md text-on-surface selection:bg-primary-container selection:text-on-primary relative h-screen w-full overflow-hidden flex flex-col"><div class="fixed inset-0 pointer-events-none z-0 overflow-hidden"><div class="absolute -top-40 left-60 w-[500px] h-[500px] rounded-full bg-primary-container/10 blur-[130px]"></div><div class="absolute top-1/2 -right-20 w-[450px] h-[450px] rounded-full bg-secondary/10 blur-[140px]"></div><div class="absolute bottom-10 left-1/3 w-[600px] h-[300px] rounded-full bg-tertiary-container/10 blur-[150px]"></div></div><header class="relative h-14 shrink-0 border-b border-outline-variant/30 bg-surface-dim/70 backdrop-blur-2xl px-space-lg flex items-center justify-between z-40">
+  <!-- Left: Logo & Brand -->
+  <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+    <!-- Mobile Hamburger Menu Button -->
+    <button type="button" id="btn-mobile-nav-toggle" class="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface border border-outline-variant/30 pixel-btn cursor-pointer transition-transform active:scale-95" data-bs-toggle="offcanvas" data-bs-target="#mobile-nav-offcanvas" aria-controls="mobile-nav-offcanvas" title="Menu điều hướng">
+      <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
+        <rect fill="currentColor" height="2" width="14" x="1" y="3"></rect>
+        <rect fill="currentColor" height="2" width="14" x="1" y="7"></rect>
+        <rect fill="currentColor" height="2" width="14" x="1" y="11"></rect>
+      </svg>
+    </button>
+    <div id="header-brand-logo" class="flex items-center gap-2 sm:gap-3 cursor-pointer select-none group transition-all duration-150 hover:opacity-90 active:scale-95" role="button" tabindex="0" title="Về trang chủ">
+      <div class="w-9 h-9 rounded bg-surface-container-high border-2 border-primary-container pixel-border-primary flex items-center justify-center group-hover:border-primary transition-colors">
+        <svg class="w-6 h-6 pixel-icon" fill="none" viewBox="0 0 16 16">
+          <rect fill="#54d8e8" height="8" width="2" x="2" y="4"></rect>
+          <rect fill="#54d8e8" height="2" width="3" x="4" y="2"></rect>
+          <rect fill="#54d8e8" height="2" width="3" x="4" y="12"></rect>
+          <rect fill="#cebdff" height="8" width="2" x="7" y="4"></rect>
+          <rect fill="#cebdff" height="6" width="2" x="9" y="5"></rect>
+          <rect fill="#a78bfa" height="4" width="2" x="11" y="6"></rect>
+          <rect fill="#54d8e8" height="2" width="1" x="13" y="7"></rect>
+        </svg>
+      </div>
+      <div class="flex flex-col leading-tight">
+        <div class="flex items-center gap-2">
+          <span class="font-headline-md text-[17px] text-on-surface font-extrabold tracking-tight group-hover:text-primary transition-colors">MinhDucEar</span>
+        </div>
+        <span class="font-silkscreen text-[9px] text-outline tracking-wider">Lỗ tai của minh ducc</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Center: Truly Centered Search Bar -->
+  <div class="hidden md:block absolute left-1/2 -translate-x-1/2 w-80 md:w-96 lg:w-[460px] max-w-[calc(100%-460px)] z-20">
+    <div class="relative flex items-center h-9 w-full">
+      <button type="button" id="global-search-btn" class="absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-outline hover:text-primary transition-colors cursor-pointer" title="Tìm kiếm">
+        <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
+          <rect fill="currentColor" height="2" width="6" x="3" y="3"></rect>
+          <rect fill="currentColor" height="2" width="6" x="3" y="7"></rect>
+          <rect fill="currentColor" height="4" width="2" x="1" y="4"></rect>
+          <rect fill="currentColor" height="4" width="2" x="8" y="4"></rect>
+          <rect fill="currentColor" height="2" width="2" x="9" y="9"></rect>
+          <rect fill="currentColor" height="2" width="3" x="11" y="11"></rect>
+          <rect fill="currentColor" height="2" width="2" x="13" y="13"></rect>
+        </svg>
+      </button>
+      <input class="w-full h-9 bg-surface-container-low/90 text-on-surface placeholder:text-outline/70 pl-9 pr-14 rounded-lg font-body-md text-[13px] leading-normal focus:outline-none focus:ring-2 focus:ring-primary-container border border-outline-variant/40 hover:border-outline-variant/70 transition-colors" id="global-search-input" placeholder="Tìm bài hát, nghệ sĩ, album..." type="text">
+      <div class="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center">
+        <span class="font-silkscreen text-[10px] px-1.5 py-0.5 rounded bg-surface-container-high text-outline border border-outline-variant/30 leading-tight">Ctrl K</span>
+      </div>
+    </div>
+    <div id="search-quick-dropdown" class="absolute left-0 right-0 top-full mt-1.5 bg-[#14141e]/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl p-2 z-50 hidden max-h-80 overflow-y-auto custom-scroll pixel-border-sm"></div>
+  </div>
+
+  <!-- Right: Status Badge & Utility Controls -->
+  <div class="flex items-center gap-3 shrink-0">
+    <div class="hidden xl:flex items-center gap-2.5 pr-3 border-r border-outline-variant/30">
+      <svg class="w-4 h-4 pixel-icon text-secondary" fill="none" viewBox="0 0 16 16">
+        <rect fill="#54d8e8" height="6" width="2" x="1" y="8"></rect>
+        <rect fill="#54d8e8" height="10" width="2" x="4" y="4"></rect>
+        <rect fill="#a78bfa" height="12" width="2" x="7" y="2"></rect>
+        <rect fill="#54d8e8" height="8" width="2" x="10" y="6"></rect>
+        <rect fill="#a78bfa" height="5" width="2" x="13" y="9"></rect>
+      </svg>
+      <span class="font-silkscreen text-[11px] text-outline"><span class="hidden 2xl:inline">thời gian nghe: </span><span id="header-listening-hours" class="text-secondary font-bold">0 hrs</span></span>
+      <span id="header-audio-engine-badge" class="font-pixel text-[8px] px-2 py-0.5 rounded bg-secondary/10 text-secondary border border-secondary/40">YT AUDIO HQ</span>
+    </div>
+    <!-- Mobile Search Quick Button -->
+    <button type="button" id="btn-mobile-search-toggle" class="md:hidden w-9 h-9 flex items-center justify-center rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface-variant hover:text-on-surface border border-outline-variant/30 pixel-btn cursor-pointer" onclick="if(window.minhDucPlayer) window.minhDucPlayer.switchView('search');" title="Tìm kiếm">
+      <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
+        <rect fill="currentColor" height="2" width="6" x="3" y="3"></rect>
+        <rect fill="currentColor" height="2" width="6" x="3" y="7"></rect>
+        <rect fill="currentColor" height="4" width="2" x="1" y="4"></rect>
+        <rect fill="currentColor" height="4" width="2" x="8" y="4"></rect>
+        <rect fill="currentColor" height="2" width="2" x="9" y="9"></rect>
+        <rect fill="currentColor" height="3" width="3" x="11" y="11"></rect>
+      </svg>
+    </button>
+    <!-- Dark/Light Mode Switcher in Header -->
+    <button id="btn-theme-toggle" class="w-9 h-9 flex items-center justify-center rounded-lg bg-surface-container-low hover:bg-surface-container border border-outline-variant/30 pixel-btn transition-all hover:scale-105 cursor-pointer" title="Chuyển chế độ Sáng / Tối (Dark / Light Mode)">
+      <!-- Elegant Crescent Moon Icon for Dark Mode -->
+      <svg id="theme-icon-moon" class="w-4 h-4 text-secondary drop-shadow-[0_0_6px_rgba(84,216,232,0.7)] pointer-events-none" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+      <!-- Beautiful Glowing Sun Icon for Light Mode -->
+      <svg id="theme-icon-sun" class="w-4 h-4 text-amber-500 drop-shadow-[0_0_6px_rgba(245,158,11,0.7)] hidden pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5" fill="#f59e0b" stroke="none"></circle>
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+      </svg>
+    </button>
+    <button class="w-9 h-9 flex items-center justify-center text-on-surface-variant hover:text-on-surface rounded-lg bg-surface-container-low hover:bg-surface-container border border-outline-variant/30" title="Thông báo">
+      <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
+        <rect fill="#cac4d4" height="2" width="2" x="7" y="1"></rect>
+        <rect fill="#cac4d4" height="2" width="8" x="4" y="3"></rect>
+        <rect fill="#cac4d4" height="5" width="10" x="3" y="5"></rect>
+        <rect fill="#cac4d4" height="2" width="14" x="1" y="10"></rect>
+        <rect fill="#cac4d4" height="2" width="4" x="6" y="12"></rect>
+      </svg>
+    </button>
+    <button class="w-9 h-9 flex items-center justify-center text-on-surface-variant hover:text-on-surface rounded-lg bg-surface-container-low hover:bg-surface-container border border-outline-variant/30" title="Cài đặt / Settings" aria-label="Cài đặt / Settings">
+      <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
+        <rect fill="currentColor" height="2" width="4" x="6" y="0"></rect>
+        <rect fill="currentColor" height="2" width="4" x="6" y="14"></rect>
+        <rect fill="currentColor" height="4" width="2" x="0" y="6"></rect>
+        <rect fill="currentColor" height="4" width="2" x="14" y="6"></rect>
+        <rect fill="currentColor" height="2" width="2" x="2" y="2"></rect>
+        <rect fill="currentColor" height="2" width="2" x="12" y="2"></rect>
+        <rect fill="currentColor" height="2" width="2" x="2" y="12"></rect>
+        <rect fill="currentColor" height="2" width="2" x="12" y="12"></rect>
+        <rect fill="currentColor" height="10" width="10" x="3" y="3"></rect>
+        <rect fill="#1c1b1e" height="4" width="4" x="6" y="6"></rect>
+        <rect fill="#54d8e8" height="2" width="2" x="7" y="7"></rect>
+      </svg>
+    </button>
+  </div>
+</header>
+<!-- BOOTSTRAP 5 OFFCANVAS: MOBILE NAVIGATION DRAWER -->
+<div class="offcanvas offcanvas-start bg-[#131316] text-[#e5e1e5] border-r border-outline-variant/30 z-[1060]" tabindex="-1" id="mobile-nav-offcanvas" aria-labelledby="mobileNavLabel" style="width: 280px;">
+  <div class="offcanvas-header p-3 border-b border-outline-variant/30 flex items-center justify-between">
+    <div class="flex items-center gap-2.5">
+      <div class="w-8 h-8 rounded bg-surface-container-high border-2 border-primary-container pixel-border-primary flex items-center justify-center">
+        <svg class="w-5 h-5 pixel-icon" fill="none" viewBox="0 0 16 16">
+          <rect fill="#54d8e8" height="8" width="2" x="2" y="4"></rect>
+          <rect fill="#54d8e8" height="2" width="3" x="4" y="2"></rect>
+          <rect fill="#54d8e8" height="2" width="3" x="4" y="12"></rect>
+          <rect fill="#cebdff" height="8" width="2" x="7" y="4"></rect>
+          <rect fill="#cebdff" height="6" width="2" x="9" y="5"></rect>
+          <rect fill="#a78bfa" height="4" width="2" x="11" y="6"></rect>
+          <rect fill="#54d8e8" height="2" width="1" x="13" y="7"></rect>
+        </svg>
+      </div>
+      <div class="flex flex-col leading-tight">
+        <h5 class="offcanvas-title font-headline-md text-sm font-extrabold text-on-surface" id="mobileNavLabel">MinhDucEar</h5>
+        <span class="font-silkscreen text-[8px] text-outline">Lỗ tai của minh ducc</span>
+      </div>
+    </div>
+    <button type="button" class="btn-close btn-close-white cursor-pointer" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body p-3 flex flex-col justify-between overflow-y-auto custom-scroll">
+    <div class="flex flex-col gap-3">
+      <!-- MỤC CHÍNH -->
+      <div class="space-y-1.5">
+        <div class="px-2 font-label-caps text-[10px] text-outline uppercase tracking-wider font-silkscreen">MỤC CHÍNH / MAIN</div>
+        <nav class="flex flex-col gap-1">
+          <a class="mobile-nav-item flex items-center gap-2.5 px-3 py-2 rounded-lg bg-primary-container text-on-primary font-bold text-xs pixel-btn cursor-pointer" data-view="home" data-bs-dismiss="offcanvas">
+            <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="2" width="2" x="7" y="1"></rect><rect fill="currentColor" height="2" width="6" x="5" y="3"></rect><rect fill="currentColor" height="10" width="10" x="3" y="5"></rect><rect fill="currentColor" height="14" width="14" x="1" y="7"></rect><rect fill="currentColor" height="6" width="10" x="3" y="9"></rect><rect fill="#381385" height="4" width="4" x="6" y="11"></rect></svg>
+            <span>Trang chủ</span>
+          </a>
+          <a class="mobile-nav-item flex items-center gap-2.5 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-xs font-medium cursor-pointer" data-view="explore" data-bs-dismiss="offcanvas">
+            <svg class="w-4 h-4 pixel-icon text-secondary" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="2" width="8" x="4" y="1"></rect><rect fill="currentColor" height="2" width="12" x="2" y="3"></rect><rect fill="currentColor" height="6" width="14" x="1" y="5"></rect><rect fill="currentColor" height="2" width="12" x="2" y="11"></rect><rect fill="currentColor" height="2" width="8" x="4" y="13"></rect><rect fill="#131316" height="8" width="2" x="7" y="4"></rect><rect fill="#131316" height="2" width="8" x="4" y="7"></rect></svg>
+            <span>Khám phá</span>
+          </a>
+          <a class="mobile-nav-item flex items-center gap-2.5 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-xs font-medium cursor-pointer" data-view="search" data-bs-dismiss="offcanvas">
+            <svg class="w-4 h-4 pixel-icon text-outline" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="2" width="5" x="3" y="3"></rect><rect fill="currentColor" height="2" width="5" x="3" y="7"></rect><rect fill="currentColor" height="4" width="2" x="1" y="4"></rect><rect fill="currentColor" height="4" width="2" x="7" y="4"></rect><rect fill="currentColor" height="2" width="3" x="8" y="8"></rect><rect fill="currentColor" height="3" width="3" x="11" y="11"></rect></svg>
+            <span>Tìm kiếm</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- THƯ VIỆN -->
+      <div class="space-y-1.5">
+        <div class="px-2 font-label-caps text-[10px] text-outline uppercase tracking-wider font-silkscreen">THƯ VIỆN / LIB</div>
+        <nav class="flex flex-col gap-1">
+          <a class="mobile-nav-item flex items-center gap-2.5 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-xs font-medium cursor-pointer" data-view="favorites" data-bs-dismiss="offcanvas">
+            <svg class="w-4 h-4 pixel-icon text-pink-400" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="3" width="4" x="2" y="2"></rect><rect fill="currentColor" height="3" width="4" x="10" y="2"></rect><rect fill="currentColor" height="4" width="14" x="1" y="4"></rect><rect fill="currentColor" height="3" width="10" x="3" y="8"></rect><rect fill="currentColor" height="2" width="6" x="5" y="11"></rect><rect fill="currentColor" height="2" width="2" x="7" y="13"></rect></svg>
+            <span>Yêu thích</span>
+          </a>
+          <a class="mobile-nav-item flex items-center gap-2.5 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-xs font-medium cursor-pointer" data-view="history" data-bs-dismiss="offcanvas">
+            <svg class="w-4 h-4 pixel-icon text-secondary" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="2" width="8" x="4" y="1"></rect><rect fill="currentColor" height="2" width="12" x="2" y="3"></rect><rect fill="currentColor" height="6" width="14" x="1" y="5"></rect><rect fill="currentColor" height="2" width="12" x="2" y="11"></rect><rect fill="currentColor" height="2" width="8" x="4" y="13"></rect><rect fill="#131316" height="5" width="2" x="7" y="3"></rect><rect fill="#131316" height="2" width="4" x="8" y="7"></rect></svg>
+            <span>Lịch sử nghe</span>
+          </a>
+          <a class="mobile-nav-item flex items-center gap-2.5 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-xs font-medium cursor-pointer" data-view="albums" data-bs-dismiss="offcanvas">
+            <svg class="w-4 h-4 pixel-icon text-primary" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="2" width="10" x="3" y="1"></rect><rect fill="currentColor" height="10" width="14" x="1" y="3"></rect><rect fill="currentColor" height="2" width="10" x="3" y="13"></rect><rect fill="#131316" height="4" width="4" x="6" y="6"></rect><rect fill="#54d8e8" height="2" width="2" x="7" y="7"></rect></svg>
+            <span>Album</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- PLAYLISTS -->
+      <div class="space-y-1.5">
+        <div class="px-2 font-label-caps text-[10px] text-outline uppercase tracking-wider flex justify-between items-center font-silkscreen">
+          <span>PLAYLISTS</span>
+        </div>
+        <nav id="mobile-sidebar-playlists" class="flex flex-col gap-1">
+          <a class="flex items-center justify-between px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-xs cursor-pointer" onclick="if(window.minhDucPlayer) { window.minhDucPlayer.openPlaylistDetail('Night Drive (Đêm)'); bootstrap.Offcanvas.getInstance(document.getElementById('mobile-nav-offcanvas'))?.hide(); }"><span class="truncate font-medium">Night Drive (Đêm)</span><span class="font-pixel text-[8px] text-secondary">16</span></a>
+          <a class="flex items-center justify-between px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-xs cursor-pointer" onclick="if(window.minhDucPlayer) { window.minhDucPlayer.openPlaylistDetail('Anime & Chiptune'); bootstrap.Offcanvas.getInstance(document.getElementById('mobile-nav-offcanvas'))?.hide(); }"><span class="truncate font-medium">Anime &amp; Chiptune</span><span class="font-pixel text-[8px] text-tertiary">24</span></a>
+          <a class="flex items-center justify-between px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-xs cursor-pointer" onclick="if(window.minhDucPlayer) { window.minhDucPlayer.openPlaylistDetail('Chill Beats Lo-fi'); bootstrap.Offcanvas.getInstance(document.getElementById('mobile-nav-offcanvas'))?.hide(); }"><span class="truncate font-medium">Chill Beats Lo-fi</span><span class="font-pixel text-[8px] text-primary">32</span></a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- User Account -->
+    <div class="pt-3 mt-3 border-t border-outline-variant/30">
+      <div id="mobile-sidebar-user-profile-btn" class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-high/80 pixel-border-sm cursor-pointer hover:bg-surface-container-high transition-colors" data-bs-dismiss="offcanvas">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-primary/20 border border-primary flex items-center justify-center text-xs font-bold text-primary">
+            <span>MD</span>
+          </div>
+          <div class="flex flex-col leading-tight">
+            <span class="text-xs font-bold text-on-surface">Tài khoản</span>
+            <span class="font-silkscreen text-[8px] text-secondary">Quản lý & Đăng nhập</span>
+          </div>
+        </div>
+        <span class="text-xs text-outline">→</span>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="flex-1 flex overflow-hidden relative z-10"><aside class="hidden lg:flex w-60 shrink-0 bg-surface-dim/70 backdrop-blur-2xl border-r border-outline-variant/30 flex-col justify-between p-3"><div class="flex flex-col gap-space-sm overflow-y-auto"><div class="space-y-1.5"><div class="px-2 font-label-caps text-[10px] text-outline uppercase tracking-wider flex justify-between items-center"><span class="font-silkscreen">MỤC CHÍNH / MAIN</span></div><nav class="flex flex-col gap-1">
+  <a id="nav-btn-home" class="sidebar-nav-item flex items-center justify-between px-3 py-2 rounded-lg bg-primary-container text-on-primary font-bold text-[13px] shadow-[0_0_12px_rgba(167,139,250,0.3)] pixel-btn cursor-pointer" href="javascript:void(0)">
+    <div class="flex items-center gap-2.5">
+      <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="2" width="2" x="7" y="1"></rect><rect fill="currentColor" height="2" width="6" x="5" y="3"></rect><rect fill="currentColor" height="10" width="10" x="3" y="5"></rect><rect fill="currentColor" height="14" width="14" x="1" y="7"></rect><rect fill="currentColor" height="6" width="10" x="3" y="9"></rect><rect fill="#381385" height="4" width="4" x="6" y="11"></rect></svg>
+      <span>Trang chủ</span>
+    </div>
+  </a>
+  <a id="sidebar-nav-explore" class="sidebar-nav-item flex items-center justify-between px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-[13px] font-medium transition-all cursor-pointer" href="javascript:void(0)">
+    <div class="flex items-center gap-2.5">
+      <svg class="w-4 h-4 pixel-icon text-secondary" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="2" width="8" x="4" y="1"></rect><rect fill="currentColor" height="2" width="12" x="2" y="3"></rect><rect fill="currentColor" height="6" width="14" x="1" y="5"></rect><rect fill="currentColor" height="2" width="12" x="2" y="11"></rect><rect fill="currentColor" height="2" width="8" x="4" y="13"></rect><rect fill="#131316" height="8" width="2" x="7" y="4"></rect><rect fill="#131316" height="2" width="8" x="4" y="7"></rect></svg>
+      <span>Khám phá</span>
+    </div>
+  </a>
+  <a id="sidebar-nav-search" class="sidebar-nav-item flex items-center justify-between px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-[13px] font-medium transition-all cursor-pointer" href="javascript:void(0)">
+    <div class="flex items-center gap-2.5">
+      <svg class="w-4 h-4 pixel-icon text-outline" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="2" width="5" x="3" y="3"></rect><rect fill="currentColor" height="2" width="5" x="3" y="7"></rect><rect fill="currentColor" height="4" width="2" x="1" y="4"></rect><rect fill="currentColor" height="4" width="2" x="7" y="4"></rect><rect fill="currentColor" height="2" width="3" x="8" y="8"></rect><rect fill="currentColor" height="3" width="3" x="11" y="11"></rect></svg>
+      <span>Tìm kiếm</span>
+    </div>
+  </a>
+</nav></div><div class="space-y-1.5"><div class="px-2 font-label-caps text-[10px] text-outline uppercase tracking-wider flex justify-between items-center"><span class="font-silkscreen">THƯ VIỆN / LIB</span></div><nav class="flex flex-col gap-1">
+  <a id="sidebar-nav-favorites" class="sidebar-nav-item flex items-center gap-2.5 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-[13px] font-medium transition-all cursor-pointer" href="javascript:void(0)">
+    <svg class="w-4 h-4 pixel-icon text-pink-400" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="3" width="4" x="2" y="2"></rect><rect fill="currentColor" height="3" width="4" x="10" y="2"></rect><rect fill="currentColor" height="4" width="14" x="1" y="4"></rect><rect fill="currentColor" height="3" width="10" x="3" y="8"></rect><rect fill="currentColor" height="2" width="6" x="5" y="11"></rect><rect fill="currentColor" height="2" width="2" x="7" y="13"></rect></svg>
+    <span>Yêu thích</span>
+  </a>
+  <a id="sidebar-nav-history" class="sidebar-nav-item flex items-center gap-2.5 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-[13px] font-medium transition-all cursor-pointer" href="javascript:void(0)">
+    <svg class="w-4 h-4 pixel-icon text-secondary" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="2" width="8" x="4" y="1"></rect><rect fill="currentColor" height="2" width="12" x="2" y="3"></rect><rect fill="currentColor" height="6" width="14" x="1" y="5"></rect><rect fill="currentColor" height="2" width="12" x="2" y="11"></rect><rect fill="currentColor" height="2" width="8" x="4" y="13"></rect><rect fill="#131316" height="5" width="2" x="7" y="3"></rect><rect fill="#131316" height="2" width="4" x="8" y="7"></rect></svg>
+    <span>History</span>
+  </a>
+  <a id="sidebar-nav-albums" class="sidebar-nav-item flex items-center gap-2.5 px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-[13px] font-medium transition-all cursor-pointer" href="javascript:void(0)">
+    <svg class="w-4 h-4 pixel-icon text-primary" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="2" width="10" x="3" y="1"></rect><rect fill="currentColor" height="10" width="14" x="1" y="3"></rect><rect fill="currentColor" height="2" width="10" x="3" y="13"></rect><rect fill="#131316" height="4" width="4" x="6" y="6"></rect><rect fill="#54d8e8" height="2" width="2" x="7" y="7"></rect></svg>
+    <span>Album</span>
+  </a>
+</nav></div><div class="space-y-1.5">
+  <div class="px-2 font-label-caps text-[10px] text-outline uppercase tracking-wider flex justify-between items-center">
+    <div class="flex items-center gap-1.5">
+      <span class="font-silkscreen">PLAYLISTS</span>
+      <span id="playlist-edit-mode-badge" class="hidden font-silkscreen text-[7px] text-amber-400 bg-amber-400/10 border border-amber-400/40 px-1 py-0.2 rounded animate-pulse">EDIT</span>
+    </div>
+    <div class="flex items-center gap-1.5">
+      <!-- Thêm Playlist (Icon Dấu cộng) -->
+      <button type="button" id="btn-playlist-add" class="w-5 h-5 flex items-center justify-center rounded bg-surface-container-high hover:bg-surface-container-highest text-secondary hover:text-white border border-outline-variant/30 pixel-border-sm transition-all hover:scale-110 cursor-pointer" title="Tạo playlist mới (+)">
+        <svg class="w-3 h-3 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+        </svg>
+      </button>
+      <!-- Sửa Playlist (Icon Cây bút) -->
+      <button type="button" id="btn-playlist-manage" class="w-5 h-5 flex items-center justify-center rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant hover:text-secondary border border-outline-variant/30 pixel-border-sm transition-all hover:scale-110 cursor-pointer" title="Chỉnh sửa & Quản lý playlist (✏️)">
+        <svg class="w-3 h-3 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+        </svg>
+      </button>
+    </div>
+  </div><nav id="sidebar-playlists-container" class="flex flex-col gap-1"><a class="flex items-center justify-between px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-[12px]" href="#"><span class="truncate font-medium">Night Drive (Đêm)</span><span class="font-pixel text-[8px] text-secondary">16</span></a><a class="flex items-center justify-between px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-[12px]" href="#"><span class="truncate font-medium">Anime &amp; Chiptune</span><span class="font-pixel text-[8px] text-tertiary">24</span></a><a class="flex items-center justify-between px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-[12px]" href="#"><span class="truncate font-medium">Chill Beats Lo-fi</span><span class="font-pixel text-[8px] text-primary">32</span></a></nav></div></div><div class="pt-2 border-t border-outline-variant/30"><div id="sidebar-user-profile-btn" class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-high/80 pixel-border-sm cursor-pointer hover:bg-surface-container-high transition-colors select-none group" title="Thông tin tài khoản & Đăng nhập">
+  <div class="flex items-center gap-2.5">
+    <div id="sidebar-avatar-container" class="w-8 h-8 rounded bg-primary flex items-center justify-center pixel-border-sm relative overflow-hidden">
+      <img id="sidebar-avatar-img" src="" class="w-full h-full object-cover hidden">
+      <svg id="sidebar-avatar-svg" class="w-5 h-5 pixel-icon text-on-primary" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="4" width="6" x="5" y="2"></rect><rect fill="currentColor" height="6" width="10" x="3" y="7"></rect></svg>
+      <span id="sidebar-status-dot" class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-secondary border border-black"></span>
+    </div>
+    <div class="flex flex-col leading-none">
+      <span id="sidebar-display-name" class="text-[12px] font-bold text-on-surface group-hover:text-primary transition-colors">Khách (Guest)</span>
+      <span id="sidebar-display-role" class="font-silkscreen text-[8px] text-secondary font-bold mt-0.5">CHƯA ĐĂNG NHẬP</span>
+    </div>
+  </div>
+  <button id="sidebar-settings-btn" class="text-on-surface-variant hover:text-on-surface p-1 rounded group-hover:text-primary transition-colors" title="Quản lý tài khoản">
+    <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="14" width="4" x="6" y="1"></rect><rect fill="currentColor" height="4" width="14" x="1" y="6"></rect><rect fill="currentColor" height="10" width="10" x="3" y="3"></rect><rect fill="#201f22" height="6" width="6" x="5" y="5"></rect></svg>
+  </button>
+</div></div></aside>
+<div id="view-home" class="flex-1 flex overflow-hidden min-w-0">
+<main class="flex-1 flex flex-col p-space-md gap-space-md overflow-y-auto custom-scroll">
+  <div class="flex flex-col gap-2 shrink-0">
+    <div class="flex items-center justify-between">
+      <h1 class="font-display-xl text-[24px] text-on-surface tracking-tight font-extrabold flex items-baseline gap-2">
+        <span id="home-greeting-name">Xin chào, Khách</span>
+        <span class="text-outline text-[13px] font-silkscreen font-normal">/ Welcome</span>
+      </h1>
+      <button id="btn-open-taste-modal" type="button" class="px-3 py-1.5 rounded-full text-xs font-silkscreen font-bold bg-[#7c3aed]/20 text-[#c4b5fd] border border-[#a78bfa]/50 hover:bg-[#7c3aed]/40 hover:text-white hover:border-[#a78bfa] transition-all flex items-center gap-1.5 cursor-pointer shadow-[0_0_12px_rgba(167,139,250,0.25)]" title="Tùy chỉnh gu âm nhạc tài khoản Google">
+        <span>🎛️</span><span>GU ÂM NHẠC TÀI KHOẢN</span>
+      </button>
+    </div>
+    <!-- YouTube Music Quick Mood Filter Pills -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-1 custom-scroll shrink-0" id="home-mood-chips">
+      <button type="button" data-mood="all" class="home-mood-chip px-3.5 py-1.5 rounded-full text-xs font-silkscreen transition-all shrink-0 bg-secondary text-black font-bold shadow-[0_0_12px_rgba(84,216,232,0.4)] cursor-pointer flex items-center gap-1.5">
+        <span>🌐</span><span>Tất cả</span>
+      </button>
+      <button type="button" data-mood="supermix" class="home-mood-chip px-3.5 py-1.5 rounded-full text-xs font-silkscreen transition-all shrink-0 bg-surface-container-high text-gray-300 hover:text-white hover:bg-surface-container-highest cursor-pointer flex items-center gap-1.5">
+        <span>🔀</span><span>My Supermix</span>
+      </button>
+      <button type="button" data-mood="chill" class="home-mood-chip px-3.5 py-1.5 rounded-full text-xs font-silkscreen transition-all shrink-0 bg-surface-container-high text-gray-300 hover:text-white hover:bg-surface-container-highest cursor-pointer flex items-center gap-1.5">
+        <span>☕</span><span>Thư giãn</span>
+      </button>
+      <button type="button" data-mood="energy" class="home-mood-chip px-3.5 py-1.5 rounded-full text-xs font-silkscreen transition-all shrink-0 bg-surface-container-high text-gray-300 hover:text-white hover:bg-surface-container-highest cursor-pointer flex items-center gap-1.5">
+        <span>⚡</span><span>Năng lượng</span>
+      </button>
+      <button type="button" data-mood="mood" class="home-mood-chip px-3.5 py-1.5 rounded-full text-xs font-silkscreen transition-all shrink-0 bg-surface-container-high text-gray-300 hover:text-white hover:bg-surface-container-highest cursor-pointer flex items-center gap-1.5">
+        <span>🌧️</span><span>Tâm trạng</span>
+      </button>
+      <button type="button" data-mood="focus" class="home-mood-chip px-3.5 py-1.5 rounded-full text-xs font-silkscreen transition-all shrink-0 bg-surface-container-high text-gray-300 hover:text-white hover:bg-surface-container-highest cursor-pointer flex items-center gap-1.5">
+        <span>🎯</span><span>Tập trung</span>
+      </button>
+      <button type="button" data-mood="vpop" class="home-mood-chip px-3.5 py-1.5 rounded-full text-xs font-silkscreen transition-all shrink-0 bg-surface-container-high text-gray-300 hover:text-white hover:bg-surface-container-highest cursor-pointer flex items-center gap-1.5">
+        <span>🔥</span><span>Thịnh hành</span>
+      </button>
+      <button type="button" data-mood="retro" class="home-mood-chip px-3.5 py-1.5 rounded-full text-xs font-silkscreen transition-all shrink-0 bg-surface-container-high text-gray-300 hover:text-white hover:bg-surface-container-highest cursor-pointer flex items-center gap-1.5">
+        <span>📼</span><span>Hoài niệm</span>
+      </button>
+      <button type="button" data-mood="audiophile" class="home-mood-chip px-3.5 py-1.5 rounded-full text-xs font-silkscreen transition-all shrink-0 bg-surface-container-high text-gray-300 hover:text-white hover:bg-surface-container-highest cursor-pointer flex items-center gap-1.5">
+        <span>🎧</span><span>Audiophile</span>
+      </button>
+    </div>
+  </div>
+  <div class="flex flex-col gap-space-md pb-10 shrink-0"><section id="hero-section-banner" class="rounded-xl bg-surface-container-low/80 backdrop-blur-2xl p-3 sm:p-space-md pixel-border relative overflow-hidden flex flex-col sm:flex-row items-center sm:items-stretch gap-3 sm:gap-space-md group/hero transition-all duration-300">
+  <!-- Album Cover -->
+  <div id="hero-cover-container" class="relative w-40 h-40 rounded-lg overflow-hidden pixel-border-primary shrink-0 bg-surface-container-lowest cursor-pointer group shadow-[0_0_20px_rgba(167,139,250,0.2)]" title="Xem chi tiết album">
+    <img id="hero-track-cover" alt="Featured Album Cover" class="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105" src="https://i.ytimg.com/vi/OUSf0CGTaQE/hqdefault.jpg">
+    <div id="hero-album-badge" class="absolute top-2 left-2 px-1.5 py-0.5 bg-black/90 font-pixel text-[7px] text-secondary border border-secondary/50 uppercase tracking-wider">TOP 1 TRENDING</div>
+    <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+      <div class="w-10 h-10 rounded-full bg-primary/90 text-black flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
+        <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Album Details -->
+  <div class="flex-1 flex flex-col justify-between min-w-0 h-full py-0.5">
+    <div class="flex flex-col gap-1">
+      <div class="flex items-center justify-between">
+        <span class="font-silkscreen text-[10px] text-secondary flex items-center gap-1.5 font-bold">
+          <span class="w-2 h-2 rounded-none bg-secondary animate-pulse"></span> album nổi bật
+        </span>
+        <span id="hero-track-format" class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-silkscreen text-[9px] pixel-border-sm font-semibold transition-all">FLAC 192kHz 24-bit</span>
+      </div>
+      <h2 id="hero-track-title" class="font-headline-lg text-[22px] text-on-surface tracking-tight font-extrabold truncate leading-tight cursor-pointer hover:text-secondary transition-colors" title="Nhấn để xem chi tiết album">Vũ Trụ Cò Bay (Deluxe Edition)</h2>
+      <span id="hero-track-artist" class="text-[13px] text-on-surface-variant font-silkscreen truncate font-medium transition-all">Phương Mỹ Chi · DTAP · Resonance Records</span>
+    </div>
+
+    <!-- Rank & Indicators Bar -->
+    <div class="p-2.5 rounded-lg bg-surface-container-lowest/90 pixel-border-sm flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="flex items-end gap-1 h-7 px-2 bg-surface-container-high rounded pixel-border-sm shrink-0">
+          <div class="w-1.5 bg-secondary h-4 trending-eq-bar"></div>
+          <div class="w-1.5 bg-secondary h-6 trending-eq-bar"></div>
+          <div class="w-1.5 bg-primary-container h-3 trending-eq-bar"></div>
+          <div class="w-1.5 bg-primary-container h-7 trending-eq-bar"></div>
+          <div class="w-1.5 bg-tertiary h-5 trending-eq-bar"></div>
+          <div class="w-1.5 bg-secondary h-6 trending-eq-bar"></div>
+        </div>
+        <span id="hero-trending-rank" class="font-silkscreen text-[10px] text-secondary font-bold uppercase truncate">TOP 1 TRENDING</span>
+      </div>
+
+      <!-- 3 Album Indicator Dots with 5s progress -->
+      <div id="hero-album-indicators" class="flex items-center gap-2 shrink-0 select-none">
+        <button type="button" class="hero-album-dot w-6 h-2 rounded bg-secondary transition-all cursor-pointer shadow-[0_0_8px_rgba(84,216,232,0.6)]" data-index="0" title="Album 1: Vũ Trụ Cò Bay"></button>
+        <button type="button" class="hero-album-dot w-2 h-2 rounded bg-white/20 hover:bg-white/50 transition-all cursor-pointer" data-index="1" title="Album 2: Bảo Tàng Của Nuối Tiếc"></button>
+        <button type="button" class="hero-album-dot w-2 h-2 rounded bg-white/20 hover:bg-white/50 transition-all cursor-pointer" data-index="2" title="Album 3: LoiChoi"></button>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center gap-3">
+      <button type="button" id="hero-play-btn" class="h-10 px-4 rounded bg-primary-container hover:brightness-110 text-on-primary font-bold text-[13px] pixel-btn pixel-border-primary flex items-center gap-2 cursor-pointer transition-all hover:scale-105 active:scale-95" title="Phát album này">
+        <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16"><polygon fill="currentColor" points="4,2 14,8 4,14"></polygon></svg>
+        <span id="hero-play-text">phát ngay</span>
+      </button>
+      <button type="button" id="hero-save-album-btn" class="h-10 px-4 rounded bg-surface-container-high hover:bg-surface-container-highest text-on-surface text-[13px] font-semibold pixel-btn pixel-border-sm flex items-center gap-2 cursor-pointer transition-all hover:scale-105 active:scale-95" title="Lưu album vào thư viện">
+        <svg class="w-4 h-4 pixel-icon text-secondary" fill="none" viewBox="0 0 16 16">
+          <rect fill="currentColor" height="2" width="8" x="2" y="4"></rect>
+          <rect fill="currentColor" height="2" width="8" x="2" y="8"></rect>
+          <rect fill="currentColor" height="2" width="5" x="2" y="12"></rect>
+          <rect fill="#54d8e8" height="6" width="2" x="11" y="10"></rect>
+          <rect fill="#54d8e8" height="2" width="6" x="9" y="12"></rect>
+        </svg>
+        <span id="hero-save-text">lưu album</span>
+      </button>
+    </div>
+  </div>
+</section><section class="flex flex-col justify-between shrink-0"><div class="flex items-center justify-between shrink-0 mb-1.5"><div><span id="home-made-for-you-title" class="font-silkscreen text-[11px] text-secondary uppercase tracking-widest flex items-center gap-2 font-bold"><span class="w-2 h-2 bg-secondary"></span>ĐỀ XUẤT CHO BẠN / MADE FOR YOU</span></div><button type="button" id="btn-home-see-more-explore" class="font-pixel text-[8px] text-secondary hover:text-white bg-surface-container-high hover:bg-secondary/20 px-2.5 py-1 rounded pixel-border-sm transition-all cursor-pointer flex items-center gap-1 group" onclick="if(window.minhDucPlayer) window.minhDucPlayer.switchView('explore');" title="Xem thêm trong Khám Phá"><span>xem thêm</span><span class="group-hover:translate-x-0.5 transition-transform">→</span></button></div><div id="home-made-for-you-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-space-sm h-full"><div data-track-index="1" data-youtube-id="T9PNAndFJ9w" class="music-card-item group bg-[#15151e]/80 hover:bg-[#1c1c28] border border-white/10 hover:border-[#a78bfa]/50 rounded-xl p-3 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer" onclick="if(window.minhDucPlayer) window.minhDucPlayer.playTrackDirect({youtube_id:'T9PNAndFJ9w',title:'Thương 1 Người Mất Cả (Remix)',artist:'H Club Music',format:'YT AUDIO 320k',cover_url:'https://i.ytimg.com/vi/T9PNAndFJ9w/hqdefault.jpg'});"><div class="w-full aspect-square rounded-lg overflow-hidden relative mb-2.5"><img alt="Thương 1 Người Mất Cả (Remix)" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://i.ytimg.com/vi/T9PNAndFJ9w/hqdefault.jpg"><div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-black/90 font-mono text-[9px] font-semibold text-secondary border border-secondary/60 rounded">YT AUDIO</div><div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><div class="w-10 h-10 bg-[#a78bfa] text-black flex items-center justify-center rounded-full shadow-lg transform group-hover:scale-110 transition-transform"><svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg></div></div></div><div class="flex flex-col min-w-0"><h3 class="text-sm font-semibold text-white tracking-wide truncate group-hover:text-[#a78bfa] transition-colors mb-0.5" title="Thương 1 Người Mất Cả (Remix)">Thương 1 Người Mất Cả (Remix)</h3><p class="text-xs text-gray-400 truncate mb-2" title="H Club Music">H Club Music</p><div class="flex items-center gap-1.5 pt-1.5 border-t border-white/5"><span class="font-mono text-[10px] text-[#a78bfa] bg-[#a78bfa]/10 px-1.5 py-0.5 rounded border border-[#a78bfa]/30 font-semibold">[TREND]</span><span class="font-mono text-[10px] text-gray-300 bg-white/5 px-1.5 py-0.5 rounded border border-white/10">YT AUDIO 320k</span></div></div></div><div data-track-index="2" data-youtube-id="9MO4Esr-D7Y" class="music-card-item group bg-[#15151e]/80 hover:bg-[#1c1c28] border border-white/10 hover:border-[#a78bfa]/50 rounded-xl p-3 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer" onclick="if(window.minhDucPlayer) window.minhDucPlayer.playTrackDirect({youtube_id:'9MO4Esr-D7Y',title:'Bên Ấy Em Có Ai Rồi',artist:'Mộng Mơ Ballad',format:'YT AUDIO 320k',cover_url:'https://i.ytimg.com/vi/9MO4Esr-D7Y/hqdefault.jpg'});"><div class="w-full aspect-square rounded-lg overflow-hidden relative mb-2.5"><img alt="Bên Ấy Em Có Ai Rồi" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://i.ytimg.com/vi/9MO4Esr-D7Y/hqdefault.jpg"><div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-black/90 font-mono text-[9px] font-semibold text-tertiary border border-tertiary/60 rounded">HQ AUDIO</div><div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><div class="w-10 h-10 bg-[#a78bfa] text-black flex items-center justify-center rounded-full shadow-lg transform group-hover:scale-110 transition-transform"><svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg></div></div></div><div class="flex flex-col min-w-0"><h3 class="text-sm font-semibold text-white tracking-wide truncate group-hover:text-[#a78bfa] transition-colors mb-0.5" title="Bên Ấy Em Có Ai Rồi">Bên Ấy Em Có Ai Rồi</h3><p class="text-xs text-gray-400 truncate mb-2" title="Mộng Mơ Ballad">Mộng Mơ Ballad</p><div class="flex items-center gap-1.5 pt-1.5 border-t border-white/5"><span class="font-mono text-[10px] text-tertiary bg-tertiary/10 px-1.5 py-0.5 rounded border border-tertiary/30 font-semibold">[HOT HIT]</span><span class="font-mono text-[10px] text-gray-300 bg-white/5 px-1.5 py-0.5 rounded border border-white/10">YT AUDIO 320k</span></div></div></div><div data-track-index="3" data-youtube-id="q2Ev43H-nmc" class="music-card-item group bg-[#15151e]/80 hover:bg-[#1c1c28] border border-white/10 hover:border-[#a78bfa]/50 rounded-xl p-3 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer" onclick="if(window.minhDucPlayer) window.minhDucPlayer.playTrackDirect({youtube_id:'q2Ev43H-nmc',title:'Yêu Một Người Sao Buồn Đến Thế',artist:'Mây Lang Thang Music',format:'YT AUDIO 320k',cover_url:'https://i.ytimg.com/vi/q2Ev43H-nmc/hqdefault.jpg'});"><div class="w-full aspect-square rounded-lg overflow-hidden relative mb-2.5"><img alt="Yêu Một Người Sao Buồn Đến Thế" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://i.ytimg.com/vi/q2Ev43H-nmc/hqdefault.jpg"><div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-black/90 font-mono text-[9px] font-semibold text-secondary border border-secondary/60 rounded">YT AUDIO</div><div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><div class="w-10 h-10 bg-[#a78bfa] text-black flex items-center justify-center rounded-full shadow-lg transform group-hover:scale-110 transition-transform"><svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg></div></div></div><div class="flex flex-col min-w-0"><h3 class="text-sm font-semibold text-white tracking-wide truncate group-hover:text-[#a78bfa] transition-colors mb-0.5" title="Yêu Một Người Sao Buồn Đến Thế">Yêu Một Người Sao Buồn Đến Thế</h3><p class="text-xs text-gray-400 truncate mb-2" title="Mây Lang Thang Music">Mây Lang Thang Music</p><div class="flex items-center gap-1.5 pt-1.5 border-t border-white/5"><span class="font-mono text-[10px] text-secondary bg-secondary/10 px-1.5 py-0.5 rounded border border-secondary/30 font-semibold">[VPOP]</span><span class="font-mono text-[10px] text-gray-300 bg-white/5 px-1.5 py-0.5 rounded border border-white/10">YT AUDIO 320k</span></div></div></div><div data-track-index="4" data-youtube-id="5_hTibbAqwk" class="music-card-item group bg-[#15151e]/80 hover:bg-[#1c1c28] border border-white/10 hover:border-[#a78bfa]/50 rounded-xl p-3 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer" onclick="if(window.minhDucPlayer) window.minhDucPlayer.playTrackDirect({youtube_id:'5_hTibbAqwk',title:'Nếu Cả Đời Này Không Rực Rỡ',artist:'Trọng Nhân',format:'YT AUDIO 320k',cover_url:'https://i.ytimg.com/vi/5_hTibbAqwk/hqdefault.jpg'});"><div class="w-full aspect-square rounded-lg overflow-hidden relative mb-2.5"><img alt="Nếu Cả Đời Này Không Rực Rỡ" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://i.ytimg.com/vi/5_hTibbAqwk/hqdefault.jpg"><div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-black/90 font-mono text-[9px] font-semibold text-primary border border-primary/60 rounded">HQ AUDIO</div><div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><div class="w-10 h-10 bg-[#a78bfa] text-black flex items-center justify-center rounded-full shadow-lg transform group-hover:scale-110 transition-transform"><svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg></div></div></div><div class="flex flex-col min-w-0"><h3 class="text-sm font-semibold text-white tracking-wide truncate group-hover:text-[#a78bfa] transition-colors mb-0.5" title="Nếu Cả Đời Này Không Rực Rỡ">Nếu Cả Đời Này Không Rực Rỡ</h3><p class="text-xs text-gray-400 truncate mb-2" title="Trọng Nhân">Trọng Nhân</p><div class="flex items-center gap-1.5 pt-1.5 border-t border-white/5"><span class="font-mono text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/30 font-semibold">[RECOMMEND]</span><span class="font-mono text-[10px] text-gray-300 bg-white/5 px-1.5 py-0.5 rounded border border-white/10">YT AUDIO 320k</span></div></div></div><div data-track-index="5" data-youtube-id="6th1lRBnhBc" class="music-card-item group bg-[#15151e]/80 hover:bg-[#1c1c28] border border-white/10 hover:border-[#a78bfa]/50 rounded-xl p-3 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer" onclick="if(window.minhDucPlayer) window.minhDucPlayer.playTrackDirect({youtube_id:'6th1lRBnhBc',title:'Cảm Ơn Người Đã Thức Cùng Tôi',artist:'Phùng Khánh Linh',format:'YT AUDIO 320k',cover_url:'https://i.ytimg.com/vi/6th1lRBnhBc/hqdefault.jpg'});"><div class="w-full aspect-square rounded-lg overflow-hidden relative mb-2.5"><img alt="Cảm Ơn Người Đã Thức Cùng Tôi" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://i.ytimg.com/vi/6th1lRBnhBc/hqdefault.jpg"><div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-black/90 font-mono text-[9px] font-semibold text-secondary border border-secondary/60 rounded">YT AUDIO</div><div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><div class="w-10 h-10 bg-[#a78bfa] text-black flex items-center justify-center rounded-full shadow-lg transform group-hover:scale-110 transition-transform"><svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg></div></div></div><div class="flex flex-col min-w-0"><h3 class="text-sm font-semibold text-white tracking-wide truncate group-hover:text-[#a78bfa] transition-colors mb-0.5" title="Cảm Ơn Người Đã Thức Cùng Tôi">Cảm Ơn Người Đã Thức Cùng Tôi</h3><p class="text-xs text-gray-400 truncate mb-2" title="Phùng Khánh Linh">Phùng Khánh Linh</p><div class="flex items-center gap-1.5 pt-1.5 border-t border-white/5"><span class="font-mono text-[10px] text-secondary bg-secondary/10 px-1.5 py-0.5 rounded border border-secondary/30 font-semibold">[BALLAD]</span><span class="font-mono text-[10px] text-gray-300 bg-white/5 px-1.5 py-0.5 rounded border border-white/10">YT AUDIO 320k</span></div></div></div><div data-track-index="6" data-youtube-id="c9ZdmeP8sck" class="music-card-item group bg-[#15151e]/80 hover:bg-[#1c1c28] border border-white/10 hover:border-[#a78bfa]/50 rounded-xl p-3 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer" onclick="if(window.minhDucPlayer) window.minhDucPlayer.playTrackDirect({youtube_id:'c9ZdmeP8sck',title:'Giá Như Anh Ở Đây',artist:'Lê Bảo Bình',format:'YT AUDIO 320k',cover_url:'https://i.ytimg.com/vi/c9ZdmeP8sck/hqdefault.jpg'});"><div class="w-full aspect-square rounded-lg overflow-hidden relative mb-2.5"><img alt="Giá Như Anh Ở Đây" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://i.ytimg.com/vi/c9ZdmeP8sck/hqdefault.jpg"><div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-black/90 font-mono text-[9px] font-semibold text-tertiary border border-tertiary/60 rounded">HQ AUDIO</div><div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><div class="w-10 h-10 bg-[#a78bfa] text-black flex items-center justify-center rounded-full shadow-lg transform group-hover:scale-110 transition-transform"><svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg></div></div></div><div class="flex flex-col min-w-0"><h3 class="text-sm font-semibold text-white tracking-wide truncate group-hover:text-[#a78bfa] transition-colors mb-0.5" title="Giá Như Anh Ở Đây">Giá Như Anh Ở Đây</h3><p class="text-xs text-gray-400 truncate mb-2" title="Lê Bảo Bình">Lê Bảo Bình</p><div class="flex items-center gap-1.5 pt-1.5 border-t border-white/5"><span class="font-mono text-[10px] text-tertiary bg-tertiary/10 px-1.5 py-0.5 rounded border border-tertiary/30 font-semibold">[HOT HIT]</span><span class="font-mono text-[10px] text-gray-300 bg-white/5 px-1.5 py-0.5 rounded border border-white/10">YT AUDIO 320k</span></div></div></div><div data-track-index="7" data-youtube-id="RKfyuIBM37w" class="music-card-item group bg-[#15151e]/80 hover:bg-[#1c1c28] border border-white/10 hover:border-[#a78bfa]/50 rounded-xl p-3 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer" onclick="if(window.minhDucPlayer) window.minhDucPlayer.playTrackDirect({youtube_id:'RKfyuIBM37w',title:'Kẻ Say Tình 2 (Việt Mino Remix)',artist:'Quốc Thiên',format:'YT AUDIO 320k',cover_url:'https://i.ytimg.com/vi/RKfyuIBM37w/hqdefault.jpg'});"><div class="w-full aspect-square rounded-lg overflow-hidden relative mb-2.5"><img alt="Kẻ Say Tình 2 (Việt Mino Remix)" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://i.ytimg.com/vi/RKfyuIBM37w/hqdefault.jpg"><div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-black/90 font-mono text-[9px] font-semibold text-primary border border-primary/60 rounded">YT AUDIO</div><div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><div class="w-10 h-10 bg-[#a78bfa] text-black flex items-center justify-center rounded-full shadow-lg transform group-hover:scale-110 transition-transform"><svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg></div></div></div><div class="flex flex-col min-w-0"><h3 class="text-sm font-semibold text-white tracking-wide truncate group-hover:text-[#a78bfa] transition-colors mb-0.5" title="Kẻ Say Tình 2 (Việt Mino Remix)">Kẻ Say Tình 2 (Việt Mino Remix)</h3><p class="text-xs text-gray-400 truncate mb-2" title="Quốc Thiên">Quốc Thiên</p><div class="flex items-center gap-1.5 pt-1.5 border-t border-white/5"><span class="font-mono text-[10px] text-[#a78bfa] bg-[#a78bfa]/10 px-1.5 py-0.5 rounded border border-[#a78bfa]/30 font-semibold">[REMIX]</span><span class="font-mono text-[10px] text-gray-300 bg-white/5 px-1.5 py-0.5 rounded border border-white/10">YT AUDIO 320k</span></div></div></div><div data-track-index="8" data-youtube-id="JhGz6Xj09GQ" class="music-card-item group bg-[#15151e]/80 hover:bg-[#1c1c28] border border-white/10 hover:border-[#a78bfa]/50 rounded-xl p-3 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer" onclick="if(window.minhDucPlayer) window.minhDucPlayer.playTrackDirect({youtube_id:'JhGz6Xj09GQ',title:'Từ Ngày Hôm Nay (Nhà Ba Tôi Một Phòng)',artist:'Anh Tú Atus',format:'YT AUDIO 320k',cover_url:'https://i.ytimg.com/vi/JhGz6Xj09GQ/hqdefault.jpg'});"><div class="w-full aspect-square rounded-lg overflow-hidden relative mb-2.5"><img alt="Từ Ngày Hôm Nay (Nhà Ba Tôi Một Phòng)" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="https://i.ytimg.com/vi/JhGz6Xj09GQ/hqdefault.jpg"><div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-black/90 font-mono text-[9px] font-semibold text-secondary border border-secondary/60 rounded">HQ AUDIO</div><div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><div class="w-10 h-10 bg-[#a78bfa] text-black flex items-center justify-center rounded-full shadow-lg transform group-hover:scale-110 transition-transform"><svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg></div></div></div><div class="flex flex-col min-w-0"><h3 class="text-sm font-semibold text-white tracking-wide truncate group-hover:text-[#a78bfa] transition-colors mb-0.5" title="Từ Ngày Hôm Nay (Nhà Ba Tôi Một Phòng)">Từ Ngày Hôm Nay</h3><p class="text-xs text-gray-400 truncate mb-2" title="Anh Tú Atus">Anh Tú Atus</p><div class="flex items-center gap-1.5 pt-1.5 border-t border-white/5"><span class="font-mono text-[10px] text-secondary bg-secondary/10 px-1.5 py-0.5 rounded border border-secondary/30 font-semibold">[TOP HIT]</span><span class="font-mono text-[10px] text-gray-300 bg-white/5 px-1.5 py-0.5 rounded border border-white/10">YT AUDIO 320k</span></div></div></div></div></section></div></main><aside id="app-right-sidebar" class="hidden xl:flex w-80 shrink-0 bg-surface-dim/70 backdrop-blur-2xl border-l border-outline-variant/30 p-3 flex-col overflow-y-auto custom-scroll relative">
+  <!-- NORMAL SIDEBAR CONTENT (Thống kê tuần, Top 3, Vừa phát) -->
+  <div id="sidebar-normal-content" class="flex flex-col gap-space-sm h-full transition-opacity duration-300">
+    <div class="rounded-xl bg-surface-container-low/80 p-3 pixel-border flex flex-col justify-between gap-2 overflow-hidden">
+      <div class="flex items-center justify-between"><span class="font-silkscreen text-[9px] text-secondary flex items-center gap-1 font-bold"><span class="material-symbols-outlined text-[14px]">bar_chart</span> THỐNG KÊ TUẦN</span><span id="sidebar-stat-weekly-total" class="px-1.5 py-0.5 rounded bg-primary-container/20 text-primary border border-primary/30 font-pixel text-[7px]">TỔNG: 0 HRS</span></div>
+      <div class="p-2 bg-surface-container-lowest/90 rounded pixel-border-sm flex flex-col gap-2">
+        <div class="flex items-baseline justify-between">
+          <div class="flex items-baseline gap-1.5"><span id="sidebar-stat-weekly-hours" class="font-pixel text-[14px] text-white font-bold">0<span class="text-secondary text-[11px]">h</span> 0<span class="text-secondary text-[11px]">m</span></span><span id="sidebar-stat-weekly-trend" class="font-silkscreen text-[9px] text-[#54d8e8] font-bold">--</span></div>
+          <span id="sidebar-stat-daily-avg" class="font-silkscreen text-[8px] text-outline">TB: 0h/ngày</span>
+        </div>
+        <div class="bg-black/70 p-2.5 rounded pixel-border-sm overflow-hidden">
+          <div id="sidebar-weekly-barchart" class="grid grid-cols-7 gap-1.5 w-full items-end h-16 pt-1">
+            <div class="flex flex-col items-center justify-end gap-1 h-full group" id="chart-col-1"><div class="w-full flex flex-col-reverse gap-[2px] items-center justify-start h-11"><div class="w-full max-w-[14px] h-1.5 bg-secondary/30 rounded-[1px]"></div></div><span class="font-silkscreen text-[8px] text-outline leading-none">T2</span></div>
+            <div class="flex flex-col items-center justify-end gap-1 h-full group" id="chart-col-2"><div class="w-full flex flex-col-reverse gap-[2px] items-center justify-start h-11"><div class="w-full max-w-[14px] h-1.5 bg-secondary/30 rounded-[1px]"></div></div><span class="font-silkscreen text-[8px] text-outline leading-none">T3</span></div>
+            <div class="flex flex-col items-center justify-end gap-1 h-full group" id="chart-col-3"><div class="w-full flex flex-col-reverse gap-[2px] items-center justify-start h-11"><div class="w-full max-w-[14px] h-1.5 bg-secondary/30 rounded-[1px]"></div></div><span class="font-silkscreen text-[8px] text-outline leading-none">T4</span></div>
+            <div class="flex flex-col items-center justify-end gap-1 h-full group" id="chart-col-4"><div class="w-full flex flex-col-reverse gap-[2px] items-center justify-start h-11"><div class="w-full max-w-[14px] h-1.5 bg-secondary/30 rounded-[1px]"></div></div><span class="font-silkscreen text-[8px] text-outline leading-none">T5</span></div>
+            <div class="flex flex-col items-center justify-end gap-1 h-full group" id="chart-col-5"><div class="w-full flex flex-col-reverse gap-[2px] items-center justify-start h-11"><div class="w-full max-w-[14px] h-1.5 bg-secondary/30 rounded-[1px]"></div></div><span class="font-silkscreen text-[8px] text-outline leading-none">T6</span></div>
+            <div class="flex flex-col items-center justify-end gap-1 h-full group" id="chart-col-6"><div class="w-full flex flex-col-reverse gap-[2px] items-center justify-start h-11"><div class="w-full max-w-[14px] h-1.5 bg-secondary/30 rounded-[1px]"></div></div><span class="font-silkscreen text-[8px] text-outline leading-none">T7</span></div>
+            <div class="flex flex-col items-center justify-end gap-1 h-full group" id="chart-col-7"><div class="w-full flex flex-col-reverse gap-[2px] items-center justify-start h-11"><div class="w-full max-w-[14px] h-1.5 bg-secondary/30 rounded-[1px]"></div></div><span class="font-silkscreen text-[8px] text-outline leading-none">CN</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <div class="flex items-center justify-between px-1"><span class="font-silkscreen text-[8px] text-secondary flex items-center gap-1 font-bold"><span class="material-symbols-outlined text-[12px]">format_list_numbered</span> TOP 3 NGHE NHIỀU NHẤT</span><span class="font-silkscreen text-[7px] text-outline uppercase">Tuần này</span></div>
+        <div id="sidebar-top-tracks-list" class="flex flex-col gap-1"><div class="py-2 text-center font-silkscreen text-[8px] text-gray-500">Đang tải top bài hát...</div></div>
+      </div>
+    </div>
+    <div class="flex-1 flex flex-col min-h-0">
+      <div class="flex items-center justify-between mb-1"><span class="font-silkscreen text-[9px] text-secondary flex items-center gap-1"><span class="w-1.5 h-1.5 bg-secondary"></span>VỪA PHÁT</span><span id="sidebar-recent-count" class="font-silkscreen text-[8px] text-primary">LOG (0)</span></div>
+      <div id="sidebar-recent-tracks-list" class="flex-1 overflow-y-auto space-y-1 pr-1"><div class="py-2 text-center font-silkscreen text-[8px] text-gray-500">Chưa có lịch sử phát</div></div>
+    </div>
+  </div>
+
+  <!-- RIGHT MEDIA PLAYER RECTANGULAR BOX (Cover art, song info, synced lyrics) -->
+  <div id="sidebar-media-player" class="hidden flex-col gap-3 h-full transition-all duration-300">
+    <!-- Header with animated Equalizer & Close button -->
+    <div class="flex items-center justify-between shrink-0 pb-1.5 border-b border-white/10">
+      <div class="flex items-center gap-2">
+        <div class="flex items-end gap-[2px] h-3.5">
+          <div class="w-1 bg-secondary h-3 animate-pulse"></div>
+          <div class="w-1 bg-[#a78bfa] h-3.5 animate-bounce"></div>
+          <div class="w-1 bg-secondary h-2 animate-pulse"></div>
+        </div>
+        <span class="font-silkscreen text-[10px] text-secondary font-bold tracking-wider">MEDIA PLAYER</span>
+      </div>
+      <button type="button" id="btn-close-right-player" class="w-6 h-6 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/15 text-gray-400 hover:text-white transition-all text-xs font-mono cursor-pointer" title="Đóng Media Player (Trở về Thống kê)">
+        ✕
+      </button>
+    </div>
+
+    <!-- Rectangular Media Card (Cover art + Title + Format) -->
+    <div id="right-player-media-card" class="right-player-card flex flex-col gap-2.5 p-3 rounded-2xl bg-gradient-to-b from-[#181824] to-[#12121a] border border-[#a78bfa]/30 shadow-[0_0_20px_rgba(167,139,250,0.15)] shrink-0 transition-colors">
+      <!-- Rectangular Cover Image -->
+      <div class="relative w-full aspect-[16/10] rounded-xl overflow-hidden bg-black/80 shadow-md group border border-white/10">
+        <img id="right-player-cover" src="https://i.ytimg.com/vi/T9PNAndFJ9w/hqdefault.jpg" alt="Cover Art" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 pointer-events-none"></div>
+
+        <!-- Format Badge -->
+        <div class="absolute top-2 left-2 px-2 py-0.5 rounded bg-black/80 backdrop-blur-md border border-secondary/60 font-mono text-[9px] font-semibold text-secondary shadow">
+          <span id="right-player-badge">YT AUDIO 320k</span>
+        </div>
+
+        <!-- Mini Vinyl Disk Indicator -->
+        <div class="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/90 border border-[#a78bfa]/60 flex items-center justify-center shadow animate-spin-slow">
+          <div class="w-2 h-2 rounded-full bg-[#54d8e8]"></div>
+        </div>
+
+        <!-- Center Play/Pause button on cover -->
+        <button type="button" id="right-player-cover-play-btn" class="absolute inset-0 m-auto w-11 h-11 rounded-full bg-[#a78bfa]/90 hover:bg-[#a78bfa] text-black flex items-center justify-center shadow-xl opacity-90 hover:opacity-100 hover:scale-110 active:scale-95 transition-all cursor-pointer" title="Phát / Tạm dừng">
+          <svg id="right-player-cover-play-icon" class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg>
+        </button>
+      </div>
+
+      <!-- Song Title & Artist -->
+      <div class="flex items-center justify-between gap-2 min-w-0">
+        <div class="flex flex-col min-w-0 flex-1">
+          <h4 id="right-player-title" class="text-[13px] font-bold text-white tracking-wide truncate" title="Chưa có bài hát">Chưa có bài hát</h4>
+          <p id="right-player-artist" class="text-[11px] text-[#54d8e8] font-silkscreen truncate">Nghệ sĩ</p>
+        </div>
+        <button type="button" id="right-player-fav-btn" class="text-tertiary hover:scale-110 p-1.5 rounded-lg hover:bg-white/5 transition-transform cursor-pointer shrink-0" title="Thêm vào yêu thích">
+          <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
+            <rect fill="currentColor" height="3" width="4" x="2" y="2"></rect>
+            <rect fill="currentColor" height="3" width="4" x="10" y="2"></rect>
+            <rect fill="currentColor" height="4" width="14" x="1" y="4"></rect>
+            <rect fill="currentColor" height="3" width="10" x="3" y="8"></rect>
+            <rect fill="currentColor" height="2" width="6" x="5" y="11"></rect>
+            <rect fill="currentColor" height="2" width="2" x="7" y="13"></rect>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mini Timeline Progress in Card -->
+      <div class="flex flex-col gap-1 pt-1 border-t border-white/5">
+        <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden cursor-pointer relative" id="right-player-progressbar" title="Tua nhạc">
+          <div id="right-player-progress" class="h-full bg-gradient-to-r from-secondary to-[#a78bfa] rounded-full w-0 transition-all duration-150"></div>
+        </div>
+        <div class="flex items-center justify-between font-mono text-[9px] text-gray-400">
+          <span id="right-player-curtime">00:00</span>
+          <span id="right-player-duration">00:00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lyrics Box (Lời bài hát Karaoke đồng bộ) -->
+    <div class="right-player-lyrics-box flex-1 min-h-[200px] rounded-2xl bg-black/50 backdrop-blur-md border border-white/10 p-3 flex flex-col overflow-hidden relative shadow-inner transition-colors">
+      <!-- Lyrics Header -->
+      <div class="flex items-center justify-between pb-2 mb-2 border-b border-white/5 shrink-0">
+        <div class="flex items-center gap-1.5">
+          <span class="text-xs">🎤</span>
+          <span class="font-silkscreen text-[9px] text-secondary font-bold tracking-wider">LỜI BÀI HÁT / LYRICS</span>
+        </div>
+        <span id="right-player-lyrics-status" class="hidden"></span>
+      </div>
+
+      <!-- Scrollable Lyrics Lines Container -->
+      <div id="right-player-lyrics-container" class="flex-1 overflow-y-auto custom-scroll space-y-1.5 py-3 text-center pr-1 select-none">
+        <div class="py-8 text-center flex flex-col items-center justify-center gap-2 text-gray-500 font-silkscreen text-[9px]">
+          <span class="animate-spin text-secondary text-base">⏳</span>
+          <span>Đang tải lời bài hát...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</aside>
+</div>
+
+<!-- IN-PAGE SEARCH & BROWSE VIEW -->
+<div id="view-search" class="flex-1 flex flex-col p-4 md:p-6 overflow-y-auto custom-scroll hidden bg-surface-dim/30 backdrop-blur-sm min-w-0">
+  <!-- Top Bar -->
+  <div class="flex flex-col gap-3 mb-5 shrink-0">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-secondary/20 text-secondary border border-secondary/40 flex items-center justify-center font-bold">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <div>
+          <h2 class="font-pixel text-xs sm:text-sm text-secondary uppercase tracking-wider">TÌM KIẾM ÂM NHẠC YOUTUBE</h2>
+          <p class="font-silkscreen text-[8px] sm:text-[9px] text-gray-400">KHÁM PHÁ HÀNG TRIỆU BÀI HÁT TỪ YOUTUBE MUSIC VỚI CHẤT LƯỢNG CAO</p>
+        </div>
+      </div>
+      <button type="button" id="btn-search-back-home" class="px-3 py-1 rounded bg-surface-container-high hover:bg-surface-container text-xs font-silkscreen text-primary hover:text-white transition-colors pixel-btn border border-outline-variant/30 cursor-pointer">
+        ← VỀ TRANG CHỦ
+      </button>
+    </div>
+
+    <!-- Search Input in View -->
+    <div class="relative flex items-center">
+      <div class="absolute left-3.5 pointer-events-none text-gray-400">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+      <input id="view-search-input" type="text" placeholder="Tìm kiếm tên bài hát, nghệ sĩ, ca sĩ (ví dụ: Sơn Tùng, Đen Vâu, Lofi, Synthwave)..." class="w-full bg-surface-container-lowest/90 border border-outline-variant/40 rounded-xl pl-10 pr-28 py-2.5 text-xs text-on-surface focus:outline-none focus:border-secondary font-mono shadow-inner">
+      <button type="button" id="btn-view-search-submit" class="absolute right-2 px-3.5 py-1.5 bg-secondary-container text-on-secondary font-bold text-xs rounded-lg pixel-btn font-silkscreen hover:brightness-110 cursor-pointer">
+        TÌM KIẾM
+      </button>
+    </div>
+
+    <!-- Category Filter Pills -->
+    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scroll" id="search-category-pills">
+      <button type="button" data-category="all" class="search-filter-pill px-3 py-1.5 rounded-lg text-xs font-silkscreen transition-all shrink-0 bg-secondary text-on-secondary font-bold shadow-[0_0_10px_rgba(84,216,232,0.4)] cursor-pointer">
+        🌐 TẤT CẢ (ALL)
+      </button>
+      <button type="button" data-category="supermix" class="search-filter-pill px-3 py-1.5 rounded-lg text-xs font-silkscreen transition-all shrink-0 bg-surface-container-high text-gray-400 hover:text-white hover:bg-surface-container-highest cursor-pointer">
+        🔀 MY SUPERMIX
+      </button>
+      <button type="button" data-category="chill" class="search-filter-pill px-3 py-1.5 rounded-lg text-xs font-silkscreen transition-all shrink-0 bg-surface-container-high text-gray-400 hover:text-white hover:bg-surface-container-highest cursor-pointer">
+        ☕ THƯ GIÃN (CHILL)
+      </button>
+      <button type="button" data-category="energy" class="search-filter-pill px-3 py-1.5 rounded-lg text-xs font-silkscreen transition-all shrink-0 bg-surface-container-high text-gray-400 hover:text-white hover:bg-surface-container-highest cursor-pointer">
+        ⚡ NĂNG LƯỢNG (WORKOUT)
+      </button>
+      <button type="button" data-category="mood" class="search-filter-pill px-3 py-1.5 rounded-lg text-xs font-silkscreen transition-all shrink-0 bg-surface-container-high text-gray-400 hover:text-white hover:bg-surface-container-highest cursor-pointer">
+        🌧️ TÂM TRẠNG (BALLAD)
+      </button>
+      <button type="button" data-category="focus" class="search-filter-pill px-3 py-1.5 rounded-lg text-xs font-silkscreen transition-all shrink-0 bg-surface-container-high text-gray-400 hover:text-white hover:bg-surface-container-highest cursor-pointer">
+        🎯 TẬP TRUNG (FOCUS)
+      </button>
+      <button type="button" data-category="vpop" class="search-filter-pill px-3 py-1.5 rounded-lg text-xs font-silkscreen transition-all shrink-0 bg-surface-container-high text-gray-400 hover:text-white hover:bg-surface-container-highest cursor-pointer">
+        🔥 BẢNG XẾP HẠNG (CHARTS)
+      </button>
+      <button type="button" data-category="retro" class="search-filter-pill px-3 py-1.5 rounded-lg text-xs font-silkscreen transition-all shrink-0 bg-surface-container-high text-gray-400 hover:text-white hover:bg-surface-container-highest cursor-pointer">
+        📼 HOÀI NIỆM (RETRO)
+      </button>
+      <button type="button" data-category="audiophile" class="search-filter-pill px-3 py-1.5 rounded-lg text-xs font-silkscreen transition-all shrink-0 bg-surface-container-high text-gray-400 hover:text-white hover:bg-surface-container-highest cursor-pointer">
+        🎧 HI-RES AUDIOPHILE
+      </button>
+    </div>
+  </div>
+
+  <!-- Search Status / Query Info -->
+  <div class="flex items-center justify-between mb-3 text-xs font-silkscreen text-gray-400 shrink-0">
+    <span id="search-status-label">KẾT QUẢ TÌM KIẾM CHO: <font color="#54d8e8" id="search-query-text">"lofi synthwave"</font></span>
+    <span id="search-count-badge" class="font-pixel text-[8px] bg-surface-container-high px-2 py-0.5 rounded text-secondary border border-secondary/30">8 BÀI HÁT</span>
+  </div>
+
+  <!-- Search Results Grid -->
+  <div id="search-results-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 pb-10">
+    <!-- Dynamic Cards Rendered by JS -->
+  </div>
+  <!-- Search Infinite Scroll Indicator & Load More Action -->
+  <div id="search-scroll-sentinel" class="py-6 text-center flex flex-col items-center justify-center gap-3">
+    <div id="search-sentinel-spinner" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 border border-secondary/30 text-xs font-silkscreen text-secondary hidden">
+      <div class="w-3.5 h-3.5 rounded-full border-2 border-secondary border-t-transparent animate-spin"></div>
+      <span id="search-sentinel-text">Đang tải thêm kết quả...</span>
+    </div>
+    <button type="button" id="btn-search-load-more" class="px-5 py-2.5 rounded-xl bg-secondary/15 hover:bg-secondary text-secondary hover:text-black border border-secondary/40 font-silkscreen text-xs font-bold transition-all shadow-[0_0_15px_rgba(84,216,232,0.2)] hover:shadow-[0_0_20px_rgba(84,216,232,0.5)] cursor-pointer hidden inline-flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+      <span>TẢI THÊM BÀI HÁT MỚI</span>
+    </button>
+  </div>
+</div>
+
+<!-- IN-PAGE ACCOUNT & AUTH VIEW (Displayed in Yellow Box Area) -->
+<div id="view-account" class="flex-1 flex flex-col p-4 md:p-6 overflow-y-auto custom-scroll hidden bg-surface-dim/40 backdrop-blur-md min-w-0">
+  <!-- Top Action Bar -->
+  <div class="max-w-2xl w-full mx-auto mb-4 flex items-center justify-between">
+    <button type="button" id="btn-account-back-home" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container border border-outline-variant/30 text-xs font-silkscreen text-primary hover:text-white transition-all pixel-btn">
+      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+      <span>← QUAY LẠI TRANG CHỦ</span>
+    </button>
+    <div class="font-silkscreen text-[9px] text-gray-500">MINHDUCEAR / ACCOUNT CENTER</div>
+  </div>
+
+  <!-- Main Container Card -->
+  <div class="max-w-2xl w-full mx-auto bg-[#121217] rounded-2xl pixel-border p-6 sm:p-8 shadow-[0_0_60px_rgba(167,139,250,0.25)] relative my-auto">
+    <!-- Top Glowing Accent -->
+    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-70"></div>
+
+    <!-- Alert Box -->
+    <div id="inpage-account-alert" class="hidden mb-4 p-3 rounded-lg text-xs font-silkscreen border"></div>
+
+    <!-- 1. VIEW WHEN LOGGED IN -->
+    <div id="inpage-logged-in-view" class="space-y-5 hidden">
+      <!-- Header -->
+      <div class="flex items-center justify-between pb-4 border-b border-white/10">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-on-primary font-bold shadow-md">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="font-pixel text-xs sm:text-sm text-primary tracking-wider uppercase">TRANG THÔNG TIN TÀI KHOẢN</h2>
+            <p class="font-silkscreen text-[8px] sm:text-[9px] text-gray-400">MINHDUCEAR ACCOUNT &amp; ĐỒNG BỘ YOUTUBE MUSIC</p>
+          </div>
+        </div>
+
+        <button type="button" id="inpage-btn-logout" class="py-1.5 px-3 rounded-lg bg-red-950/40 text-red-400 border border-red-800/40 text-xs font-silkscreen hover:bg-red-900/50 transition-colors flex items-center gap-1.5 pixel-btn">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+          <span>ĐĂNG XUẤT</span>
+        </button>
+      </div>
+
+      <!-- Profile Overview Card -->
+      <div class="flex items-center gap-4 p-4 bg-surface-container-high/60 border border-white/10 rounded-xl relative overflow-hidden">
+        <div class="w-16 h-16 rounded-xl bg-primary/20 border-2 border-primary flex items-center justify-center overflow-hidden shrink-0 relative shadow-md">
+          <img id="inpage-avatar-preview" src="assets/images/avatars/default.png" class="w-full h-full object-cover">
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <h3 id="inpage-display-name-text" class="font-bold text-sm sm:text-base text-white truncate">Minh Đức (Google)</h3>
+            <span id="inpage-role-badge" class="font-silkscreen text-[8px] bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 rounded">AUDIOPHILE</span>
+          </div>
+          <p id="inpage-email-text" class="text-xs text-gray-400 truncate font-mono mt-0.5">minhduc.audiophile@gmail.com</p>
+          <div id="inpage-google-pill" class="inline-flex items-center gap-1.5 mt-1.5 font-silkscreen text-[8px] text-secondary">
+            <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+            <span id="inpage-google-badge-text">GOOGLE SYNCED</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Music Sync Stats -->
+      <div class="grid grid-cols-3 gap-3 text-center">
+        <div class="p-3 bg-black/40 border border-white/10 rounded-xl">
+          <div class="font-pixel text-sm text-primary" id="inpage-stat-favs">0</div>
+          <div class="font-silkscreen text-[8px] text-gray-400 mt-1">YÊU THÍCH</div>
+        </div>
+        <div class="p-3 bg-black/40 border border-white/10 rounded-xl">
+          <div class="font-pixel text-sm text-secondary" id="inpage-stat-playlists">0</div>
+          <div class="font-silkscreen text-[8px] text-gray-400 mt-1">PLAYLISTS</div>
+        </div>
+        <div class="p-3 bg-black/40 border border-white/10 rounded-xl">
+          <div class="font-pixel text-sm text-tertiary" id="inpage-stat-tracks">0</div>
+          <div class="font-silkscreen text-[8px] text-gray-400 mt-1">ĐÃ ĐỒNG BỘ</div>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="grid grid-cols-3 gap-1.5 bg-black/50 p-1.5 rounded-xl border border-white/10 font-silkscreen text-[9px] text-center">
+        <button type="button" id="inpage-tab-info" class="py-2 rounded-lg bg-primary-container text-on-primary font-bold transition-all shadow-sm">
+          ĐỔI THÔNG TIN
+        </button>
+        <button type="button" id="inpage-tab-google" class="py-2 rounded-lg text-gray-400 hover:text-white transition-all">
+          GOOGLE &amp; YOUTUBE
+        </button>
+        <button type="button" id="inpage-tab-password" class="py-2 rounded-lg text-gray-400 hover:text-white transition-all">
+          ĐỔI MẬT KHẨU
+        </button>
+      </div>
+
+      <!-- Tab 1: Đổi thông tin -->
+      <form id="inpage-pane-info" class="space-y-4">
+        <div>
+          <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">TÊN HIỂN THỊ (DISPLAY NAME)</label>
+          <input id="inpage-input-display-name" type="text" class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
+        </div>
+        <div>
+          <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">EMAIL LIÊN HỆ</label>
+          <input id="inpage-input-email" type="email" class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
+        </div>
+        <div>
+          <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">URL ẢNH ĐẠI DIỆN (AVATAR URL)</label>
+          <input id="inpage-input-avatar-url" type="text" placeholder="https://..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-lg bg-primary-container text-on-primary font-bold text-xs pixel-btn pixel-border-sm hover:brightness-110 tracking-wider">
+          LƯU THAY ĐỔI
+        </button>
+      </form>
+
+      <!-- Tab 2: Google & YouTube -->
+      <div id="inpage-pane-google" class="space-y-4 hidden">
+        <div id="inpage-google-connected-box" class="p-4 bg-secondary/10 border border-secondary/40 rounded-xl space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span class="font-bold text-xs text-white">Tài khoản Google liên kết</span>
+            </div>
+            <span class="font-silkscreen text-[7px] text-secondary bg-secondary/20 border border-secondary/40 px-2 py-0.5 rounded">CONNECTED</span>
+          </div>
+          <p id="inpage-linked-google-email" class="text-xs text-gray-300 font-mono">Đã liên kết</p>
+          <div class="text-[10px] text-gray-400 flex items-center justify-between pt-1 border-t border-white/10 font-silkscreen">
+            <span>Đồng bộ gần nhất:</span>
+            <span id="inpage-sync-last-time" class="text-white font-mono">Vừa xong</span>
+          </div>
+          <div class="flex gap-2 pt-1">
+            <button type="button" id="inpage-btn-sync-youtube-now" class="flex-1 py-2.5 bg-secondary-container text-on-secondary font-bold text-xs rounded-lg hover:brightness-110 flex items-center justify-center gap-2 pixel-btn shadow-md">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+              </svg>
+              <span>Đồng bộ hóa nhạc với YouTube</span>
+            </button>
+            <button type="button" id="inpage-btn-unlink-google" class="py-2.5 px-3.5 bg-red-950/40 text-red-400 border border-red-800/40 rounded-lg text-xs font-silkscreen hover:bg-red-900/50 transition-colors">
+              Hủy liên kết
+            </button>
+          </div>
+        </div>
+
+        <div id="inpage-google-unlinked-box" class="p-4 bg-black/40 border border-white/10 rounded-xl space-y-3 hidden">
+          <p class="text-xs text-gray-300 leading-relaxed">
+            Tài khoản MinhDucEar của bạn hiện chưa liên kết Google. Nhấn nút bên dưới để liên kết và tự động đồng bộ hóa danh sách phát, bài hát yêu thích với YouTube Music.
+          </p>
+          <button type="button" id="inpage-btn-link-google-now" class="w-full py-2.5 px-4 bg-[#1e1e28] hover:bg-[#282836] border border-secondary/60 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-2.5 transition-all pixel-btn">
+            <svg class="w-4 h-4" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span>Liên kết tài khoản Google &amp; Đồng bộ ngay</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab 3: Đổi mật khẩu -->
+      <form id="inpage-pane-password" class="space-y-4 hidden">
+        <div>
+          <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">MẬT KHẨU HIỆN TẠI</label>
+          <input id="inpage-pwd-old" type="password" placeholder="Nhập mật khẩu hiện tại..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
+        </div>
+        <div>
+          <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">MẬT KHẨU MỚI (Tối thiểu 6 ký tự)</label>
+          <input id="inpage-pwd-new" type="password" placeholder="Nhập mật khẩu mới..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
+        </div>
+        <div>
+          <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">XÁC NHẬN MẬT KHẨU MỚI</label>
+          <input id="inpage-pwd-confirm" type="password" placeholder="Nhập lại mật khẩu mới..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-lg bg-primary-container text-on-primary font-bold text-xs pixel-btn pixel-border-sm hover:brightness-110 tracking-wider">
+          XÁC NHẬN ĐỔI MẬT KHẨU
+        </button>
+      </form>
+    </div>
+
+    <!-- 2. VIEW WHEN NOT LOGGED IN (AUTH) -->
+    <div id="inpage-logged-out-view" class="space-y-5">
+      <!-- Title -->
+      <div class="text-center mb-6">
+        <div class="w-12 h-12 rounded-xl bg-primary/20 border-2 border-primary mx-auto flex items-center justify-center mb-3 shadow-[0_0_20px_rgba(167,139,250,0.4)]">
+          <svg class="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+          </svg>
+        </div>
+        <h2 class="font-pixel text-sm text-primary tracking-wider uppercase mb-1">CỔNG TÀI KHOẢN MINHDUCEAR</h2>
+        <p class="font-silkscreen text-[9px] text-gray-400">Đăng nhập bằng Google để tự động đồng bộ hóa nhạc với YouTube Music</p>
+      </div>
+
+      <!-- Google Sign In Quick Banner -->
+      <div class="p-4 bg-[#181822] border border-secondary/40 rounded-xl text-center shadow-inner">
+        <div class="font-silkscreen text-[9px] text-secondary mb-2 tracking-wide flex items-center justify-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+          <span>ĐỒNG BỘ HÓA TỰ ĐỘNG VỚI YOUTUBE MUSIC</span>
+        </div>
+        <button type="button" id="inpage-btn-google-login" class="w-full mt-2 py-2.5 px-4 bg-[#1e1e2c] hover:bg-[#252538] border border-secondary/60 rounded-lg text-xs font-semibold text-white flex items-center justify-center gap-2.5 transition-all shadow-md pixel-btn">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          <span>Đăng nhập với Google &amp; Đồng bộ</span>
+        </button>
+      </div>
+
+      <!-- Divider -->
+      <div class="relative flex items-center justify-center my-4">
+        <div class="border-t border-white/10 w-full"></div>
+        <span class="bg-[#121217] px-3 font-silkscreen text-[8px] text-gray-400 uppercase tracking-wider">HOẶC TÀI KHOẢN MINHDUCEAR</span>
+      </div>
+
+      <!-- Tabs: ĐĂNG NHẬP / ĐĂNG KÝ -->
+      <div class="flex border-b border-white/10 mb-4">
+        <button type="button" id="inpage-auth-tab-login" class="flex-1 py-2.5 font-silkscreen text-xs text-primary border-b-2 border-primary font-bold transition-all">ĐĂNG NHẬP</button>
+        <button type="button" id="inpage-auth-tab-register" class="flex-1 py-2.5 font-silkscreen text-xs text-gray-400 hover:text-white transition-all">ĐĂNG KÝ</button>
+      </div>
+
+      <!-- Form Login -->
+      <form id="inpage-form-login" class="space-y-3.5">
+        <div>
+          <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">TÊN ĐĂNG NHẬP HOẶC EMAIL</label>
+          <input id="inpage-login-username" type="text" value="minhduc" placeholder="Username / Email..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
+        </div>
+        <div>
+          <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">MẬT KHẨU</label>
+          <input id="inpage-login-password" type="password" value="123456" placeholder="Mật khẩu..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-lg bg-primary-container text-on-primary font-bold text-xs pixel-btn pixel-border-sm hover:brightness-110 tracking-wider">
+          ĐĂNG NHẬP NGAY
+        </button>
+      </form>
+
+      <!-- Form Register -->
+      <form id="inpage-form-register" class="space-y-3 hidden">
+        <div>
+          <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">TÊN ĐĂNG NHẬP (USERNAME) *</label>
+          <input id="inpage-reg-username" type="text" placeholder="Tên đăng nhập..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono">
+        </div>
+        <div>
+          <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">TÊN HIỂN THỊ (DISPLAY NAME) *</label>
+          <input id="inpage-reg-display-name" type="text" placeholder="Tên của bạn..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono">
+        </div>
+        <div>
+          <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">EMAIL *</label>
+          <input id="inpage-reg-email" type="email" placeholder="Địa chỉ email..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono">
+        </div>
+        <div>
+          <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">MẬT KHẨU *</label>
+          <input id="inpage-reg-password" type="password" placeholder="Mật khẩu (>= 6 ký tự)..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono">
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-lg bg-secondary-container text-on-secondary font-bold text-xs pixel-btn pixel-border-sm hover:brightness-110 tracking-wider">
+          TẠO TÀI KHOẢN MỚI
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================= -->
+<!-- VIEW: KHÁM PHÁ / EXPLORE (Trending, Genres, Artists)           -->
+<!-- ============================================================= -->
+<div id="view-explore" class="flex-1 flex flex-col p-4 md:p-6 overflow-y-auto custom-scroll hidden bg-surface-dim/30 backdrop-blur-sm min-w-0">
+  <!-- Header -->
+  <div class="flex items-center justify-between pb-4 mb-5 border-b border-white/10 shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-secondary/20 text-secondary border border-secondary/40 flex items-center justify-center pixel-border-sm">
+        <svg class="w-5 h-5 pixel-icon" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="2" width="8" x="4" y="1"></rect><rect fill="currentColor" height="2" width="12" x="2" y="3"></rect><rect fill="currentColor" height="6" width="14" x="1" y="5"></rect><rect fill="currentColor" height="2" width="12" x="2" y="11"></rect><rect fill="currentColor" height="2" width="8" x="4" y="13"></rect><rect fill="#131316" height="8" width="2" x="7" y="4"></rect><rect fill="#131316" height="2" width="8" x="4" y="7"></rect></svg>
+      </div>
+      <div>
+        <h2 class="font-pixel text-sm md:text-base text-secondary uppercase tracking-wider">KHÁM PHÁ ÂM NHẠC / EXPLORE</h2>
+        <p class="font-silkscreen text-[9px] text-gray-400 mt-0.5">Xu hướng YouTube Music, Thể loại nổi bật & Nghệ sĩ thịnh hành</p>
+      </div>
+    </div>
+    <button type="button" id="btn-explore-refresh" class="px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-secondary text-xs font-silkscreen pixel-btn flex items-center gap-1.5 cursor-pointer">
+      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+      <span>LÀM MỚI</span>
+    </button>
+  </div>
+
+  <!-- Featured Categories Banner Grid -->
+  <div class="mb-6 shrink-0">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="w-2 h-2 bg-secondary animate-pulse"></span>
+      <h3 class="font-silkscreen text-xs text-secondary font-bold uppercase tracking-wider">BẢNG XẾP HẠNG & XU HƯỚNG NỔI BẬT</h3>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <!-- Card 1: V-Pop -->
+      <div class="explore-trend-card p-3 rounded-xl bg-gradient-to-br from-purple-900/40 to-black/80 border border-purple-500/30 hover:border-purple-400 hover:scale-[1.02] transition-all cursor-pointer group shadow-lg" data-explore-query="vpop thịnh hành việt nam 2026">
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-pixel text-[8px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40">TOP TRENDING</span>
+          <span class="w-6 h-6 rounded-full bg-purple-500 text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">▶</span>
+        </div>
+        <h4 class="font-bold text-sm text-white group-hover:text-secondary transition-colors">V-POP HOT 50</h4>
+        <p class="font-silkscreen text-[9px] text-gray-400 mt-1">Sơn Tùng, Đen, Vũ, Soobin, Wren Evans</p>
+      </div>
+
+      <!-- Card 2: Lofi Chill -->
+      <div class="explore-trend-card p-3 rounded-xl bg-gradient-to-br from-cyan-900/40 to-black/80 border border-cyan-500/30 hover:border-cyan-400 hover:scale-[1.02] transition-all cursor-pointer group shadow-lg" data-explore-query="lofi hip hop chill beats lofi girl">
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-pixel text-[8px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">CHILL BEATS</span>
+          <span class="w-6 h-6 rounded-full bg-secondary text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">▶</span>
+        </div>
+        <h4 class="font-bold text-sm text-white group-hover:text-secondary transition-colors">LO-FI STUDY CHILL</h4>
+        <p class="font-silkscreen text-[9px] text-gray-400 mt-1">Giai điệu êm dịu, tập trung học tập & thư giãn</p>
+      </div>
+
+      <!-- Card 3: Cyberpunk Synthwave -->
+      <div class="explore-trend-card p-3 rounded-xl bg-gradient-to-br from-pink-900/40 to-black/80 border border-pink-500/30 hover:border-pink-400 hover:scale-[1.02] transition-all cursor-pointer group shadow-lg" data-explore-query="cyberpunk synthwave retro wave music">
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-pixel text-[8px] px-2 py-0.5 rounded bg-pink-500/20 text-pink-300 border border-pink-500/40">CYBER WAVE</span>
+          <span class="w-6 h-6 rounded-full bg-tertiary text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">▶</span>
+        </div>
+        <h4 class="font-bold text-sm text-white group-hover:text-secondary transition-colors">SYNTHWAVE CYBER</h4>
+        <p class="font-silkscreen text-[9px] text-gray-400 mt-1">Giai điệu Neon tương lai 80s Cyberpunk</p>
+      </div>
+
+      <!-- Card 4: Anime Hi-Res -->
+      <div class="explore-trend-card p-3 rounded-xl bg-gradient-to-br from-emerald-900/40 to-black/80 border border-emerald-500/30 hover:border-emerald-400 hover:scale-[1.02] transition-all cursor-pointer group shadow-lg" data-explore-query="anime ost hi-res epic soundtrack">
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-pixel text-[8px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">HI-RES AUDIO</span>
+          <span class="w-6 h-6 rounded-full bg-emerald-400 text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">▶</span>
+        </div>
+        <h4 class="font-bold text-sm text-white group-hover:text-secondary transition-colors">ANIME & GAMING OST</h4>
+        <p class="font-silkscreen text-[9px] text-gray-400 mt-1">Radwimps, Hiroyuki Sawano, Ghibli, Genshin</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Featured Artists -->
+  <div class="mb-6 shrink-0">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="w-2 h-2 bg-primary animate-pulse"></span>
+      <h3 class="font-silkscreen text-xs text-primary font-bold uppercase tracking-wider">NGHỆ SĨ TIÊU BIỂU</h3>
+    </div>
+    <div class="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
+      <button type="button" class="explore-artist-btn flex flex-col items-center p-2.5 rounded-xl bg-black/40 hover:bg-black/70 border border-white/10 hover:border-secondary/50 transition-all cursor-pointer group" data-artist="Sơn Tùng M-TP">
+        <div class="w-12 h-12 rounded-full overflow-hidden mb-1.5 border border-secondary/40 group-hover:scale-105 transition-transform bg-black">
+          <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=120&auto=format&fit=crop&q=60" class="w-full h-full object-cover">
+        </div>
+        <span class="text-xs font-bold text-white group-hover:text-secondary truncate w-full text-center">Sơn Tùng</span>
+        <span class="font-silkscreen text-[7px] text-gray-400">V-Pop King</span>
+      </button>
+
+      <button type="button" class="explore-artist-btn flex flex-col items-center p-2.5 rounded-xl bg-black/40 hover:bg-black/70 border border-white/10 hover:border-secondary/50 transition-all cursor-pointer group" data-artist="Đen Vâu">
+        <div class="w-12 h-12 rounded-full overflow-hidden mb-1.5 border border-secondary/40 group-hover:scale-105 transition-transform bg-black">
+          <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=120&auto=format&fit=crop&q=60" class="w-full h-full object-cover">
+        </div>
+        <span class="text-xs font-bold text-white group-hover:text-secondary truncate w-full text-center">Đen Vâu</span>
+        <span class="font-silkscreen text-[7px] text-gray-400">Rap / Acoustic</span>
+      </button>
+
+      <button type="button" class="explore-artist-btn flex flex-col items-center p-2.5 rounded-xl bg-black/40 hover:bg-black/70 border border-white/10 hover:border-secondary/50 transition-all cursor-pointer group" data-artist="Vũ.">
+        <div class="w-12 h-12 rounded-full overflow-hidden mb-1.5 border border-secondary/40 group-hover:scale-105 transition-transform bg-black">
+          <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=120&auto=format&fit=crop&q=60" class="w-full h-full object-cover">
+        </div>
+        <span class="text-xs font-bold text-white group-hover:text-secondary truncate w-full text-center">Vũ.</span>
+        <span class="font-silkscreen text-[7px] text-gray-400">Indie Pop</span>
+      </button>
+
+      <button type="button" class="explore-artist-btn flex flex-col items-center p-2.5 rounded-xl bg-black/40 hover:bg-black/70 border border-white/10 hover:border-secondary/50 transition-all cursor-pointer group" data-artist="Lofi Girl">
+        <div class="w-12 h-12 rounded-full overflow-hidden mb-1.5 border border-secondary/40 group-hover:scale-105 transition-transform bg-black">
+          <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=120&auto=format&fit=crop&q=60" class="w-full h-full object-cover">
+        </div>
+        <span class="text-xs font-bold text-white group-hover:text-secondary truncate w-full text-center">Lofi Girl</span>
+        <span class="font-silkscreen text-[7px] text-gray-400">Study Beats</span>
+      </button>
+
+      <button type="button" class="explore-artist-btn flex flex-col items-center p-2.5 rounded-xl bg-black/40 hover:bg-black/70 border border-white/10 hover:border-secondary/50 transition-all cursor-pointer group" data-artist="Hiroyuki Sawano">
+        <div class="w-12 h-12 rounded-full overflow-hidden mb-1.5 border border-secondary/40 group-hover:scale-105 transition-transform bg-black">
+          <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=120&auto=format&fit=crop&q=60" class="w-full h-full object-cover">
+        </div>
+        <span class="text-xs font-bold text-white group-hover:text-secondary truncate w-full text-center">H. Sawano</span>
+        <span class="font-silkscreen text-[7px] text-gray-400">Epic OST</span>
+      </button>
+
+      <button type="button" class="explore-artist-btn flex flex-col items-center p-2.5 rounded-xl bg-black/40 hover:bg-black/70 border border-white/10 hover:border-secondary/50 transition-all cursor-pointer group" data-artist="Soobin Hoàng Sơn">
+        <div class="w-12 h-12 rounded-full overflow-hidden mb-1.5 border border-secondary/40 group-hover:scale-105 transition-transform bg-black">
+          <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=120&auto=format&fit=crop&q=60" class="w-full h-full object-cover">
+        </div>
+        <span class="text-xs font-bold text-white group-hover:text-secondary truncate w-full text-center">Soobin</span>
+        <span class="font-silkscreen text-[7px] text-gray-400">R&B / Soul</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Discovery Real YouTube Tracks Grid -->
+  <div class="flex-1 min-w-0">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 bg-tertiary"></span>
+        <h3 class="font-silkscreen text-xs text-tertiary font-bold uppercase tracking-wider" id="explore-section-title">DANH SÁCH BÀI HÁT ĐỀ XUẤT HÔM NAY</h3>
+      </div>
+      <span class="font-pixel text-[8px] bg-surface-container-high px-2 py-0.5 rounded text-secondary border border-secondary/30" id="explore-count-badge">12 BÀI HÁT</span>
+    </div>
+    <div id="explore-tracks-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
+      <!-- Loaded dynamically via JS -->
+        </div>
+    <!-- Explore Infinite Scroll Indicator -->
+    <div id="explore-scroll-sentinel" class="py-5 text-center hidden">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 border border-tertiary/30 text-xs font-silkscreen text-tertiary">
+        <div class="w-3.5 h-3.5 rounded-full border-2 border-tertiary border-t-transparent animate-spin"></div>
+        <span>Đang tải thêm các bản nhạc đề xuất tiếp theo...</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================= -->
+<!-- VIEW: YÊU THÍCH / FAVORITES                                     -->
+<!-- ============================================================= -->
+<div id="view-favorites" class="flex-1 flex flex-col p-4 md:p-6 overflow-y-auto custom-scroll hidden bg-surface-dim/30 backdrop-blur-sm min-w-0">
+  <!-- Header -->
+  <div class="flex items-center justify-between pb-4 mb-5 border-b border-white/10 shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-pink-500/20 text-pink-400 border border-pink-500/40 flex items-center justify-center pixel-border-sm">
+        <svg class="w-5 h-5 pixel-icon" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="3" width="4" x="2" y="2"></rect><rect fill="currentColor" height="3" width="4" x="10" y="2"></rect><rect fill="currentColor" height="4" width="14" x="1" y="4"></rect><rect fill="currentColor" height="3" width="10" x="3" y="8"></rect><rect fill="currentColor" height="2" width="6" x="5" y="11"></rect><rect fill="currentColor" height="2" width="2" x="7" y="13"></rect></svg>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 id="fav-view-title" class="font-pixel text-sm md:text-base text-pink-400 uppercase tracking-wider">BÀI HÁT YÊU THÍCH / FAVORITES</h2>
+          <span id="fav-count-badge" class="font-pixel text-[8px] px-2 py-0.5 rounded bg-pink-500/20 text-pink-300 border border-pink-500/40">0 BÀI HÁT</span>
+        </div>
+        <p id="fav-view-desc" class="font-silkscreen text-[9px] text-gray-400 mt-0.5">Kho lưu trữ những bài hát bạn đã đánh dấu trái tim yêu thích</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button type="button" id="btn-fav-play-all" class="px-3.5 py-1.5 rounded-lg bg-pink-600 hover:bg-pink-700 text-white font-bold text-xs pixel-btn flex items-center gap-1.5 cursor-pointer shadow-[0_0_12px_rgba(236,72,153,0.4)]">
+        <span>▶ PHÁT TẤT CẢ</span>
+      </button>
+      <button type="button" id="btn-fav-refresh" class="px-2.5 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-gray-300 text-xs font-silkscreen pixel-btn cursor-pointer">
+        LÀM MỚI
+      </button>
+      <!-- Nút gạt chuyển đổi giữa Bài hát yêu thích và Album yêu thích -->
+      <div id="fav-type-toggle" class="p-1 rounded-xl bg-surface-container-low/90 border border-white/10 flex items-center gap-1 shadow-inner ml-1">
+        <button type="button" id="btn-fav-tab-songs" class="px-3 py-1.5 rounded-lg font-pixel text-[9px] uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 bg-pink-600 text-white shadow-[0_0_10px_rgba(236,72,153,0.4)] font-bold">
+          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+          <span>BÀI HÁT</span>
+        </button>
+        <button type="button" id="btn-fav-tab-albums" class="px-3 py-1.5 rounded-lg font-pixel text-[9px] uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 text-gray-400 hover:text-white hover:bg-white/5 font-normal">
+          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5zm0-5.5c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1z"/></svg>
+          <span>ALBUM</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Favorites List Container (Bài hát) -->
+  <div id="fav-tracks-container" class="flex-1 space-y-2">
+    <!-- Populated dynamically via JS -->
+  </div>
+
+  <!-- Favorite Albums Grid Container (Album) -->
+  <div id="fav-albums-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 hidden">
+    <!-- Populated dynamically via JS -->
+  </div>
+  <!-- Favorites Infinite Scroll Indicator -->
+  <div id="favorites-scroll-sentinel" class="py-4 text-center hidden">
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 border border-pink-500/30 text-xs font-silkscreen text-pink-400">
+      <div class="w-3.5 h-3.5 rounded-full border-2 border-pink-500 border-t-transparent animate-spin"></div>
+      <span id="favorites-sentinel-text">Đang tải thêm bài hát yêu thích...</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================= -->
+<!-- VIEW: VỪA PHÁT / RECENTLY PLAYED                               -->
+<!-- ============================================================= -->
+<div id="view-history" class="flex-1 flex flex-col p-4 md:p-6 overflow-y-auto custom-scroll hidden bg-surface-dim/30 backdrop-blur-sm min-w-0">
+  <!-- Header -->
+  <div class="flex items-center justify-between pb-4 mb-5 border-b border-white/10 shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-secondary/20 text-secondary border border-secondary/40 flex items-center justify-center pixel-border-sm">
+        <svg class="w-5 h-5 pixel-icon" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="2" width="8" x="4" y="1"></rect><rect fill="currentColor" height="2" width="12" x="2" y="3"></rect><rect fill="currentColor" height="6" width="14" x="1" y="5"></rect><rect fill="currentColor" height="2" width="12" x="2" y="11"></rect><rect fill="currentColor" height="2" width="8" x="4" y="13"></rect><rect fill="#131316" height="5" width="2" x="7" y="3"></rect><rect fill="#131316" height="2" width="4" x="8" y="7"></rect></svg>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 class="font-pixel text-sm md:text-base text-secondary uppercase tracking-wider">HISTORY / LỊCH SỬ PHÁT NHẠC</h2>
+          <span id="history-count-badge" class="font-pixel text-[8px] px-2 py-0.5 rounded bg-secondary/20 text-secondary border border-secondary/40">0 BÀI HÁT</span>
+        </div>
+        <p class="font-silkscreen text-[9px] text-gray-400 mt-0.5">Nhật ký lịch sử các bản nhạc bạn vừa lắng nghe gần đây</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button type="button" id="btn-history-play-all" class="px-3.5 py-1.5 rounded-lg bg-secondary text-black font-bold text-xs pixel-btn flex items-center gap-1.5 cursor-pointer shadow-[0_0_12px_rgba(84,216,232,0.4)]">
+        <span>▶ PHÁT LẠI</span>
+      </button>
+      <button type="button" id="btn-history-clear" class="px-2.5 py-1.5 rounded-lg bg-red-600/30 hover:bg-red-600/50 text-red-300 text-xs font-silkscreen pixel-btn cursor-pointer">
+        XÓA LỊCH SỬ
+      </button>
+    </div>
+  </div>
+
+  <!-- History List Container -->
+  <div id="history-tracks-container" class="flex-1 space-y-2">
+    <!-- Populated dynamically via JS -->
+  </div>
+  <!-- History Infinite Scroll Indicator -->
+  <div id="history-scroll-sentinel" class="py-4 text-center hidden">
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 border border-secondary/30 text-xs font-silkscreen text-secondary">
+      <div class="w-3.5 h-3.5 rounded-full border-2 border-secondary border-t-transparent animate-spin"></div>
+      <span id="history-sentinel-text">Đang tải thêm lịch sử phát nhạc...</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================= -->
+<!-- VIEW: ALBUM / COLLECTIONS                                      -->
+<!-- ============================================================= -->
+<div id="view-albums" class="flex-1 flex flex-col p-4 md:p-6 overflow-y-auto custom-scroll hidden bg-surface-dim/30 backdrop-blur-sm min-w-0">
+  <!-- Header -->
+  <div class="flex items-center justify-between pb-4 mb-5 border-b border-white/10 shrink-0">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-primary-container/30 text-primary border border-primary/50 flex items-center justify-center pixel-border-sm">
+        <svg class="w-5 h-5 pixel-icon" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="2" width="10" x="3" y="1"></rect><rect fill="currentColor" height="10" width="14" x="1" y="3"></rect><rect fill="currentColor" height="2" width="10" x="3" y="13"></rect><rect fill="#131316" height="4" width="4" x="6" y="6"></rect><rect fill="#54d8e8" height="2" width="2" x="7" y="7"></rect></svg>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 class="font-pixel text-sm md:text-base text-primary uppercase tracking-wider">DANH MỤC ALBUM / ALBUMS</h2>
+          <span id="albums-view-badge" class="font-pixel text-[8px] px-2 py-0.5 rounded bg-primary-container/20 text-primary border border-primary/40">8 ALBUMS AUDIOPHILE</span>
+        </div>
+        <p id="albums-view-desc" class="font-silkscreen text-[9px] text-gray-400 mt-0.5">Tuyển tập Album âm thanh chuẩn FLAC, DSD & Master Audio đặc sắc</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Albums Grid -->
+  <div id="albums-grid-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <!-- Album Card -->
+    <div class="album-card group bg-[#15151e]/80 hover:bg-[#1c1c28] border border-white/10 hover:border-primary/60 rounded-xl p-3 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-album-id="alb_1" data-album-title="Farewell of Voyager Star" data-album-artist="鸣潮先约电台 / Emi Evans" data-album-cover="https://lh3.googleusercontent.com/aida-public/AB6AXuCgjdnQliGTIf0xhiSBiil6TjgxEyH-8kQe5jsjqUJcIoqDI6clB-BoBSHKTbfVdIR_QTsOGyz6EzPiDzPj_xokHC5mihJPToNI7WdUEOmvosxtpGV05W9A53x_BSXqJgIyCcZS2dlJDSHzI27eD-giTKzPOcPzdRvcQs7YvtYYlUMOZfbvBy3B3T9-qON25NtTHDPx0gujBhT2ZEpMzW8xHAaM_pWS4G_tvbkMFVRS55WsCylqR_4EQQ" data-album-year="2026" data-album-badge="FLAC 192k 24-bit" data-album-tag="RESONANCE" data-album-query="Farewell of Voyager Star Emi Evans" data-album-desc="Tuyển tập nhạc phẩm đỉnh cao kết hợp giữa giao hưởng hiện đại và giai điệu huyền bí của Tarokiki & Emi Evans.">
+      <div class="w-full aspect-square rounded-lg overflow-hidden relative mb-2.5 bg-black/60">
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgjdnQliGTIf0xhiSBiil6TjgxEyH-8kQe5jsjqUJcIoqDI6clB-BoBSHKTbfVdIR_QTsOGyz6EzPiDzPj_xokHC5mihJPToNI7WdUEOmvosxtpGV05W9A53x_BSXqJgIyCcZS2dlJDSHzI27eD-giTKzPOcPzdRvcQs7YvtYYlUMOZfbvBy3B3T9-qON25NtTHDPx0gujBhT2ZEpMzW8xHAaM_pWS4G_tvbkMFVRS55WsCylqR_4EQQ" alt="Farewell of Voyager Star" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400';" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+        <div class="absolute top-2 left-2 px-1.5 py-0.5 bg-black/90 font-mono text-[8px] font-semibold text-secondary border border-secondary/60 rounded">
+          FLAC 192k 24-bit
+        </div>
+        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <button type="button" class="btn-album-play w-11 h-11 bg-primary text-on-primary flex items-center justify-center rounded-full shadow-lg transform group-hover:scale-110 transition-transform cursor-pointer" data-album-query="Farewell of Voyager Star Emi Evans">
+            <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg>
+          </button>
+        </div>
+      </div>
+      <div>
+        <h4 class="text-sm font-bold text-white group-hover:text-primary transition-colors truncate">Farewell of Voyager Star</h4>
+        <p class="text-xs text-gray-400 truncate mt-0.5">鸣潮先约电台 / Emi Evans</p>
+        <div class="flex items-center justify-between pt-2 mt-2 border-t border-white/10 font-silkscreen text-[9px] text-outline">
+          <span>2026 • 8 TRACKS</span>
+          <span class="text-secondary">RESONANCE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Album Card -->
+    <div class="album-card group bg-[#15151e]/80 hover:bg-[#1c1c28] border border-white/10 hover:border-primary/60 rounded-xl p-3 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-album-id="alb_2" data-album-title="Midnight Cyber Resonance" data-album-artist="Emily & Synthwave Orchestra" data-album-cover="https://lh3.googleusercontent.com/aida-public/AB6AXuBW7YpaBTLlX_unVrvCPKWyGgYjEWgRxvke5rASbhq_kp8bX3Ln5aFsSpEoEUyot0g6E4LbwGe49Oc_Sm0yv4n2A-FuzejDqMP7VcolTtBwSHrbIG079p8YdtQrAiOsTSc8xmFO--ctMJfLeDJCMdwx9mXh0VWbbGwI8ZhX7fP7CuWL5yY-bq3XprUZJx_ILW3pM3RhILmAlkjbRb03ywm-PoxBexYk89zDGYLPSugIcxRkWBLXrPnHAw" data-album-year="2025" data-album-badge="FLAC 96k 24-bit" data-album-tag="CYBERPUNK" data-album-query="Midnight Cyber Resonance Synthwave" data-album-desc="Không gian âm thanh Retrowave & Synthwave tràn ngập ánh đèn neon giữa đêm muộn.">
+      <div class="w-full aspect-square rounded-lg overflow-hidden relative mb-2.5 bg-black/60">
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBW7YpaBTLlX_unVrvCPKWyGgYjEWgRxvke5rASbhq_kp8bX3Ln5aFsSpEoEUyot0g6E4LbwGe49Oc_Sm0yv4n2A-FuzejDqMP7VcolTtBwSHrbIG079p8YdtQrAiOsTSc8xmFO--ctMJfLeDJCMdwx9mXh0VWbbGwI8ZhX7fP7CuWL5yY-bq3XprUZJx_ILW3pM3RhILmAlkjbRb03ywm-PoxBexYk89zDGYLPSugIcxRkWBLXrPnHAw" alt="Midnight Cyber Resonance" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400';" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+        <div class="absolute top-2 left-2 px-1.5 py-0.5 bg-black/90 font-mono text-[8px] font-semibold text-secondary border border-secondary/60 rounded">
+          FLAC 96k 24-bit
+        </div>
+        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <button type="button" class="btn-album-play w-11 h-11 bg-primary text-on-primary flex items-center justify-center rounded-full shadow-lg transform group-hover:scale-110 transition-transform cursor-pointer" data-album-query="Midnight Cyber Resonance Synthwave">
+            <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg>
+          </button>
+        </div>
+      </div>
+      <div>
+        <h4 class="text-sm font-bold text-white group-hover:text-primary transition-colors truncate">Midnight Cyber Resonance</h4>
+        <p class="text-xs text-gray-400 truncate mt-0.5">Emily & Synthwave Orchestra</p>
+        <div class="flex items-center justify-between pt-2 mt-2 border-t border-white/10 font-silkscreen text-[9px] text-outline">
+          <span>2025 • 10 TRACKS</span>
+          <span class="text-secondary">CYBERPUNK</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Album Card -->
+    <div class="album-card group bg-[#15151e]/80 hover:bg-[#1c1c28] border border-white/10 hover:border-primary/60 rounded-xl p-3 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-album-id="alb_3" data-album-title="Symphony No. 9 Aurora" data-album-artist="Hiroyuki Sawano" data-album-cover="https://lh3.googleusercontent.com/aida-public/AB6AXuANK028RCNQkaFbYpXj_3Wx2Sy92pt35RUqhOQsieW6qbi-d44bjuasKepQIxXNYjRzEzrR1Zn3UwojRhoH83Wa8_lq2gNMoX2McoK2lWS0v0JHk7XXH7xFY9gOCBIZr5t4Rv68_Y8Zg6AeUgCOYMZRDdc08mjOTcw_oFwqmqHVyT48SflkLemHhcu2HEqIkmxk2iRwUsoTt8CJS-Z72H2CoGLRDx0nufCuXmK1oCmdHMerHm_jaPXk5g" data-album-year="2024" data-album-badge="DSD 2.8MHz 1-bit" data-album-tag="DSD MASTER" data-album-query="Symphony No. 9 Aurora Hiroyuki Sawano" data-album-desc="Bản giao hưởng hùng tráng mang phong cách đặc trưng của Hiroyuki Sawano với dải động âm thanh cực đại.">
+      <div class="w-full aspect-square rounded-lg overflow-hidden relative mb-2.5 bg-black/60">
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuANK028RCNQkaFbYpXj_3Wx2Sy92pt35RUqhOQsieW6qbi-d44bjuasKepQIxXNYjRzEzrR1Zn3UwojRhoH83Wa8_lq2gNMoX2McoK2lWS0v0JHk7XXH7xFY9gOCBIZr5t4Rv68_Y8Zg6AeUgCOYMZRDdc08mjOTcw_oFwqmqHVyT48SflkLemHhcu2HEqIkmxk2iRwUsoTt8CJS-Z72H2CoGLRDx0nufCuXmK1oCmdHMerHm_jaPXk5g" alt="Symphony No. 9 Aurora" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400';" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+        <div class="absolute top-2 left-2 px-1.5 py-0.5 bg-black/90 font-mono text-[8px] font-semibold text-secondary border border-secondary/60 rounded">
+          DSD 2.8MHz 1-bit
+        </div>
+        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <button type="button" class="btn-album-play w-11 h-11 bg-primary text-on-primary flex items-center justify-center rounded-full shadow-lg transform group-hover:scale-110 transition-transform cursor-pointer" data-album-query="Symphony No. 9 Aurora Hiroyuki Sawano">
+            <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg>
+          </button>
+        </div>
+      </div>
+      <div>
+        <h4 class="text-sm font-bold text-white group-hover:text-primary transition-colors truncate">Symphony No. 9 Aurora</h4>
+        <p class="text-xs text-gray-400 truncate mt-0.5">Hiroyuki Sawano</p>
+        <div class="flex items-center justify-between pt-2 mt-2 border-t border-white/10 font-silkscreen text-[9px] text-outline">
+          <span>2024 • 12 TRACKS</span>
+          <span class="text-secondary">DSD MASTER</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Album Card -->
+    <div class="album-card group bg-[#15151e]/80 hover:bg-[#1c1c28] border border-white/10 hover:border-primary/60 rounded-xl p-3 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-album-id="alb_4" data-album-title="Subsurface Protocol" data-album-artist="Mineradio Acoustic" data-album-cover="https://lh3.googleusercontent.com/aida-public/AB6AXuCw56xdATpUuXj8D44rlW0EgCsJqad104kUI3Asz8xp0YGFKa9sihkOU0xXW_z2Hhb5bxG0H8ZBZRZ8GXg2ylkNOZWYHh34yfClNXZTwj2jpVPxtnP-c26EkLvRjHv9fT_hjYGQj5WXaLzjCdsgSutjiXBSPKVEvEqfTcTWU36Vj7kIuMLn82fodmKNjk7ia2gCjC2wVmZCQ8CbkHkXP1yyvD_HqCeUi4dBckigJdHg_9O5FVcg-R-63Q" data-album-year="2025" data-album-badge="SUB-20Hz HI-RES" data-album-tag="SUB-BASS" data-album-query="Subsurface Protocol Mineradio Acoustic" data-album-desc="Trải nghiệm dải trầm sâu thẳm xuống dưới 20Hz được tinh chỉnh chuẩn phòng thu chuyên nghiệp.">
+      <div class="w-full aspect-square rounded-lg overflow-hidden relative mb-2.5 bg-black/60">
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCw56xdATpUuXj8D44rlW0EgCsJqad104kUI3Asz8xp0YGFKa9sihkOU0xXW_z2Hhb5bxG0H8ZBZRZ8GXg2ylkNOZWYHh34yfClNXZTwj2jpVPxtnP-c26EkLvRjHv9fT_hjYGQj5WXaLzjCdsgSutjiXBSPKVEvEqfTcTWU36Vj7kIuMLn82fodmKNjk7ia2gCjC2wVmZCQ8CbkHkXP1yyvD_HqCeUi4dBckigJdHg_9O5FVcg-R-63Q" alt="Subsurface Protocol" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400';" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+        <div class="absolute top-2 left-2 px-1.5 py-0.5 bg-black/90 font-mono text-[8px] font-semibold text-secondary border border-secondary/60 rounded">
+          SUB-20Hz HI-RES
+        </div>
+        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <button type="button" class="btn-album-play w-11 h-11 bg-primary text-on-primary flex items-center justify-center rounded-full shadow-lg transform group-hover:scale-110 transition-transform cursor-pointer" data-album-query="Subsurface Protocol Mineradio Acoustic">
+            <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg>
+          </button>
+        </div>
+      </div>
+      <div>
+        <h4 class="text-sm font-bold text-white group-hover:text-primary transition-colors truncate">Subsurface Protocol</h4>
+        <p class="text-xs text-gray-400 truncate mt-0.5">Mineradio Acoustic</p>
+        <div class="flex items-center justify-between pt-2 mt-2 border-t border-white/10 font-silkscreen text-[9px] text-outline">
+          <span>2025 • 6 TRACKS</span>
+          <span class="text-secondary">SUB-BASS</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Album Card -->
+    <div class="album-card group bg-[#15151e]/80 hover:bg-[#1c1c28] border border-white/10 hover:border-primary/60 rounded-xl p-3 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-album-id="alb_5" data-album-title="Chúng Ta Của Hiện Tại (Deluxe)" data-album-artist="Sơn Tùng M-TP" data-album-cover="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&auto=format&fit=crop&q=80" data-album-year="2026" data-album-badge="V-POP MASTER" data-album-tag="M-TP DELUXE" data-album-query="Chung Ta Cua Hien Tai Son Tung M-TP" data-album-desc="Album phòng thu đầy cảm xúc của Sơn Tùng M-TP kết hợp âm thanh Pop & R&B tinh tế.">
+      <div class="w-full aspect-square rounded-lg overflow-hidden relative mb-2.5 bg-black/60">
+        <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400&auto=format&fit=crop&q=80" alt="Chúng Ta Của Hiện Tại (Deluxe)" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400';" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+        <div class="absolute top-2 left-2 px-1.5 py-0.5 bg-black/90 font-mono text-[8px] font-semibold text-secondary border border-secondary/60 rounded">
+          V-POP MASTER
+        </div>
+        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <button type="button" class="btn-album-play w-11 h-11 bg-primary text-on-primary flex items-center justify-center rounded-full shadow-lg transform group-hover:scale-110 transition-transform cursor-pointer" data-album-query="Chung Ta Cua Hien Tai Son Tung M-TP">
+            <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg>
+          </button>
+        </div>
+      </div>
+      <div>
+        <h4 class="text-sm font-bold text-white group-hover:text-primary transition-colors truncate">Chúng Ta Của Hiện Tại (Deluxe)</h4>
+        <p class="text-xs text-gray-400 truncate mt-0.5">Sơn Tùng M-TP</p>
+        <div class="flex items-center justify-between pt-2 mt-2 border-t border-white/10 font-silkscreen text-[9px] text-outline">
+          <span>2026 • 8 TRACKS</span>
+          <span class="text-secondary">M-TP DELUXE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Album Card -->
+    <div class="album-card group bg-[#15151e]/80 hover:bg-[#1c1c28] border border-white/10 hover:border-primary/60 rounded-xl p-3 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-album-id="alb_6" data-album-title="2 A.M Study Session" data-album-artist="Lofi Girl Records" data-album-cover="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=400&auto=format&fit=crop&q=80" data-album-year="2025" data-album-badge="VINYL LO-FI" data-album-tag="CHILLEDCOW" data-album-query="2 AM Study Session Lofi Girl" data-album-desc="Giai điệu thư giãn nhẹ nhàng giúp nâng cao tập trung và xoa dịu tâm trí giữa đêm khuya.">
+      <div class="w-full aspect-square rounded-lg overflow-hidden relative mb-2.5 bg-black/60">
+        <img src="https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=400&auto=format&fit=crop&q=80" alt="2 A.M Study Session" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400';" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+        <div class="absolute top-2 left-2 px-1.5 py-0.5 bg-black/90 font-mono text-[8px] font-semibold text-secondary border border-secondary/60 rounded">
+          VINYL LO-FI
+        </div>
+        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <button type="button" class="btn-album-play w-11 h-11 bg-primary text-on-primary flex items-center justify-center rounded-full shadow-lg transform group-hover:scale-110 transition-transform cursor-pointer" data-album-query="2 AM Study Session Lofi Girl">
+            <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg>
+          </button>
+        </div>
+      </div>
+      <div>
+        <h4 class="text-sm font-bold text-white group-hover:text-primary transition-colors truncate">2 A.M Study Session</h4>
+        <p class="text-xs text-gray-400 truncate mt-0.5">Lofi Girl Records</p>
+        <div class="flex items-center justify-between pt-2 mt-2 border-t border-white/10 font-silkscreen text-[9px] text-outline">
+          <span>2025 • 14 TRACKS</span>
+          <span class="text-secondary">CHILLEDCOW</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Album Card -->
+    <div class="album-card group bg-[#15151e]/80 hover:bg-[#1c1c28] border border-white/10 hover:border-primary/60 rounded-xl p-3 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-album-id="alb_7" data-album-title="Cyberpunk: Edgerunners Hits" data-album-artist="Rosa Walton & Various" data-album-cover="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=400&auto=format&fit=crop&q=80" data-album-year="2024" data-album-badge="HI-RES 24/96" data-album-tag="EDGERUNNERS" data-album-query="Cyberpunk Edgerunners I Really Want to Stay At Your House" data-album-desc="Tuyển tập các ca khúc đình đám từ anime Cyberpunk Edgerunners với âm hưởng Synthpop mê hoặc.">
+      <div class="w-full aspect-square rounded-lg overflow-hidden relative mb-2.5 bg-black/60">
+        <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=400&auto=format&fit=crop&q=80" alt="Cyberpunk: Edgerunners Hits" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400';" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+        <div class="absolute top-2 left-2 px-1.5 py-0.5 bg-black/90 font-mono text-[8px] font-semibold text-secondary border border-secondary/60 rounded">
+          HI-RES 24/96
+        </div>
+        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <button type="button" class="btn-album-play w-11 h-11 bg-primary text-on-primary flex items-center justify-center rounded-full shadow-lg transform group-hover:scale-110 transition-transform cursor-pointer" data-album-query="Cyberpunk Edgerunners I Really Want to Stay At Your House">
+            <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg>
+          </button>
+        </div>
+      </div>
+      <div>
+        <h4 class="text-sm font-bold text-white group-hover:text-primary transition-colors truncate">Cyberpunk: Edgerunners Hits</h4>
+        <p class="text-xs text-gray-400 truncate mt-0.5">Rosa Walton & Various</p>
+        <div class="flex items-center justify-between pt-2 mt-2 border-t border-white/10 font-silkscreen text-[9px] text-outline">
+          <span>2024 • 10 TRACKS</span>
+          <span class="text-secondary">EDGERUNNERS</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Album Card -->
+    <div class="album-card group bg-[#15151e]/80 hover:bg-[#1c1c28] border border-white/10 hover:border-primary/60 rounded-xl p-3 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-xl cursor-pointer" data-album-id="alb_8" data-album-title="Một Vạn Năm" data-album-artist="Vũ." data-album-cover="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&auto=format&fit=crop&q=80" data-album-year="2024" data-album-badge="INDIE FLAC 96k" data-album-tag="VIET INDIE" data-album-query="Mot Van Nam Vu album" data-album-desc="Album phòng thu thứ 2 của Hoàng tử Indie Vũ. với chất giọng trầm ấm đặc trưng.">
+      <div class="w-full aspect-square rounded-lg overflow-hidden relative mb-2.5 bg-black/60">
+        <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&auto=format&fit=crop&q=80" alt="Một Vạn Năm" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=400';" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+        <div class="absolute top-2 left-2 px-1.5 py-0.5 bg-black/90 font-mono text-[8px] font-semibold text-secondary border border-secondary/60 rounded">
+          INDIE FLAC 96k
+        </div>
+        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <button type="button" class="btn-album-play w-11 h-11 bg-primary text-on-primary flex items-center justify-center rounded-full shadow-lg transform group-hover:scale-110 transition-transform cursor-pointer" data-album-query="Mot Van Nam Vu album">
+            <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg>
+          </button>
+        </div>
+      </div>
+      <div>
+        <h4 class="text-sm font-bold text-white group-hover:text-primary transition-colors truncate">Một Vạn Năm</h4>
+        <p class="text-xs text-gray-400 truncate mt-0.5">Vũ.</p>
+        <div class="flex items-center justify-between pt-2 mt-2 border-t border-white/10 font-silkscreen text-[9px] text-outline">
+          <span>2024 • 9 TRACKS</span>
+          <span class="text-secondary">VIET INDIE</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Albums Infinite Scroll Indicator -->
+  <div id="albums-scroll-sentinel" class="py-5 text-center hidden">
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 border border-primary/40 text-xs font-silkscreen text-primary">
+      <div class="w-3.5 h-3.5 rounded-full border-2 border-primary border-t-transparent animate-spin"></div>
+      <span id="albums-sentinel-text">Đang tải thêm album Audiophile...</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================= -->
+<!-- VIEW: CHI TIẾT ALBUM / ALBUM DETAIL                           -->
+<!-- ============================================================= -->
+<div id="view-album-detail" class="flex-1 flex flex-col p-4 md:p-6 overflow-y-auto custom-scroll hidden bg-surface-dim/30 backdrop-blur-sm min-w-0">
+  <!-- Back Button & Breadcrumbs Navigation -->
+  <div class="flex items-center justify-between pb-4 mb-4 border-b border-white/10 shrink-0">
+    <button type="button" id="btn-album-detail-back" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-primary hover:text-white font-pixel text-xs pixel-btn cursor-pointer transition-colors">
+      <span id="album-detail-back-text">← QUAY LẠI</span>
+    </button>
+    <div class="flex items-center gap-2">
+      <span id="album-detail-breadcrumb-cat" class="font-silkscreen text-[9px] text-gray-400">DANH MỤC ALBUM</span>
+      <span class="text-gray-600 text-xs">/</span>
+      <span id="album-detail-breadcrumb" class="font-pixel text-[9px] text-primary truncate max-w-[200px]">FAREWELL OF VOYAGER STAR</span>
+    </div>
+  </div>
+
+  <!-- Album Hero Banner -->
+  <div class="flex flex-col md:flex-row gap-6 p-6 rounded-2xl bg-gradient-to-br from-[#1b172a]/90 via-[#13131b]/90 to-[#0e0e13]/90 border border-primary/30 shadow-[0_0_30px_rgba(167,139,250,0.15)] mb-6 relative overflow-hidden shrink-0">
+    <!-- Cyberpunk Decorative Glow Accents -->
+    <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-primary/10 blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-12 -left-12 w-48 h-48 rounded-full bg-secondary/10 blur-3xl pointer-events-none"></div>
+
+    <!-- Album Cover Art -->
+    <div class="w-44 h-44 sm:w-52 sm:h-52 rounded-xl overflow-hidden relative shrink-0 border-2 border-primary/40 shadow-[0_0_20px_rgba(0,0,0,0.8)] self-center md:self-start group">
+      <img id="album-detail-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgjdnQliGTIf0xhiSBiil6TjgxEyH-8kQe5jsjqUJcIoqDI6clB-BoBSHKTbfVdIR_QTsOGyz6EzPiDzPj_xokHC5mihJPToNI7WdUEOmvosxtpGV05W9A53x_BSXqJgIyCcZS2dlJDSHzI27eD-giTKzPOcPzdRvcQs7YvtYYlUMOZfbvBy3B3T9-qON25NtTHDPx0gujBhT2ZEpMzW8xHAaM_pWS4G_tvbkMFVRS55WsCylqR_4EQQ" alt="Album Cover" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+      <div class="absolute top-2 left-2 px-2 py-0.5 bg-black/90 font-mono text-[9px] font-bold text-secondary border border-secondary/60 rounded">
+        <span id="album-detail-format">HQ AUDIO</span>
+      </div>
+      <div class="absolute bottom-2 right-2 px-2 py-0.5 bg-black/90 font-pixel text-[8px] text-pink-400 border border-pink-500/40 rounded">
+        <span id="album-detail-tag">RESONANCE</span>
+      </div>
+    </div>
+
+    <!-- Album Metadata & Action Buttons -->
+    <div class="flex-1 flex flex-col justify-between min-w-0">
+      <div>
+        <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+          <span id="album-detail-category-badge" class="font-pixel text-[8px] px-2 py-0.5 rounded bg-primary-container/30 text-primary border border-primary/40 uppercase">ALBUM CHÍNH THỨC</span>
+          <span id="album-detail-year" class="font-silkscreen text-[9px] text-gray-400">2026</span>
+          <span class="text-gray-600 text-[9px]">•</span>
+          <span id="album-detail-track-count" class="font-silkscreen text-[9px] text-secondary">8 TRACKS</span>
+        </div>
+        <h1 id="album-detail-title" class="font-pixel text-lg sm:text-2xl text-white font-bold tracking-wide mb-2 leading-tight">Farewell of Voyager Star</h1>
+        <p id="album-detail-artist" class="text-xs sm:text-sm font-semibold text-primary mb-3">鸣潮先约电台 / Emi Evans</p>
+        <p id="album-detail-desc" class="font-silkscreen text-[10px] sm:text-xs text-gray-300 leading-relaxed max-w-2xl">
+          Tuyển tập nhạc phẩm đỉnh cao kết hợp giữa giao hưởng hiện đại và giai điệu huyền bí của Tarokiki &amp; Emi Evans.
+        </p>
+      </div>
+
+      <!-- Action Buttons: Phát Album & Yêu Thích Album -->
+      <div class="flex items-center gap-3 pt-5 mt-4 border-t border-white/10 flex-wrap">
+        <!-- Nút phát album -->
+        <button type="button" id="btn-album-detail-play" class="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-on-primary font-bold text-xs font-pixel pixel-btn flex items-center gap-2 shadow-[0_0_18px_rgba(167,139,250,0.5)] cursor-pointer transition-all hover:scale-105 active:scale-95">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg>
+          <span id="album-detail-play-text">PHÁT TOÀN BỘ ALBUM</span>
+        </button>
+
+        <!-- Nút yêu thích album -->
+        <button type="button" id="btn-album-detail-fav" class="px-4 py-2.5 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-pink-400 border border-pink-500/40 font-pixel text-xs pixel-btn flex items-center gap-2 cursor-pointer transition-all hover:border-pink-400">
+          <span id="album-detail-fav-icon">♥</span>
+          <span id="album-detail-fav-text">YÊU THÍCH ALBUM</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Album Tracklist Header -->
+  <div class="flex items-center justify-between pb-3 mb-3 border-b border-white/10 shrink-0">
+    <div class="flex items-center gap-2">
+      <h3 id="album-detail-section-title" class="font-pixel text-xs sm:text-sm text-secondary uppercase tracking-wider">DANH SÁCH BÀI HÁT TRONG ALBUM</h3>
+      <span class="font-pixel text-[8px] px-2 py-0.5 rounded bg-secondary/20 text-secondary border border-secondary/40">HQ AUDIO</span>
+    </div>
+    <span class="font-silkscreen text-[9px] text-gray-400 hidden sm:inline-block">Nhấn vào từng bài để thưởng thức</span>
+  </div>
+
+  <!-- Album Tracklist Container -->
+  <div id="album-detail-tracks-list" class="space-y-2 mb-6 pb-6 shrink-0">
+    <!-- Populated dynamically via JS -->
+  </div>
+</div>
+
+</div><!-- Close main views wrapper -->
+
+<!-- ============================================================= -->
+<!-- GLOBAL BOTTOM PLAYER FOOTER BAR                               -->
+<!-- ============================================================= -->
+<footer class="h-16 shrink-0 bg-surface-container-lowest/90 backdrop-blur-3xl border-t border-outline-variant/30 px-3 sm:px-space-lg flex items-center justify-between z-50">
+  <!-- Track Info & Vinyl Animation (Clickable to open Right Media Player) -->
+  <div id="footer-track-info-container" class="flex items-center gap-2 sm:gap-space-sm min-w-0 flex-1 sm:w-1/4 sm:flex-initial cursor-pointer group hover:opacity-90 select-none transition-all" title="Bấm để mở Media Player & Lời bài hát bên phải">
+    <div id="footer-vinyl-container" class="relative w-12 h-12 shrink-0 flex items-center justify-center select-none group-hover:scale-105 transition-transform">
+      <!-- Rotating Circular Vinyl Record with slow speed & cover art -->
+      <div id="footer-vinyl" class="w-12 h-12 rounded-full overflow-hidden shrink-0 flex items-center justify-center relative shadow-[0_0_12px_rgba(0,0,0,0.9),0_0_8px_rgba(167,139,250,0.4)] border-2 border-[#a78bfa]/50 bg-[#15151b] transition-all animate-spin-slow vinyl-paused">
+        <img id="footer-vinyl-img" src="" alt="Cover" class="w-full h-full object-cover rounded-full opacity-0 scale-75 pointer-events-none">
+        <!-- Vinyl concentric groove rings -->
+        <div class="absolute inset-0 rounded-full border border-white/15 pointer-events-none"></div>
+        <div class="absolute inset-1.5 rounded-full border border-black/40 pointer-events-none"></div>
+        <div class="absolute inset-3 rounded-full border border-white/15 pointer-events-none"></div>
+        <!-- Center Spindle Pin Hole -->
+        <div class="absolute w-3.5 h-3.5 rounded-full bg-[#0e0e10] border-2 border-[#54d8e8] shadow-inner flex items-center justify-center z-10">
+          <div class="w-1 h-1 rounded-full bg-[#a78bfa]"></div>
+        </div>
+      </div>
+    </div>
+    <div id="footer-track-info-wrap" class="flex flex-col min-w-0 leading-tight opacity-0 -translate-x-2 group-hover:translate-x-0.5 transition-all">
+      <div class="flex items-center gap-1.5">
+        <span id="footer-track-title" class="text-[13px] font-bold text-on-surface truncate group-hover:text-secondary transition-colors"></span>
+        <span class="text-[10px] text-secondary opacity-0 group-hover:opacity-100 transition-opacity" title="Mở Media Player">↗</span>
+      </div>
+      <span id="footer-track-artist" class="text-[10px] text-on-surface-variant font-silkscreen truncate"></span>
+    </div>
+  </div>
+
+  <!-- Mobile Quick Action Buttons (Play/Pause, Next, Lyrics) -->
+  <div class="flex sm:hidden items-center gap-1 shrink-0 ml-2">
+    <button type="button" id="mobile-mini-play-btn" class="w-9 h-9 rounded bg-primary-container text-on-primary flex items-center justify-center pixel-btn pixel-border-primary cursor-pointer active:scale-95" title="Phát / Dừng">
+      <svg id="mobile-mini-play-icon" class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
+        <polygon fill="#381385" points="4,2 14,8 4,14"></polygon>
+      </svg>
+    </button>
+    <button type="button" id="mobile-mini-next-btn" class="w-8 h-8 rounded text-on-surface-variant hover:text-on-surface flex items-center justify-center cursor-pointer active:scale-95" title="Bài tiếp theo">
+      <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
+        <polygon fill="currentColor" points="2,3 11,8 2,13"></polygon>
+        <rect fill="currentColor" height="10" width="2" x="12" y="3"></rect>
+      </svg>
+    </button>
+    <button type="button" id="mobile-mini-lyrics-btn" class="w-8 h-8 rounded text-secondary hover:text-white flex items-center justify-center cursor-pointer relative" data-bs-toggle="offcanvas" data-bs-target="#mobile-player-offcanvas" title="Mở Lời bài hát">
+      <span class="text-sm">🎤</span>
+      <span id="mobile-mini-lyrics-dot" class="hidden absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-secondary shadow-[0_0_6px_#54d8e8] animate-pulse"></span>
+    </button>
+  </div>
+
+  <!-- Player Controls & Seekbar (Desktop / Tablet) -->
+  <div class="hidden sm:flex flex-col items-center justify-center flex-1 max-w-lg gap-1">
+    <div class="flex items-center gap-space-md">
+      <!-- Favorite Button -->
+      <button class="text-tertiary hover:scale-110 p-1 transition-transform cursor-pointer" id="btn-favorite" title="Thêm vào yêu thích / Add to favorites">
+        <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
+          <rect fill="currentColor" height="3" width="4" x="2" y="2"></rect>
+          <rect fill="currentColor" height="3" width="4" x="10" y="2"></rect>
+          <rect fill="currentColor" height="4" width="14" x="1" y="4"></rect>
+          <rect fill="currentColor" height="3" width="10" x="3" y="8"></rect>
+          <rect fill="currentColor" height="2" width="6" x="5" y="11"></rect>
+          <rect fill="currentColor" height="2" width="2" x="7" y="13"></rect>
+        </svg>
+      </button>
+
+      <!-- Shuffle Button -->
+      <button id="btn-shuffle" class="text-on-surface-variant hover:text-secondary p-1 transition-colors cursor-pointer" title="Phát ngẫu nhiên / Shuffle">
+        <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
+          <rect fill="currentColor" height="2" width="4" x="1" y="4"></rect>
+          <rect fill="currentColor" height="2" width="3" x="5" y="6"></rect>
+          <rect fill="currentColor" height="2" width="3" x="8" y="8"></rect>
+          <rect fill="currentColor" height="2" width="4" x="11" y="10"></rect>
+          <rect fill="currentColor" height="2" width="4" x="1" y="10"></rect>
+          <rect fill="currentColor" height="2" width="4" x="11" y="4"></rect>
+          <polygon fill="currentColor" points="12,2 15,4 12,6"></polygon>
+          <polygon fill="currentColor" points="12,8 15,10 12,12"></polygon>
+        </svg>
+      </button>
+
+      <!-- Previous Button -->
+      <button class="text-on-surface-variant hover:text-on-surface p-1 cursor-pointer" id="btn-prev" title="Bài trước / Prev">
+        <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
+          <rect fill="currentColor" height="10" width="2" x="2" y="3"></rect>
+          <polygon fill="currentColor" points="14,3 5,8 14,13"></polygon>
+        </svg>
+      </button>
+
+      <!-- Master Play/Pause Button -->
+      <button id="btn-master-play" class="w-10 h-10 rounded bg-primary-container text-on-primary flex items-center justify-center pixel-btn pixel-border-primary cursor-pointer" title="Phát / Play">
+        <svg class="w-5 h-5 pixel-icon" fill="none" viewBox="0 0 16 16">
+          <polygon fill="#381385" points="4,2 14,8 4,14"></polygon>
+        </svg>
+      </button>
+
+      <!-- Next Button -->
+      <button class="text-on-surface-variant hover:text-on-surface p-1 cursor-pointer" id="btn-next" title="Bài tiếp theo / Next">
+        <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
+          <polygon fill="currentColor" points="2,3 11,8 2,13"></polygon>
+          <rect fill="currentColor" height="10" width="2" x="12" y="3"></rect>
+        </svg>
+      </button>
+
+      <!-- Repeat Button -->
+      <button id="btn-repeat" class="text-on-surface-variant hover:text-secondary p-1 transition-colors cursor-pointer" title="Lặp lại / Repeat">
+        <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
+          <rect fill="currentColor" height="2" width="9" x="3" y="3"></rect>
+          <rect fill="currentColor" height="7" width="2" x="11" y="3"></rect>
+          <rect fill="currentColor" height="2" width="9" x="4" y="11"></rect>
+          <rect fill="currentColor" height="6" width="2" x="3" y="7"></rect>
+          <polygon fill="currentColor" points="13,1 15,3 13,5"></polygon>
+          <polygon fill="currentColor" points="3,9 1,11 3,13"></polygon>
+        </svg>
+      </button>
+
+      <!-- Add to Playlist Button -->
+      <button id="btn-footer-add-to-playlist" class="text-on-surface-variant hover:text-secondary p-1 transition-colors cursor-pointer" title="Thêm vào danh sách phát / Add to playlist">
+        <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
+          <rect fill="currentColor" height="2" width="7" x="2" y="4"></rect>
+          <rect fill="currentColor" height="2" width="7" x="2" y="7"></rect>
+          <rect fill="currentColor" height="2" width="5" x="2" y="10"></rect>
+          <rect fill="#54d8e8" height="6" width="2" x="12" y="8"></rect>
+          <rect fill="#54d8e8" height="2" width="6" x="10" y="10"></rect>
+        </svg>
+      </button>
+
+      <!-- Lyrics / Karaoke Toggle Button -->
+      <button id="btn-footer-lyrics" class="text-on-surface-variant hover:text-secondary p-1 transition-all cursor-pointer relative group" title="Lời bài hát đồng bộ / Synced Lyrics">
+        <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
+          <rect fill="currentColor" height="2" width="10" x="3" y="3"></rect>
+          <rect fill="currentColor" height="2" width="10" x="3" y="7"></rect>
+          <rect fill="currentColor" height="2" width="6" x="3" y="11"></rect>
+          <rect fill="#54d8e8" height="3" width="3" x="10" y="10"></rect>
+        </svg>
+        <span id="lyrics-indicator-dot" class="hidden absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-secondary shadow-[0_0_6px_#54d8e8] animate-pulse"></span>
+      </button>
+    </div>
+
+
+    <!-- Progress & Seekbar -->
+    <div class="flex items-center gap-3 w-full">
+      <span id="player-current-time" class="font-silkscreen text-[10px] text-secondary shrink-0 text-right font-semibold tracking-wider" style="white-space: nowrap; min-width: 48px;">00:00</span>
+      <div id="player-seekbar" class="flex-1 h-3.5 bg-[#0e0e12] pixel-border-sm relative cursor-pointer group select-none overflow-visible flex items-center min-w-0">
+        <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-40">
+          <div class="absolute top-0.5 left-[12%] w-[2px] h-[2px] bg-white"></div>
+          <div class="absolute bottom-1 left-[28%] w-[1px] h-[1px] bg-primary"></div>
+          <div class="absolute top-1 left-[48%] w-[2px] h-[2px] bg-secondary"></div>
+          <div class="absolute bottom-0.5 left-[64%] w-[1px] h-[1px] bg-white"></div>
+          <div class="absolute top-1 left-[82%] w-[2px] h-[2px] bg-primary-container"></div>
+          <div class="absolute bottom-1 left-[93%] w-[1px] h-[1px] bg-secondary"></div>
+        </div>
+        <div id="player-seek-progress" class="h-1.5 bg-gradient-to-r from-[#620040] via-[#a78bfa] to-[#54d8e8] w-[0%] relative flex items-center shadow-[0_0_8px_rgba(84,216,232,0.5)]">
+          <div class="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pr-0.5">
+            <div class="w-1.5 h-1 bg-[#ffd8e7] animate-pulse"></div>
+            <div class="w-1 h-0.5 bg-[#ffd8e7]"></div>
+          </div>
+        </div>
+        <div id="player-seek-thumb" class="absolute left-[0%] top-1/2 -translate-y-1/2 z-20 transition-transform duration-100 group-hover:scale-125">
+          <svg class="w-6 h-5 pixel-icon drop-shadow-[0_0_6px_rgba(84,216,232,0.8)]" fill="none" viewBox="0 0 24 16">
+            <rect fill="#381385" height="2" width="3" x="0" y="7"></rect>
+            <rect fill="#ffd8e7" height="2" width="2" x="1" y="7"></rect>
+            <rect fill="#201f22" height="4" width="3" x="3" y="6"></rect>
+            <rect fill="#a78bfa" height="6" width="3" x="6" y="5"></rect>
+            <rect fill="#cebdff" height="2" width="2" x="6" y="2"></rect>
+            <rect fill="#cebdff" height="2" width="2" x="6" y="12"></rect>
+            <rect fill="#54d8e8" height="8" width="3" x="9" y="4"></rect>
+            <rect fill="#131316" height="2" width="2" x="8" y="1"></rect>
+            <rect fill="#131316" height="2" width="2" x="8" y="13"></rect>
+            <rect fill="#91f1ff" height="6" width="4" x="12" y="5"></rect>
+            <rect fill="#ffffff" height="2" width="3" x="13" y="6"></rect>
+            <rect fill="#54d8e8" height="4" width="3" x="16" y="6"></rect>
+            <rect fill="#91f1ff" height="2" width="3" x="19" y="7"></rect>
+            <rect fill="#ffffff" height="2" width="1" x="22" y="7"></rect>
+          </svg>
+        </div>
+        <div class="absolute inset-0 border border-primary/20 pointer-events-none group-hover:border-secondary/50 transition-colors"></div>
+      </div>
+      <span id="player-total-time" class="font-silkscreen text-[10px] text-outline shrink-0 font-semibold tracking-wider" style="white-space: nowrap; min-width: 48px;">00:00</span>
+    </div>
+  </div>
+
+  <!-- Format badge, Volume & Fullscreen -->
+  <div class="hidden sm:flex items-center justify-end gap-space-sm w-1/4">
+    <!-- Honest truthful audio quality badge -->
+    <div id="footer-badge-wrap" class="flex items-center gap-1.5 px-2 py-0.5 bg-surface-container-high rounded pixel-border-sm border border-secondary/30 opacity-0">
+      <span class="w-2 h-2 bg-secondary animate-pulse shrink-0"></span>
+      <div class="flex items-center gap-1">
+        <span id="footer-track-badge" class="font-pixel text-[7px] text-secondary font-bold tracking-wider">YT AUDIO 320k</span>
+        <span id="footer-track-quality" class="font-silkscreen text-[8px] text-primary px-1 rounded bg-primary/10 border border-primary/20">STEREO HQ</span>
+      </div>
+    </div>
+
+    <!-- Volume Bar -->
+    <div class="flex items-center gap-2">
+      <svg class="w-4 h-4 pixel-icon text-on-surface-variant" fill="none" viewBox="0 0 16 16">
+        <rect fill="currentColor" height="6" width="3" x="2" y="5"></rect>
+        <polygon fill="currentColor" points="5,5 10,2 10,14 5,11"></polygon>
+        <rect fill="#54d8e8" height="8" width="1" x="12" y="4"></rect>
+        <rect fill="#54d8e8" height="12" width="1" x="14" y="2"></rect>
+      </svg>
+      <div id="player-volume-bar" class="w-20 h-2 bg-surface-container-highest pixel-border-sm overflow-hidden cursor-pointer">
+        <div id="volume-bar-inner" class="h-full bg-secondary w-3/4"></div>
+      </div>
+    </div>
+
+    <!-- Fullscreen toggle -->
+    <button id="btn-fullscreen-toggle" class="text-on-surface-variant hover:text-on-surface p-1 cursor-pointer transition-transform hover:scale-110 active:scale-95 flex items-center justify-center" title="Toàn màn hình / Fullscreen (F11)">
+      <svg id="fullscreen-icon-expand" class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
+        <rect fill="currentColor" height="1" width="4" x="2" y="2"></rect>
+        <rect fill="currentColor" height="4" width="1" x="2" y="2"></rect>
+        <rect fill="currentColor" height="1" width="4" x="10" y="2"></rect>
+        <rect fill="currentColor" height="4" width="1" x="13" y="2"></rect>
+        <rect fill="currentColor" height="1" width="4" x="2" y="13"></rect>
+        <rect fill="currentColor" height="4" width="1" x="2" y="10"></rect>
+        <rect fill="currentColor" height="1" width="4" x="10" y="13"></rect>
+        <rect fill="currentColor" height="4" width="1" x="13" y="10"></rect>
+      </svg>
+      <svg id="fullscreen-icon-compress" class="w-4 h-4 pixel-icon hidden" fill="none" viewBox="0 0 16 16">
+        <rect fill="currentColor" height="1" width="4" x="2" y="5"></rect>
+        <rect fill="currentColor" height="4" width="1" x="5" y="2"></rect>
+        <rect fill="currentColor" height="1" width="4" x="10" y="5"></rect>
+        <rect fill="currentColor" height="4" width="1" x="10" y="2"></rect>
+        <rect fill="currentColor" height="1" width="4" x="2" y="10"></rect>
+        <rect fill="currentColor" height="4" width="1" x="5" y="10"></rect>
+        <rect fill="currentColor" height="1" width="4" x="10" y="10"></rect>
+        <rect fill="currentColor" height="4" width="1" x="10" y="10"></rect>
+    </button>
+  </div>
+</footer>
+
+<!-- BOOTSTRAP 5 OFFCANVAS: FULL MOBILE PLAYER & SYNCED LYRICS BOTTOM SHEET -->
+<div class="offcanvas offcanvas-bottom bg-[#121218] text-[#e5e1e5] border-t border-outline-variant/30 z-[1070] rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.8)]" tabindex="-1" id="mobile-player-offcanvas" aria-labelledby="mobilePlayerTitle" style="height: 96vh !important; max-height: 96vh !important; --bs-offcanvas-height: 96vh !important; top: 4vh !important;">
+  <!-- Header with Drag Indicator and Close Button -->
+  <div class="offcanvas-header py-2.5 px-4 border-b border-white/10 flex items-center justify-between shrink-0">
+    <div class="flex items-center gap-2">
+      <div class="w-2 h-2 rounded-full bg-secondary animate-ping"></div>
+      <h5 class="offcanvas-title font-silkscreen text-[11px] text-secondary font-bold tracking-wider" id="mobilePlayerTitle">TRÌNH PHÁT & LỜI BÀI HÁT</h5>
+    </div>
+    <button type="button" class="btn-close btn-close-white cursor-pointer" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+
+  <div class="offcanvas-body p-3.5 flex flex-col gap-2.5 overflow-y-auto custom-scroll">
+    <!-- Album Cover & Meta Card (Compact horizontal row for maximum space on mobile) -->
+    <div class="flex items-center gap-3 p-2.5 rounded-2xl bg-white/5 border border-white/10 shrink-0">
+      <div class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shadow-xl border border-white/15 bg-black/60 shrink-0">
+        <img id="mobile-drawer-cover" src="https://i.ytimg.com/vi/T9PNAndFJ9w/hqdefault.jpg" alt="Cover Art" class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
+      </div>
+      <div class="flex-1 min-w-0 flex flex-col justify-center">
+        <h3 id="mobile-drawer-title" class="text-sm sm:text-base font-bold text-white truncate mb-0.5">Chưa chọn bài hát</h3>
+        <p id="mobile-drawer-artist" class="text-xs text-secondary font-silkscreen truncate mb-1.5">MinhDuc Audio</p>
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <span id="mobile-drawer-badge" class="font-mono text-[9px] text-[#a78bfa] bg-[#a78bfa]/10 px-2 py-0.5 rounded border border-[#a78bfa]/30 font-semibold">YT AUDIO 320k</span>
+          <span class="font-silkscreen text-[8px] text-secondary bg-secondary/10 px-1.5 py-0.5 rounded border border-secondary/30">STEREO HQ</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer Seekbar -->
+    <div class="flex flex-col gap-1.5 px-1 shrink-0">
+      <div class="flex items-center justify-between font-silkscreen text-[10px] text-outline">
+        <span id="mobile-drawer-cur-time" class="text-secondary font-bold">00:00</span>
+        <span id="mobile-drawer-total-time">00:00</span>
+      </div>
+      <div id="mobile-drawer-seekbar" class="w-full h-3 bg-black/70 rounded-full border border-white/15 relative cursor-pointer flex items-center overflow-hidden">
+        <div id="mobile-drawer-seek-progress" class="h-full bg-gradient-to-r from-primary to-secondary rounded-full w-[0%]"></div>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer Full Playback Controls -->
+    <div class="flex items-center justify-around py-2 shrink-0 border-y border-white/10 select-none">
+      <button type="button" id="mobile-drawer-shuffle-btn" class="p-2 text-on-surface-variant hover:text-secondary cursor-pointer transition-colors" title="Phát ngẫu nhiên">
+        <svg class="w-5 h-5 pixel-icon" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="2" width="4" x="1" y="4"></rect><rect fill="currentColor" height="2" width="3" x="5" y="6"></rect><rect fill="currentColor" height="2" width="3" x="8" y="8"></rect><rect fill="currentColor" height="2" width="4" x="11" y="10"></rect><rect fill="currentColor" height="2" width="4" x="1" y="10"></rect><rect fill="currentColor" height="2" width="4" x="11" y="4"></rect><polygon fill="currentColor" points="12,2 15,4 12,6"></polygon><polygon fill="currentColor" points="12,8 15,10 12,12"></polygon></svg>
+      </button>
+      <button type="button" id="mobile-drawer-prev-btn" class="p-2 text-on-surface-variant hover:text-on-surface cursor-pointer" title="Bài trước">
+        <svg class="w-5 h-5 pixel-icon" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="10" width="2" x="2" y="3"></rect><polygon fill="currentColor" points="14,3 5,8 14,13"></polygon></svg>
+      </button>
+      <button type="button" id="mobile-drawer-play-btn" class="w-12 h-12 rounded-full bg-primary-container text-on-primary flex items-center justify-center pixel-btn shadow-[0_0_15px_rgba(167,139,250,0.5)] cursor-pointer active:scale-95 transition-transform" title="Phát / Dừng">
+        <svg id="mobile-drawer-play-icon" class="w-6 h-6 pixel-icon" fill="none" viewBox="0 0 16 16">
+          <polygon fill="#381385" points="4,2 14,8 4,14"></polygon>
+        </svg>
+      </button>
+      <button type="button" id="mobile-drawer-next-btn" class="p-2 text-on-surface-variant hover:text-on-surface cursor-pointer" title="Bài tiếp">
+        <svg class="w-5 h-5 pixel-icon" fill="none" viewBox="0 0 16 16"><polygon fill="currentColor" points="2,3 11,8 2,13"></polygon><rect fill="currentColor" height="10" width="2" x="12" y="3"></rect></svg>
+      </button>
+      <button type="button" id="mobile-drawer-fav-btn" class="p-2 text-tertiary cursor-pointer transition-transform active:scale-125" title="Yêu thích">
+        <svg class="w-5 h-5 pixel-icon" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="3" width="4" x="2" y="2"></rect><rect fill="currentColor" height="3" width="4" x="10" y="2"></rect><rect fill="currentColor" height="4" width="14" x="1" y="4"></rect><rect fill="currentColor" height="3" width="10" x="3" y="8"></rect><rect fill="currentColor" height="2" width="6" x="5" y="11"></rect><rect fill="currentColor" height="2" width="2" x="7" y="13"></rect></svg>
+      </button>
+    </div>
+
+    <!-- Mobile Drawer Synced Karaoke Lyrics -->
+    <div class="flex-1 min-h-[220px] rounded-2xl bg-black/40 border border-white/10 p-3 flex flex-col">
+      <div class="flex items-center justify-between pb-2 mb-2 border-b border-white/10 shrink-0">
+        <div class="flex items-center gap-1.5">
+          <span class="text-xs">🎤</span>
+          <span class="font-silkscreen text-[10px] text-secondary font-bold">LỜI BÀI HÁT ĐỒNG BỘ</span>
+        </div>
+      </div>
+      <div id="mobile-drawer-lyrics-container" class="flex-1 overflow-y-auto custom-scroll space-y-2 text-center py-2 select-none">
+        <div class="text-gray-500 font-silkscreen text-[10px] py-8">Đang đồng bộ lời bài hát...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE BOTTOM NAVIGATION DOCK (App Style 5 Tabs) -->
+<nav id="mobile-bottom-dock" class="lg:hidden shrink-0 h-14 bg-[#111116]/95 backdrop-blur-2xl border-t border-outline-variant/30 flex items-center justify-around z-40 px-1 select-none">
+  <button type="button" class="mobile-dock-btn flex flex-col items-center justify-center flex-1 py-1 text-secondary font-bold active:scale-95 transition-all cursor-pointer" data-view="home">
+    <span class="text-base leading-none">🏠</span>
+    <span class="font-silkscreen text-[8px] mt-1">Trang chủ</span>
+  </button>
+  <button type="button" class="mobile-dock-btn flex flex-col items-center justify-center flex-1 py-1 text-gray-400 hover:text-white active:scale-95 transition-all cursor-pointer" data-view="explore">
+    <span class="text-base leading-none">🧭</span>
+    <span class="font-silkscreen text-[8px] mt-1">Khám phá</span>
+  </button>
+  <button type="button" class="mobile-dock-btn flex flex-col items-center justify-center flex-1 py-1 text-gray-400 hover:text-white active:scale-95 transition-all cursor-pointer" data-view="search">
+    <span class="text-base leading-none">🔍</span>
+    <span class="font-silkscreen text-[8px] mt-1">Tìm kiếm</span>
+  </button>
+  <button type="button" class="mobile-dock-btn flex flex-col items-center justify-center flex-1 py-1 text-gray-400 hover:text-white active:scale-95 transition-all cursor-pointer" data-view="favorites">
+    <span class="text-base leading-none">💖</span>
+    <span class="font-silkscreen text-[8px] mt-1">Thư viện</span>
+  </button>
+  <button type="button" class="mobile-dock-btn flex flex-col items-center justify-center flex-1 py-1 text-gray-400 hover:text-white active:scale-95 transition-all cursor-pointer" data-bs-toggle="offcanvas" data-bs-target="#mobile-player-offcanvas">
+    <span class="text-base leading-none">🎤</span>
+    <span class="font-silkscreen text-[8px] mt-1">Lời nhạc</span>
+  </button>
+</nav>
+
+
+<!-- COMPACT SINGLE-LINE FLOATING LYRICS PILL (KARAOKE MINI BAR) -->
+<div id="floating-lyrics-panel" class="fixed left-1/2 -translate-x-1/2 bottom-[132px] lg:bottom-[82px] z-[60] max-w-[94vw] sm:max-w-2xl bg-[#111116]/95 backdrop-blur-xl border border-secondary/60 rounded-full shadow-[0_4px_25px_rgba(0,0,0,0.85),0_0_20px_rgba(84,216,232,0.3)] transition-all duration-300 transform translate-y-4 opacity-0 pointer-events-none px-4 py-2 text-on-surface flex items-center justify-between gap-3 select-none">
+  <div class="flex items-center gap-2.5 min-w-0 flex-1 justify-center">
+    <span class="text-xs text-secondary animate-pulse shrink-0">🎤</span>
+    <p id="floating-lyrics-single-line" class="font-sans font-semibold text-xs sm:text-sm text-secondary tracking-wide text-center truncate transition-all duration-200 drop-shadow-[0_0_8px_rgba(84,216,232,0.45)]">
+      Đang đồng bộ lời bài hát...
+    </p>
+  </div>
+  <button type="button" id="btn-close-floating-lyrics" class="text-gray-400 hover:text-white p-0.5 rounded transition-colors cursor-pointer text-[11px] shrink-0 ml-1 leading-none" title="Đóng thanh lời (✕)">✕</button>
+</div>
+
+
+
+
+<script src="<?= (strpos($_SERVER['REQUEST_URI'] ?? '', '/pages/') !== false) ? '../' : '' ?>assets/js/player.js?v=<?= time() ?>"></script>
+  <!-- YouTube Audio Engine & HTML5 Audio -->
+  <div id="yt-player-container" style="position:fixed;bottom:0;right:0;width:64px;height:64px;opacity:0.01;pointer-events:none;z-index:-1">
+    <div id="yt-player"></div>
+  </div>
+  <audio id="real-audio-player" preload="auto"></audio>
+
+    
+<!-- REAL GOOGLE SIGN-IN MODAL DIALOG -->
+<div id="google-signin-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md hidden p-4">
+  <div class="bg-[#121217] border-2 border-[#54d8e8] rounded-2xl max-w-md w-full p-6 shadow-[0_0_50px_rgba(84,216,232,0.35)] relative text-on-surface">
+    <!-- Close Button -->
+    <button type="button" id="btn-close-google-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white font-pixel text-xs p-1">✕</button>
+
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-4 pb-3 border-b border-white/10">
+      <div class="w-10 h-10 rounded-lg bg-secondary/20 border border-secondary flex items-center justify-center shadow-md shrink-0">
+        <svg class="w-6 h-6" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="font-pixel text-xs text-secondary tracking-wider">ĐĂNG NHẬP TÀI KHOẢN GOOGLE</h3>
+        <p class="font-silkscreen text-[8px] text-gray-400">Đồng bộ hóa thư viện âm nhạc YouTube thật</p>
+      </div>
+    </div>
+
+    <!-- Alert in Google Modal -->
+    <div id="google-modal-alert" class="hidden mb-3 p-2.5 rounded text-xs font-silkscreen border"></div>
+
+    <!-- Official Google GSI Button Slot -->
+    <div class="mb-4 p-3 bg-[#181822] border border-secondary/30 rounded-xl text-center">
+      <div class="font-silkscreen text-[8px] text-secondary mb-2 flex items-center justify-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
+        <span>ĐĂNG NHẬP CHÍNH THỨC VỚI GOOGLE GSI</span>
+      </div>
+      <div id="google-gsi-button-slot" class="flex justify-center my-1.5"></div>
+      <p class="font-silkscreen text-[7px] text-gray-500 mt-1">Hỗ trợ Google One-Tap &amp; OAuth 2.0</p>
+    </div>
+
+    <div class="relative flex items-center justify-center my-3">
+      <div class="border-t border-white/10 w-full"></div>
+      <span class="bg-[#121217] px-2 font-silkscreen text-[7px] text-gray-400 uppercase">Hoặc nhập email Google trực tiếp</span>
+    </div>
+
+    <!-- Direct Real Google Sign-In Form -->
+    <form id="form-real-google-login" class="space-y-3">
+      <div>
+        <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">EMAIL GOOGLE CỦA BẠN *</label>
+        <input id="input-real-google-email" type="email" placeholder="yourname@gmail.com..." required class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-secondary font-mono transition-colors">
+      </div>
+      <div>
+        <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">TÊN HIỂN THỊ CỦA BẠN</label>
+        <input id="input-real-google-name" type="text" placeholder="Tên hiển thị..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-secondary font-mono transition-colors">
+      </div>
+      <button type="submit" class="w-full py-2.5 rounded-lg bg-secondary-container text-on-secondary font-bold text-xs pixel-btn pixel-border-sm hover:brightness-110 tracking-wider flex items-center justify-center gap-2">
+        <svg class="w-4 h-4" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span>XÁC NHẬN ĐĂNG NHẬP &amp; ĐỒNG BỘ</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+
+<!-- ========================================== -->
+<!-- PLAYLIST MANAGEMENT MODALS -->
+<!-- ========================================== -->
+
+<!-- MODAL: TẠO PLAYLIST MỚI -->
+<div id="modal-playlist-create" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md hidden p-4">
+  <div class="w-full max-w-md bg-[#14141d] rounded-2xl pixel-border p-6 shadow-[0_0_50px_rgba(84,216,232,0.3)] relative text-on-surface">
+    <!-- Header -->
+    <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded bg-secondary/20 text-secondary border border-secondary/40 flex items-center justify-center font-bold">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+        </div>
+        <h3 class="font-pixel text-xs text-secondary uppercase tracking-wider">TẠO PLAYLIST MỚI</h3>
+      </div>
+      <button type="button" id="btn-close-playlist-create" class="text-gray-400 hover:text-white p-1 rounded transition-colors cursor-pointer">✕</button>
+    </div>
+
+    <!-- Alert -->
+    <div id="alert-playlist-create" class="hidden mb-3 p-2.5 rounded-lg text-xs font-silkscreen border"></div>
+
+    <!-- Form -->
+    <form id="form-playlist-create" class="space-y-3.5">
+      <div>
+        <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">TÊN PLAYLIST *</label>
+        <input id="input-create-pl-name" type="text" placeholder="Nhập tên playlist..." required class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-secondary font-mono">
+      </div>
+      <div>
+        <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">MÔ TẢ (TÙY CHỌN)</label>
+        <textarea id="input-create-pl-desc" rows="2" placeholder="Ghi chú về playlist này..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-secondary font-mono resize-none"></textarea>
+      </div>
+      <div>
+        <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">URL ẢNH BÌA (TÙY CHỌN)</label>
+        <input id="input-create-pl-cover" type="text" placeholder="https://..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-secondary font-mono">
+      </div>
+
+      <div class="flex gap-2 pt-2">
+        <button type="button" id="btn-cancel-playlist-create" class="flex-1 py-2 rounded-lg bg-surface-container-high hover:bg-surface-container text-gray-300 hover:text-white text-xs font-silkscreen transition-colors cursor-pointer">
+          HỦY BỎ
+        </button>
+        <button type="submit" class="flex-1 py-2 rounded-lg bg-secondary-container text-on-secondary font-bold text-xs pixel-btn pixel-border-sm hover:brightness-110 tracking-wider cursor-pointer">
+          TẠO PLAYLIST
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: SỬA PLAYLIST -->
+<div id="modal-playlist-edit" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md hidden p-4">
+  <div class="w-full max-w-md bg-[#14141d] rounded-2xl pixel-border p-6 shadow-[0_0_50px_rgba(167,139,250,0.3)] relative text-on-surface">
+    <!-- Header -->
+    <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded bg-primary/20 text-primary border border-primary/40 flex items-center justify-center font-bold">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+        </div>
+        <h3 class="font-pixel text-xs text-primary uppercase tracking-wider">CHỈNH SỬA PLAYLIST</h3>
+      </div>
+      <button type="button" id="btn-close-playlist-edit" class="text-gray-400 hover:text-white p-1 rounded transition-colors cursor-pointer">✕</button>
+    </div>
+
+    <!-- Alert -->
+    <div id="alert-playlist-edit" class="hidden mb-3 p-2.5 rounded-lg text-xs font-silkscreen border"></div>
+
+    <!-- Form -->
+    <form id="form-playlist-edit" class="space-y-3.5">
+      <input id="input-edit-pl-id" type="hidden">
+      <div>
+        <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">TÊN PLAYLIST *</label>
+        <input id="input-edit-pl-name" type="text" required class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono">
+      </div>
+      <div>
+        <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">MÔ TẢ</label>
+        <textarea id="input-edit-pl-desc" rows="2" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono resize-none"></textarea>
+      </div>
+      <div>
+        <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">URL ẢNH BÌA</label>
+        <input id="input-edit-pl-cover" type="text" class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono">
+      </div>
+
+      <div class="flex gap-2 pt-2">
+        <button type="button" id="btn-cancel-playlist-edit" class="flex-1 py-2 rounded-lg bg-surface-container-high hover:bg-surface-container text-gray-300 hover:text-white text-xs font-silkscreen transition-colors cursor-pointer">
+          HỦY BỎ
+        </button>
+        <button type="submit" class="flex-1 py-2 rounded-lg bg-primary-container text-on-primary font-bold text-xs pixel-btn pixel-border-sm hover:brightness-110 tracking-wider cursor-pointer">
+          LƯU THAY ĐỔI
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: XÁC NHẬN XÓA PLAYLIST -->
+<div id="modal-playlist-delete-confirm" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md hidden p-4">
+  <div class="w-full max-w-sm bg-[#14141d] rounded-2xl pixel-border p-6 shadow-[0_0_50px_rgba(239,68,68,0.3)] relative text-on-surface text-center">
+    <div class="w-12 h-12 rounded-full bg-red-950/60 border border-red-500/50 mx-auto flex items-center justify-center mb-3 text-red-400 shadow-md">
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+      </svg>
+    </div>
+
+    <h3 class="font-pixel text-xs sm:text-sm text-red-400 uppercase tracking-wider mb-2">XÁC NHẬN XÓA PLAYLIST?</h3>
+    <p class="text-xs text-gray-300 leading-relaxed mb-1">
+      Bạn có chắc chắn muốn xóa playlist:
+    </p>
+    <p id="delete-confirm-pl-name" class="font-bold text-sm text-white bg-black/40 py-1.5 px-3 rounded-lg border border-white/10 mb-3 truncate font-mono">
+      [Tên Playlist]
+    </p>
+    <p class="font-silkscreen text-[8px] text-gray-400 mb-5">
+      Thao tác này sẽ xóa playlist và toàn bộ liên kết bài hát bên trong!
+    </p>
+
+    <div class="flex gap-2.5">
+      <button type="button" id="btn-cancel-playlist-delete" class="flex-1 py-2 rounded-lg bg-surface-container-high hover:bg-surface-container text-gray-300 hover:text-white text-xs font-silkscreen transition-colors cursor-pointer">
+        HỦY BỎ
+      </button>
+      <button type="button" id="btn-confirm-playlist-delete" class="flex-1 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-bold text-xs pixel-btn pixel-border-sm tracking-wider shadow-md cursor-pointer">
+        XÓA PLAYLIST
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: THÊM BÀI HÁT VÀO PLAYLIST -->
+<div id="modal-add-to-playlist" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md hidden p-4">
+  <div class="w-full max-w-sm bg-[#14141d] rounded-2xl pixel-border p-6 shadow-[0_0_50px_rgba(84,216,232,0.3)] relative text-on-surface">
+    <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded bg-secondary/20 text-secondary border border-secondary/40 flex items-center justify-center font-bold">
+          +
+        </div>
+        <h3 class="font-pixel text-xs text-secondary uppercase tracking-wider">THÊM VÀO PLAYLIST</h3>
+      </div>
+      <button type="button" id="btn-close-add-to-pl" class="text-gray-400 hover:text-white p-1 rounded transition-colors cursor-pointer">✕</button>
+    </div>
+
+    <!-- Song preview -->
+    <div class="flex items-center gap-3 p-2 bg-black/40 rounded-lg border border-white/10 mb-4">
+      <img id="add-to-pl-thumb" src="" class="w-10 h-10 rounded object-cover">
+      <div class="min-w-0 flex-1">
+        <h4 id="add-to-pl-title" class="font-bold text-xs text-white truncate">[Tên bài hát]</h4>
+        <p id="add-to-pl-artist" class="text-[10px] text-gray-400 truncate">[Nghệ sĩ]</p>
+      </div>
+    </div>
+
+    <p class="font-silkscreen text-[9px] text-gray-300 mb-2">CHỌN PLAYLIST ĐỂ LƯU:</p>
+    <div id="add-to-pl-list" class="max-h-48 overflow-y-auto space-y-1.5 custom-scroll mb-4 pr-1">
+      <!-- Dynamic Playlist options rendered by JS -->
+    </div>
+
+    <div class="flex justify-end">
+      <button type="button" id="btn-cancel-add-to-pl" class="px-4 py-1.5 rounded-lg bg-surface-container-high hover:bg-surface-container text-gray-300 text-xs font-silkscreen transition-colors cursor-pointer">
+        ĐÓNG
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: TÙY CHỈNH GU ÂM NHẠC TÀI KHOẢN GOOGLE -->
+<div id="modal-music-taste" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden p-4">
+  <div class="w-full max-w-lg bg-[#14141d] rounded-2xl pixel-border p-6 shadow-[0_0_50px_rgba(167,139,250,0.35)] relative text-on-surface flex flex-col gap-4">
+    <!-- Header -->
+    <div class="flex items-center justify-between pb-3 border-b border-white/10">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">🎛️</span>
+        <div>
+          <h3 class="font-silkscreen text-sm text-secondary font-bold uppercase tracking-wider">GU ÂM NHẠC THEO TÀI KHOẢN</h3>
+          <p class="text-[11px] text-gray-400 font-sans">Chọn thể loại và nghệ sĩ để YouTube Music cập nhật chính xác theo bạn</p>
+        </div>
+      </div>
+      <button type="button" id="btn-close-taste-modal" class="text-gray-400 hover:text-white p-1 rounded transition-colors cursor-pointer text-lg">✕</button>
+    </div>
+
+    <!-- Alert -->
+    <div id="alert-taste-msg" class="hidden p-2.5 rounded-lg text-xs font-silkscreen border"></div>
+
+    <!-- Taste Genre Options -->
+    <div class="flex flex-col gap-2">
+      <label class="font-silkscreen text-[10px] text-[#a78bfa] tracking-wider">1. THỂ LOẠI BẠN HAY NGHE (CHỌN NHIỀU):</label>
+      <div id="taste-genre-pills" class="flex flex-wrap gap-2">
+        <button type="button" data-val="lofi" class="taste-chip px-3 py-1.5 rounded-full text-xs font-silkscreen border border-white/20 text-gray-300 hover:border-secondary transition cursor-pointer">🎧 Lo-Fi Beats</button>
+        <button type="button" data-val="synthwave" class="taste-chip px-3 py-1.5 rounded-full text-xs font-silkscreen border border-white/20 text-gray-300 hover:border-secondary transition cursor-pointer">🌌 Synthwave & Retro</button>
+        <button type="button" data-val="chillhop" class="taste-chip px-3 py-1.5 rounded-full text-xs font-silkscreen border border-white/20 text-gray-300 hover:border-secondary transition cursor-pointer">☕ Chillhop & Cafe</button>
+        <button type="button" data-val="ballad" class="taste-chip px-3 py-1.5 rounded-full text-xs font-silkscreen border border-white/20 text-gray-300 hover:border-secondary transition cursor-pointer">🌧️ Ballad & Tâm trạng</button>
+        <button type="button" data-val="acoustic" class="taste-chip px-3 py-1.5 rounded-full text-xs font-silkscreen border border-white/20 text-gray-300 hover:border-secondary transition cursor-pointer">🎸 Acoustic & Indie</button>
+        <button type="button" data-val="anime" class="taste-chip px-3 py-1.5 rounded-full text-xs font-silkscreen border border-white/20 text-gray-300 hover:border-secondary transition cursor-pointer">🌸 Anime OST & J-Pop</button>
+        <button type="button" data-val="vpop" class="taste-chip px-3 py-1.5 rounded-full text-xs font-silkscreen border border-white/20 text-gray-300 hover:border-secondary transition cursor-pointer">🔥 V-Pop Thịnh hành</button>
+        <button type="button" data-val="edm" class="taste-chip px-3 py-1.5 rounded-full text-xs font-silkscreen border border-white/20 text-gray-300 hover:border-secondary transition cursor-pointer">⚡ EDM & Workout</button>
+        <button type="button" data-val="jazz" class="taste-chip px-3 py-1.5 rounded-full text-xs font-silkscreen border border-white/20 text-gray-300 hover:border-secondary transition cursor-pointer">🎷 Smooth Jazz</button>
+        <button type="button" data-val="usuk" class="taste-chip px-3 py-1.5 rounded-full text-xs font-silkscreen border border-white/20 text-gray-300 hover:border-secondary transition cursor-pointer">🌍 US-UK Hits</button>
+      </div>
+    </div>
+
+    <!-- Favorite Artists / Keywords -->
+    <div class="flex flex-col gap-1.5">
+      <label class="font-silkscreen text-[10px] text-[#a78bfa] tracking-wider">2. NGHỆ SĨ / TỪ KHÓA BẠN YÊU THÍCH:</label>
+      <input id="input-taste-artists" type="text" placeholder="Ví dụ: Timecop1983, Lofi Girl, Vũ, Đen, Billie Eilish, J-Pop..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-secondary font-mono">
+      <span class="text-[10px] text-gray-400 font-sans">Cách nhau bằng dấu phẩy. Hệ thống sẽ cá nhân hóa danh sách phát theo nghệ sĩ này.</span>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center justify-end gap-3 pt-2 border-t border-white/10">
+      <button type="button" id="btn-cancel-taste" class="px-4 py-2 rounded-lg bg-surface-container-high hover:bg-surface-container text-gray-300 hover:text-white text-xs font-silkscreen transition-colors cursor-pointer">
+        HỦY BỎ
+      </button>
+      <button type="button" id="btn-save-taste-submit" class="px-5 py-2 rounded-lg bg-secondary text-black font-bold text-xs pixel-btn pixel-border-sm hover:brightness-110 tracking-wider shadow-[0_0_15px_rgba(84,216,232,0.4)] cursor-pointer flex items-center gap-2">
+        <span>🔄</span><span>LƯU & CẬP NHẬT THEO TÀI KHOẢN</span>
+      </button>
+    </div>
+  </div>
+</div>
+  <script type="module" src="<?= (strpos($_SERVER['REQUEST_URI'] ?? '', '/pages/') !== false) ? '../' : '' ?>scripts/index.js"></script>
+  <!-- Bootstrap 5.3.3 Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

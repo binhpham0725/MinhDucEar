@@ -1,0 +1,585 @@
+{
+    "e29ab3fd-2107-4ea9-a2fb-97a270cff3e6": {
+        "id": 1,
+        "uuid": "e29ab3fd-2107-4ea9-a2fb-97a270cff3e6",
+        "firebaseUid": null,
+        "username": "minhduc",
+        "email": "minhduc@ear.vn",
+        "displayName": "Minh Duc Pro",
+        "role": "PRODUCER",
+        "photoURL": "https:\/\/lh3.googleusercontent.com\/aida-public\/AB6AXuBVF6ggMmL9CnND9kKg8BU6E6tRiffz5-ZeSirpXvvr1ra_17MAMrOBcG9FqAkcDkkTUKTcSNKUlNl_n7yGHLRUXaYyS4oJG0V0wnya8IJ91kxA6cijNYYe8f3sumGifyZsgsBRiOOEagEFaFeq1_eeFJT1IYtYNJyPiUzkoFsLGRiBvqH5ckRkcP7rHZplCCUsv0bI7r4bcuJHwdoijK0SD-oVLjPB5m2PdidQFUkb-G8Qduv13SEVRA",
+        "listeningHours": 5.2,
+        "totalListeningSeconds": 0,
+        "musicTasteTags": [
+            "lofi",
+            "synthwave",
+            "chill"
+        ],
+        "detailedMusicTaste": [
+            {
+                "genre": "lofi",
+                "score": 4.8,
+                "play_count": 42,
+                "last_listened_at": "2026-09-16 17:34:19"
+            },
+            {
+                "genre": "synthwave",
+                "score": 4.5,
+                "play_count": 36,
+                "last_listened_at": "2026-09-16 17:34:19"
+            },
+            {
+                "genre": "chill",
+                "score": 4.2,
+                "play_count": 28,
+                "last_listened_at": "2026-09-16 17:34:19"
+            },
+            {
+                "genre": "vpop",
+                "score": 3.5,
+                "play_count": 15,
+                "last_listened_at": "2026-09-16 17:34:19"
+            }
+        ],
+        "metadata": {},
+        "subcollections": {
+            "favorites": [
+                {
+                    "uuid": "6eb545cd-5747-4c7d-bcd0-2acc4f1f0d65",
+                    "created_at": "2026-09-12 22:18:16"
+                },
+                {
+                    "uuid": "08be06c0-ae2c-4fc5-a6f4-2b32b61d71bb",
+                    "created_at": "2026-09-12 16:59:24"
+                },
+                {
+                    "uuid": "54c50b48-9b14-4543-a542-486d392e1955",
+                    "created_at": "2026-09-12 10:53:41"
+                }
+            ],
+            "history": [],
+            "savedAlbums": [],
+            "weeklyStats": [
+                {
+                    "year": 2026,
+                    "week_number": 38,
+                    "start_date": "2026-09-14",
+                    "end_date": "2026-09-20",
+                    "total_seconds": 13800,
+                    "total_hours": 3.83,
+                    "tracks_count": 46,
+                    "daily_seconds": "{\"mon\":3600,\"tue\":4800,\"wed\":5400,\"thu\":0,\"fri\":0,\"sat\":0,\"sun\":0}",
+                    "top_genres": "[\"lofi\",\"synthwave\",\"chill\",\"vpop\"]"
+                }
+            ],
+            "dailyStats": [
+                {
+                    "stat_date": "2026-09-20",
+                    "day_of_week": 7,
+                    "listening_seconds": 0,
+                    "tracks_count": 0,
+                    "genres_breakdown": "{\"lofi\":0,\"synthwave\":0,\"chill\":0}"
+                },
+                {
+                    "stat_date": "2026-09-19",
+                    "day_of_week": 6,
+                    "listening_seconds": 0,
+                    "tracks_count": 0,
+                    "genres_breakdown": "{\"lofi\":0,\"synthwave\":0,\"chill\":0}"
+                },
+                {
+                    "stat_date": "2026-09-18",
+                    "day_of_week": 5,
+                    "listening_seconds": 0,
+                    "tracks_count": 0,
+                    "genres_breakdown": "{\"lofi\":0,\"synthwave\":0,\"chill\":0}"
+                },
+                {
+                    "stat_date": "2026-09-17",
+                    "day_of_week": 4,
+                    "listening_seconds": 0,
+                    "tracks_count": 0,
+                    "genres_breakdown": "{\"lofi\":0,\"synthwave\":0,\"chill\":0}"
+                },
+                {
+                    "stat_date": "2026-09-16",
+                    "day_of_week": 3,
+                    "listening_seconds": 5400,
+                    "tracks_count": 18,
+                    "genres_breakdown": "{\"lofi\":2700,\"synthwave\":1620,\"chill\":1080}"
+                },
+                {
+                    "stat_date": "2026-09-15",
+                    "day_of_week": 2,
+                    "listening_seconds": 4800,
+                    "tracks_count": 16,
+                    "genres_breakdown": "{\"lofi\":2400,\"synthwave\":1440,\"chill\":960}"
+                },
+                {
+                    "stat_date": "2026-09-14",
+                    "day_of_week": 1,
+                    "listening_seconds": 3600,
+                    "tracks_count": 12,
+                    "genres_breakdown": "{\"lofi\":1800,\"synthwave\":1080,\"chill\":720}"
+                }
+            ]
+        },
+        "createdAt": "2026-09-12 04:02:36"
+    },
+    "580f3307-8a23-4782-a99e-5025995145da": {
+        "id": 2,
+        "uuid": "580f3307-8a23-4782-a99e-5025995145da",
+        "firebaseUid": null,
+        "username": "ducaudiophile_765",
+        "email": "duc.audiophile@gmail.com",
+        "displayName": "Minh D?c (Google)",
+        "role": "AUDIOPHILE",
+        "photoURL": "https:\/\/lh3.googleusercontent.com\/aida-public\/AB6AXuBW7YpaBTLlX_unVrvCPKWyGgYjEWgRxvke5rASbhq_kp8bX3Ln5aFsSpEoEUyot0g6E4LbwGe49Oc_Sm0yv4n2A-FuzejDqMP7VcolTtBwSHrbIG079p8YdtQrAiOsTSc8xmFO--ctMJfLeDJCMdwx9mXh0VWbbGwI8ZhX7fP7CuWL5yY-bq3XprUZJx_ILW3pM3RhILmAlkjbRb03ywm-PoxBexYk89zDGYLPSugIcxRkWBLXrPnHAw",
+        "listeningHours": 0,
+        "totalListeningSeconds": 0,
+        "musicTasteTags": [
+            "lofi",
+            "synthwave",
+            "chill"
+        ],
+        "detailedMusicTaste": [],
+        "metadata": {},
+        "subcollections": {
+            "favorites": [
+                {
+                    "uuid": "e699f999-1ac7-4427-8fe9-c935ac96150d",
+                    "created_at": "2026-09-13 15:33:02"
+                },
+                {
+                    "uuid": "87fd9104-bb2a-41d0-810b-ceb23660a874",
+                    "created_at": "2026-09-12 18:23:41"
+                },
+                {
+                    "uuid": "a7610fa0-9fa6-4f88-b20a-b4bcd05a4ec5",
+                    "created_at": "2026-09-12 18:23:41"
+                },
+                {
+                    "uuid": "f5259def-36e3-4fa1-bc8d-79a1fc8982f3",
+                    "created_at": "2026-09-12 18:23:41"
+                },
+                {
+                    "uuid": "c693c1d6-85f9-4e5e-beb4-bc7e6b1072d7",
+                    "created_at": "2026-09-12 18:23:41"
+                },
+                {
+                    "uuid": "9270c712-8d1c-42b8-a3df-40a1462b0390",
+                    "created_at": "2026-09-12 18:23:41"
+                }
+            ],
+            "history": [],
+            "savedAlbums": [],
+            "weeklyStats": [],
+            "dailyStats": []
+        },
+        "createdAt": "2026-09-12 10:11:39"
+    },
+    "1758d352-a14e-41db-a4d6-9edb935d337e": {
+        "id": 3,
+        "uuid": "1758d352-a14e-41db-a4d6-9edb935d337e",
+        "firebaseUid": null,
+        "username": "minhducaudiophile_811",
+        "email": "minhduc.audiophile@gmail.com",
+        "displayName": "Minh Đức (Google)",
+        "role": "AUDIOPHILE",
+        "photoURL": "https:\/\/lh3.googleusercontent.com\/aida-public\/AB6AXuBVF6ggMmL9CnND9kKg8BU6E6tRiffz5-ZeSirpXvvr1ra_17MAMrOBcG9FqAkcDkkTUKTcSNKUlNl_n7yGHLRUXaYyS4oJG0V0wnya8IJ91kxA6cijNYYe8f3sumGifyZsgsBRiOOEagEFaFeq1_eeFJT1IYtYNJyPiUzkoFsLGRiBvqH5ckRkcP7rHZplCCUsv0bI7r4bcuJHwdoijK0SD-oVLjPB5m2PdidQFUkb-G8Qduv13SEVRA",
+        "listeningHours": 0,
+        "totalListeningSeconds": 0,
+        "musicTasteTags": [
+            "lofi",
+            "synthwave",
+            "chill"
+        ],
+        "detailedMusicTaste": [],
+        "metadata": {},
+        "subcollections": {
+            "favorites": [],
+            "history": [],
+            "savedAlbums": [],
+            "weeklyStats": [],
+            "dailyStats": []
+        },
+        "createdAt": "2026-09-12 10:42:35"
+    },
+    "df151ae3-bcea-4182-aa1e-0e7a3575080c": {
+        "id": 4,
+        "uuid": "df151ae3-bcea-4182-aa1e-0e7a3575080c",
+        "firebaseUid": null,
+        "username": "minhductest_693",
+        "email": "minhduc.test@gmail.com",
+        "displayName": "Minh Duc Pro",
+        "role": "AUDIOPHILE",
+        "photoURL": "https:\/\/lh3.googleusercontent.com\/a\/default-user=s96-c",
+        "listeningHours": 2.5,
+        "totalListeningSeconds": 0,
+        "musicTasteTags": [
+            "lofi",
+            "synthwave",
+            "chill"
+        ],
+        "detailedMusicTaste": [],
+        "metadata": {},
+        "subcollections": {
+            "favorites": [
+                {
+                    "uuid": "54c50b48-9b14-4543-a542-486d392e1955",
+                    "created_at": "2026-09-12 10:55:49"
+                },
+                {
+                    "uuid": "d46be2f1-51fb-4381-b54f-d3674380ff5b",
+                    "created_at": "2026-09-12 10:55:49"
+                },
+                {
+                    "uuid": "cfbe051e-9745-4e1e-bebb-0cf43b02bfa4",
+                    "created_at": "2026-09-12 10:55:49"
+                },
+                {
+                    "uuid": "b3eb81aa-e280-42c0-b7c6-c5df1f732867",
+                    "created_at": "2026-09-12 10:55:49"
+                }
+            ],
+            "history": [],
+            "savedAlbums": [],
+            "weeklyStats": [],
+            "dailyStats": []
+        },
+        "createdAt": "2026-09-12 10:55:46"
+    },
+    "f82a1a20-f5f4-4913-8282-74aef0b82409": {
+        "id": 5,
+        "uuid": "f82a1a20-f5f4-4913-8282-74aef0b82409",
+        "firebaseUid": null,
+        "username": "testuser_1789213243918",
+        "email": "minhduc.vip@gmail.com",
+        "displayName": "Minh Đức Google VIP",
+        "role": "MEMBER",
+        "photoURL": "assets\/images\/avatars\/default.png",
+        "listeningHours": 0,
+        "totalListeningSeconds": 0,
+        "musicTasteTags": [
+            "lofi",
+            "synthwave",
+            "chill"
+        ],
+        "detailedMusicTaste": [],
+        "metadata": {},
+        "subcollections": {
+            "favorites": [],
+            "history": [],
+            "savedAlbums": [],
+            "weeklyStats": [],
+            "dailyStats": []
+        },
+        "createdAt": "2026-09-12 13:40:44"
+    },
+    "ba430c2a-d223-4deb-a844-2eb3706ffb9d": {
+        "id": 6,
+        "uuid": "ba430c2a-d223-4deb-a844-2eb3706ffb9d",
+        "firebaseUid": null,
+        "username": "testaudiophile_884",
+        "email": "test.audiophile@gmail.com",
+        "displayName": "Minh Duc User",
+        "role": "AUDIOPHILE",
+        "photoURL": "https:\/\/lh3.googleusercontent.com\/aida-public\/AB6AXuBVF6ggMmL9CnND9kKg8BU6E6tRiffz5-ZeSirpXvvr1ra_17MAMrOBcG9FqAkcDkkTUKTcSNKUlNl_n7yGHLRUXaYyS4oJG0V0wnya8IJ91kxA6cijNYYe8f3sumGifyZsgsBRiOOEagEFaFeq1_eeFJT1IYtYNJyPiUzkoFsLGRiBvqH5ckRkcP7rHZplCCUsv0bI7r4bcuJHwdoijK0SD-oVLjPB5m2PdidQFUkb-G8Qduv13SEVRA",
+        "listeningHours": 2.5,
+        "totalListeningSeconds": 0,
+        "musicTasteTags": [
+            "lofi",
+            "synthwave",
+            "chill"
+        ],
+        "detailedMusicTaste": [],
+        "metadata": {},
+        "subcollections": {
+            "favorites": [
+                {
+                    "uuid": "87fd9104-bb2a-41d0-810b-ceb23660a874",
+                    "created_at": "2026-09-13 15:23:33"
+                },
+                {
+                    "uuid": "e699f999-1ac7-4427-8fe9-c935ac96150d",
+                    "created_at": "2026-09-13 15:23:33"
+                },
+                {
+                    "uuid": "f5259def-36e3-4fa1-bc8d-79a1fc8982f3",
+                    "created_at": "2026-09-13 15:23:33"
+                },
+                {
+                    "uuid": "c693c1d6-85f9-4e5e-beb4-bc7e6b1072d7",
+                    "created_at": "2026-09-13 15:23:33"
+                },
+                {
+                    "uuid": "9270c712-8d1c-42b8-a3df-40a1462b0390",
+                    "created_at": "2026-09-13 15:23:33"
+                }
+            ],
+            "history": [],
+            "savedAlbums": [],
+            "weeklyStats": [],
+            "dailyStats": []
+        },
+        "createdAt": "2026-09-13 15:23:28"
+    },
+    "0ef96678-0d16-4a11-b7be-aa9823d017e6": {
+        "id": 7,
+        "uuid": "0ef96678-0d16-4a11-b7be-aa9823d017e6",
+        "firebaseUid": null,
+        "username": "hirasakai0725_695",
+        "email": "hirasakai0725@gmail.com",
+        "displayName": "sakai hira",
+        "role": "AUDIOPHILE",
+        "photoURL": "https:\/\/lh3.googleusercontent.com\/a\/ACg8ocJYWcIhPVxTCnZq8igIWazzifLnfufsD84LvmvTC8H2dcuKlvZo=s96-c",
+        "listeningHours": 2.5,
+        "totalListeningSeconds": 0,
+        "musicTasteTags": [
+            "anime"
+        ],
+        "detailedMusicTaste": [],
+        "metadata": {},
+        "subcollections": {
+            "favorites": [
+                {
+                    "uuid": "e8871db6-7558-4375-8077-76e5d7407123",
+                    "created_at": "2026-09-14 10:23:20"
+                },
+                {
+                    "uuid": "175e9124-271f-4f68-b07d-1b41a9b2c14a",
+                    "created_at": "2026-09-14 10:23:20"
+                },
+                {
+                    "uuid": "cd684b91-741c-4ebe-9562-dcae79627636",
+                    "created_at": "2026-09-14 09:48:19"
+                },
+                {
+                    "uuid": "2e760fc7-934c-405a-b4b5-155a4d171b6f",
+                    "created_at": "2026-09-14 09:48:19"
+                },
+                {
+                    "uuid": "c2dd7782-5964-4c38-b250-1903c96734fc",
+                    "created_at": "2026-09-14 09:48:19"
+                },
+                {
+                    "uuid": "2861dc19-0d19-43f8-ad77-4924f163815b",
+                    "created_at": "2026-09-14 09:48:19"
+                },
+                {
+                    "uuid": "fba95a20-221a-49f1-b289-5aa55fed589c",
+                    "created_at": "2026-09-14 09:48:19"
+                },
+                {
+                    "uuid": "0ae8a36e-50e5-4f08-a674-b36f4f60bd22",
+                    "created_at": "2026-09-14 09:48:19"
+                },
+                {
+                    "uuid": "37afdf2d-ae79-42d1-8dce-17162101d7a6",
+                    "created_at": "2026-09-13 16:22:06"
+                },
+                {
+                    "uuid": "fa961fd8-84e3-4b56-a99a-086f0f71725e",
+                    "created_at": "2026-09-13 16:22:06"
+                },
+                {
+                    "uuid": "74e7a611-6a3e-4938-b827-5f40c3486910",
+                    "created_at": "2026-09-13 16:22:06"
+                },
+                {
+                    "uuid": "6c81764f-b2b6-4c61-89c1-b7b4a4298567",
+                    "created_at": "2026-09-13 16:22:06"
+                },
+                {
+                    "uuid": "c7f3e90b-763b-4ddc-aa1e-e4fb4ba4de3a",
+                    "created_at": "2026-09-13 16:22:06"
+                },
+                {
+                    "uuid": "1e9a5925-5ea1-4f18-96c9-76e43b752689",
+                    "created_at": "2026-09-13 16:22:06"
+                },
+                {
+                    "uuid": "aeb44115-e84f-4897-ad8e-d96d48782c43",
+                    "created_at": "2026-09-13 16:22:06"
+                },
+                {
+                    "uuid": "870d3546-04ed-48de-aa92-d2308d0fd0c1",
+                    "created_at": "2026-09-13 16:22:06"
+                },
+                {
+                    "uuid": "9712da05-9f02-4b84-af39-09dcf927c7ac",
+                    "created_at": "2026-09-13 16:22:06"
+                },
+                {
+                    "uuid": "ecae56e0-f97c-4eaf-863d-126b323b6875",
+                    "created_at": "2026-09-13 16:22:06"
+                },
+                {
+                    "uuid": "49ca67e5-ecde-4a79-9de2-201c850d143a",
+                    "created_at": "2026-09-13 16:06:38"
+                },
+                {
+                    "uuid": "87fd9104-bb2a-41d0-810b-ceb23660a874",
+                    "created_at": "2026-09-13 16:06:38"
+                },
+                {
+                    "uuid": "e699f999-1ac7-4427-8fe9-c935ac96150d",
+                    "created_at": "2026-09-13 16:06:38"
+                },
+                {
+                    "uuid": "f5259def-36e3-4fa1-bc8d-79a1fc8982f3",
+                    "created_at": "2026-09-13 16:06:38"
+                },
+                {
+                    "uuid": "c693c1d6-85f9-4e5e-beb4-bc7e6b1072d7",
+                    "created_at": "2026-09-13 16:06:38"
+                },
+                {
+                    "uuid": "06cf148d-0a20-4cc5-bc46-fd974871c252",
+                    "created_at": "2026-09-13 16:06:38"
+                },
+                {
+                    "uuid": "0f44758b-f65a-44f7-b8c9-9ac609cb7079",
+                    "created_at": "2026-09-13 16:06:38"
+                },
+                {
+                    "uuid": "c129e66a-24e8-41ec-b8d7-0e1f582f8801",
+                    "created_at": "2026-09-13 16:06:38"
+                },
+                {
+                    "uuid": "afb4f87d-95f5-4d47-aa51-452ac35ab389",
+                    "created_at": "2026-09-13 16:06:38"
+                },
+                {
+                    "uuid": "9270c712-8d1c-42b8-a3df-40a1462b0390",
+                    "created_at": "2026-09-13 16:06:38"
+                }
+            ],
+            "history": [],
+            "savedAlbums": [],
+            "weeklyStats": [],
+            "dailyStats": []
+        },
+        "createdAt": "2026-09-13 15:24:21"
+    },
+    "7812a649-bc61-46c8-86cc-7765cad7c27e": {
+        "id": 8,
+        "uuid": "7812a649-bc61-46c8-86cc-7765cad7c27e",
+        "firebaseUid": null,
+        "username": "minhducverified_252",
+        "email": "minhduc.verified@gmail.com",
+        "displayName": "Minh Duc Verified",
+        "role": "AUDIOPHILE",
+        "photoURL": "https:\/\/lh3.googleusercontent.com\/aida-public\/AB6AXuBVF6ggMmL9CnND9kKg8BU6E6tRiffz5-ZeSirpXvvr1ra_17MAMrOBcG9FqAkcDkkTUKTcSNKUlNl_n7yGHLRUXaYyS4oJG0V0wnya8IJ91kxA6cijNYYe8f3sumGifyZsgsBRiOOEagEFaFeq1_eeFJT1IYtYNJyPiUzkoFsLGRiBvqH5ckRkcP7rHZplCCUsv0bI7r4bcuJHwdoijK0SD-oVLjPB5m2PdidQFUkb-G8Qduv13SEVRA",
+        "listeningHours": 2.5,
+        "totalListeningSeconds": 0,
+        "musicTasteTags": [
+            "lofi",
+            "synthwave",
+            "chill"
+        ],
+        "detailedMusicTaste": [],
+        "metadata": {},
+        "subcollections": {
+            "favorites": [
+                {
+                    "uuid": "87fd9104-bb2a-41d0-810b-ceb23660a874",
+                    "created_at": "2026-09-13 15:27:42"
+                },
+                {
+                    "uuid": "e699f999-1ac7-4427-8fe9-c935ac96150d",
+                    "created_at": "2026-09-13 15:27:42"
+                },
+                {
+                    "uuid": "f5259def-36e3-4fa1-bc8d-79a1fc8982f3",
+                    "created_at": "2026-09-13 15:27:42"
+                },
+                {
+                    "uuid": "c693c1d6-85f9-4e5e-beb4-bc7e6b1072d7",
+                    "created_at": "2026-09-13 15:27:42"
+                },
+                {
+                    "uuid": "9270c712-8d1c-42b8-a3df-40a1462b0390",
+                    "created_at": "2026-09-13 15:27:42"
+                }
+            ],
+            "history": [],
+            "savedAlbums": [],
+            "weeklyStats": [],
+            "dailyStats": []
+        },
+        "createdAt": "2026-09-13 15:27:42"
+    },
+    "49fc2960-76ad-47ce-898c-79f18e45795d": {
+        "id": 9,
+        "uuid": "49fc2960-76ad-47ce-898c-79f18e45795d",
+        "firebaseUid": null,
+        "username": "testuser_813",
+        "email": "testuser@gmail.com",
+        "displayName": "Minh Đức VIP",
+        "role": "AUDIOPHILE",
+        "photoURL": "https:\/\/lh3.googleusercontent.com\/aida-public\/AB6AXuBVF6ggMmL9CnND9kKg8BU6E6tRiffz5-ZeSirpXvvr1ra_17MAMrOBcG9FqAkcDkkTUKTcSNKUlNl_n7yGHLRUXaYyS4oJG0V0wnya8IJ91kxA6cijNYYe8f3sumGifyZsgsBRiOOEagEFaFeq1_eeFJT1IYtYNJyPiUzkoFsLGRiBvqH5ckRkcP7rHZplCCUsv0bI7r4bcuJHwdoijK0SD-oVLjPB5m2PdidQFUkb-G8Qduv13SEVRA",
+        "listeningHours": 2.5,
+        "totalListeningSeconds": 0,
+        "musicTasteTags": [
+            "lofi",
+            "synthwave",
+            "chill"
+        ],
+        "detailedMusicTaste": [],
+        "metadata": {},
+        "subcollections": {
+            "favorites": [
+                {
+                    "uuid": "c2dd7782-5964-4c38-b250-1903c96734fc",
+                    "created_at": "2026-09-14 09:47:33"
+                },
+                {
+                    "uuid": "cd684b91-741c-4ebe-9562-dcae79627636",
+                    "created_at": "2026-09-14 09:47:33"
+                },
+                {
+                    "uuid": "2e760fc7-934c-405a-b4b5-155a4d171b6f",
+                    "created_at": "2026-09-14 09:47:33"
+                },
+                {
+                    "uuid": "2861dc19-0d19-43f8-ad77-4924f163815b",
+                    "created_at": "2026-09-14 09:47:33"
+                },
+                {
+                    "uuid": "fba95a20-221a-49f1-b289-5aa55fed589c",
+                    "created_at": "2026-09-14 09:47:33"
+                },
+                {
+                    "uuid": "0ae8a36e-50e5-4f08-a674-b36f4f60bd22",
+                    "created_at": "2026-09-14 09:47:33"
+                },
+                {
+                    "uuid": "f5259def-36e3-4fa1-bc8d-79a1fc8982f3",
+                    "created_at": "2026-09-13 15:33:16"
+                },
+                {
+                    "uuid": "e699f999-1ac7-4427-8fe9-c935ac96150d",
+                    "created_at": "2026-09-13 15:33:16"
+                },
+                {
+                    "uuid": "c693c1d6-85f9-4e5e-beb4-bc7e6b1072d7",
+                    "created_at": "2026-09-13 15:33:16"
+                },
+                {
+                    "uuid": "9270c712-8d1c-42b8-a3df-40a1462b0390",
+                    "created_at": "2026-09-13 15:33:16"
+                },
+                {
+                    "uuid": "87fd9104-bb2a-41d0-810b-ceb23660a874",
+                    "created_at": "2026-09-13 15:33:16"
+                }
+            ],
+            "history": [],
+            "savedAlbums": [],
+            "weeklyStats": [],
+            "dailyStats": []
+        },
+        "createdAt": "2026-09-13 15:33:16"
+    }
+}

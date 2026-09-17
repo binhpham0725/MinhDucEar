@@ -1,0 +1,350 @@
+{
+    "d12ebb59-0544-40d0-8b44-cea9602530f2": {
+        "id": 1,
+        "uuid": "d12ebb59-0544-40d0-8b44-cea9602530f2",
+        "name": "YouTube Music: Đồng bộ Đám Mây",
+        "description": "Danh sách phát đồng bộ trực tiếp từ YouTube Music",
+        "coverUrl": "https:\/\/i.ytimg.com\/vi\/4xDzrJKXOOY\/hqdefault.jpg",
+        "isPublic": true,
+        "ownerUid": "e29ab3fd-2107-4ea9-a2fb-97a270cff3e6",
+        "trackUuids": [
+            "54c50b48-9b14-4543-a542-486d392e1955",
+            "d46be2f1-51fb-4381-b54f-d3674380ff5b",
+            "cfbe051e-9745-4e1e-bebb-0cf43b02bfa4",
+            "b3eb81aa-e280-42c0-b7c6-c5df1f732867"
+        ],
+        "tracksCount": 4,
+        "createdAt": "2026-09-12 10:52:18"
+    },
+    "1eb121e8-b1fa-44f1-b72b-ff1f087f07a5": {
+        "id": 2,
+        "uuid": "1eb121e8-b1fa-44f1-b72b-ff1f087f07a5",
+        "name": "YouTube Top Trending",
+        "description": "Các bản nhạc thịnh hành từ YouTube Music",
+        "coverUrl": "https:\/\/i.ytimg.com\/vi\/jfKfPfyJRdk\/hqdefault.jpg",
+        "isPublic": true,
+        "ownerUid": "e29ab3fd-2107-4ea9-a2fb-97a270cff3e6",
+        "trackUuids": [
+            "54c50b48-9b14-4543-a542-486d392e1955",
+            "d46be2f1-51fb-4381-b54f-d3674380ff5b",
+            "cfbe051e-9745-4e1e-bebb-0cf43b02bfa4",
+            "b3eb81aa-e280-42c0-b7c6-c5df1f732867"
+        ],
+        "tracksCount": 4,
+        "createdAt": "2026-09-12 10:53:41"
+    },
+    "c4a1f480-29cc-40a7-b61d-6a4f1a7f3ef8": {
+        "id": 10,
+        "uuid": "c4a1f480-29cc-40a7-b61d-6a4f1a7f3ef8",
+        "name": "YouTube Music: Minh D?c (Google)",
+        "description": "Thư viện âm nhạc YouTube đồng bộ tự động",
+        "coverUrl": "https:\/\/lh3.googleusercontent.com\/aida-public\/AB6AXuBVF6ggMmL9CnND9kKg8BU6E6tRiffz5-ZeSirpXvvr1ra_17MAMrOBcG9FqAkcDkkTUKTcSNKUlNl_n7yGHLRUXaYyS4oJG0V0wnya8IJ91kxA6cijNYYe8f3sumGifyZsgsBRiOOEagEFaFeq1_eeFJT1IYtYNJyPiUzkoFsLGRiBvqH5ckRkcP7rHZplCCUsv0bI7r4bcuJHwdoijK0SD-oVLjPB5m2PdidQFUkb-G8Qduv13SEVRA",
+        "isPublic": true,
+        "ownerUid": "580f3307-8a23-4782-a99e-5025995145da",
+        "trackUuids": [
+            "87fd9104-bb2a-41d0-810b-ceb23660a874",
+            "0f44758b-f65a-44f7-b8c9-9ac609cb7079",
+            "c129e66a-24e8-41ec-b8d7-0e1f582f8801",
+            "afb4f87d-95f5-4d47-aa51-452ac35ab389",
+            "49ca67e5-ecde-4a79-9de2-201c850d143a",
+            "9270c712-8d1c-42b8-a3df-40a1462b0390",
+            "c693c1d6-85f9-4e5e-beb4-bc7e6b1072d7",
+            "f5259def-36e3-4fa1-bc8d-79a1fc8982f3",
+            "e699f999-1ac7-4427-8fe9-c935ac96150d",
+            "06cf148d-0a20-4cc5-bc46-fd974871c252"
+        ],
+        "tracksCount": 10,
+        "createdAt": "2026-09-12 18:23:41"
+    },
+    "9f412c7a-a48a-4158-a3c3-fc05a6724af7": {
+        "id": 3,
+        "uuid": "9f412c7a-a48a-4158-a3c3-fc05a6724af7",
+        "name": "Minh Đức ngất",
+        "description": "Thư viện âm nhạc YouTube đồng bộ tự động",
+        "coverUrl": "https:\/\/lh3.googleusercontent.com\/aida-public\/AB6AXuBVF6ggMmL9CnND9kKg8BU6E6tRiffz5-ZeSirpXvvr1ra_17MAMrOBcG9FqAkcDkkTUKTcSNKUlNl_n7yGHLRUXaYyS4oJG0V0wnya8IJ91kxA6cijNYYe8f3sumGifyZsgsBRiOOEagEFaFeq1_eeFJT1IYtYNJyPiUzkoFsLGRiBvqH5ckRkcP7rHZplCCUsv0bI7r4bcuJHwdoijK0SD-oVLjPB5m2PdidQFUkb-G8Qduv13SEVRA",
+        "isPublic": true,
+        "ownerUid": "1758d352-a14e-41db-a4d6-9edb935d337e",
+        "trackUuids": [
+            "54c50b48-9b14-4543-a542-486d392e1955",
+            "d46be2f1-51fb-4381-b54f-d3674380ff5b",
+            "cfbe051e-9745-4e1e-bebb-0cf43b02bfa4",
+            "b3eb81aa-e280-42c0-b7c6-c5df1f732867"
+        ],
+        "tracksCount": 4,
+        "createdAt": "2026-09-12 10:55:17"
+    },
+    "1b757238-7667-49cd-83ee-6180ddb89a05": {
+        "id": 4,
+        "uuid": "1b757238-7667-49cd-83ee-6180ddb89a05",
+        "name": "YouTube Music: Minh Duc (Google)",
+        "description": "Thư viện âm nhạc YouTube đồng bộ tự động",
+        "coverUrl": "https:\/\/lh3.googleusercontent.com\/a\/default-user=s96-c",
+        "isPublic": true,
+        "ownerUid": "df151ae3-bcea-4182-aa1e-0e7a3575080c",
+        "trackUuids": [
+            "54c50b48-9b14-4543-a542-486d392e1955",
+            "d46be2f1-51fb-4381-b54f-d3674380ff5b",
+            "cfbe051e-9745-4e1e-bebb-0cf43b02bfa4",
+            "b3eb81aa-e280-42c0-b7c6-c5df1f732867"
+        ],
+        "tracksCount": 4,
+        "createdAt": "2026-09-12 10:55:49"
+    },
+    "fe12d964-a316-4e6f-a422-8cae9c4b27d5": {
+        "id": 5,
+        "uuid": "fe12d964-a316-4e6f-a422-8cae9c4b27d5",
+        "name": "YouTube Music: Đồng bộ Đám Mây",
+        "description": "Danh sách phát đồng bộ trực tiếp từ YouTube Music",
+        "coverUrl": "https:\/\/i.ytimg.com\/vi\/4xDzrJKXOOY\/hqdefault.jpg",
+        "isPublic": true,
+        "ownerUid": "df151ae3-bcea-4182-aa1e-0e7a3575080c",
+        "trackUuids": [
+            "54c50b48-9b14-4543-a542-486d392e1955",
+            "d46be2f1-51fb-4381-b54f-d3674380ff5b",
+            "cfbe051e-9745-4e1e-bebb-0cf43b02bfa4",
+            "b3eb81aa-e280-42c0-b7c6-c5df1f732867"
+        ],
+        "tracksCount": 4,
+        "createdAt": "2026-09-12 10:56:44"
+    },
+    "0cd5a95a-ec4a-44f1-88a7-bdeb3defc352": {
+        "id": 6,
+        "uuid": "0cd5a95a-ec4a-44f1-88a7-bdeb3defc352",
+        "name": "YouTube Top Trending",
+        "description": "Các bản nhạc thịnh hành từ YouTube Music",
+        "coverUrl": "https:\/\/i.ytimg.com\/vi\/jfKfPfyJRdk\/hqdefault.jpg",
+        "isPublic": true,
+        "ownerUid": "df151ae3-bcea-4182-aa1e-0e7a3575080c",
+        "trackUuids": [
+            "54c50b48-9b14-4543-a542-486d392e1955",
+            "d46be2f1-51fb-4381-b54f-d3674380ff5b",
+            "cfbe051e-9745-4e1e-bebb-0cf43b02bfa4",
+            "b3eb81aa-e280-42c0-b7c6-c5df1f732867"
+        ],
+        "tracksCount": 4,
+        "createdAt": "2026-09-12 10:56:44"
+    },
+    "7ac8cf52-5b28-47c7-96e0-5bd79fddfc30": {
+        "id": 7,
+        "uuid": "7ac8cf52-5b28-47c7-96e0-5bd79fddfc30",
+        "name": "YouTube Music: Minh Duc Pro",
+        "description": "Thư viện âm nhạc YouTube đồng bộ tự động",
+        "coverUrl": "https:\/\/lh3.googleusercontent.com\/a\/default-user=s96-c",
+        "isPublic": true,
+        "ownerUid": "df151ae3-bcea-4182-aa1e-0e7a3575080c",
+        "trackUuids": [
+            "54c50b48-9b14-4543-a542-486d392e1955",
+            "d46be2f1-51fb-4381-b54f-d3674380ff5b",
+            "cfbe051e-9745-4e1e-bebb-0cf43b02bfa4",
+            "b3eb81aa-e280-42c0-b7c6-c5df1f732867"
+        ],
+        "tracksCount": 4,
+        "createdAt": "2026-09-12 10:57:31"
+    },
+    "a3a3b436-49c9-4c78-9782-f5a89f60b76a": {
+        "id": 11,
+        "uuid": "a3a3b436-49c9-4c78-9782-f5a89f60b76a",
+        "name": "YouTube Music: Minh Duc User",
+        "description": "Thư viện âm nhạc YouTube đồng bộ tự động",
+        "coverUrl": "https:\/\/lh3.googleusercontent.com\/aida-public\/AB6AXuBVF6ggMmL9CnND9kKg8BU6E6tRiffz5-ZeSirpXvvr1ra_17MAMrOBcG9FqAkcDkkTUKTcSNKUlNl_n7yGHLRUXaYyS4oJG0V0wnya8IJ91kxA6cijNYYe8f3sumGifyZsgsBRiOOEagEFaFeq1_eeFJT1IYtYNJyPiUzkoFsLGRiBvqH5ckRkcP7rHZplCCUsv0bI7r4bcuJHwdoijK0SD-oVLjPB5m2PdidQFUkb-G8Qduv13SEVRA",
+        "isPublic": true,
+        "ownerUid": "ba430c2a-d223-4deb-a844-2eb3706ffb9d",
+        "trackUuids": [
+            "87fd9104-bb2a-41d0-810b-ceb23660a874",
+            "0f44758b-f65a-44f7-b8c9-9ac609cb7079",
+            "c129e66a-24e8-41ec-b8d7-0e1f582f8801",
+            "afb4f87d-95f5-4d47-aa51-452ac35ab389",
+            "49ca67e5-ecde-4a79-9de2-201c850d143a",
+            "9270c712-8d1c-42b8-a3df-40a1462b0390",
+            "c693c1d6-85f9-4e5e-beb4-bc7e6b1072d7",
+            "f5259def-36e3-4fa1-bc8d-79a1fc8982f3",
+            "e699f999-1ac7-4427-8fe9-c935ac96150d",
+            "06cf148d-0a20-4cc5-bc46-fd974871c252"
+        ],
+        "tracksCount": 10,
+        "createdAt": "2026-09-13 15:23:33"
+    },
+    "75e5dfad-9aab-464f-90e2-262b192b5d9e": {
+        "id": 12,
+        "uuid": "75e5dfad-9aab-464f-90e2-262b192b5d9e",
+        "name": "YouTube Music: sakai hira",
+        "description": "Thư viện âm nhạc YouTube đồng bộ tự động",
+        "coverUrl": "https:\/\/lh3.googleusercontent.com\/a\/ACg8ocJYWcIhPVxTCnZq8igIWazzifLnfufsD84LvmvTC8H2dcuKlvZo=s96-c",
+        "isPublic": true,
+        "ownerUid": "0ef96678-0d16-4a11-b7be-aa9823d017e6",
+        "trackUuids": [
+            "87fd9104-bb2a-41d0-810b-ceb23660a874",
+            "0f44758b-f65a-44f7-b8c9-9ac609cb7079",
+            "c129e66a-24e8-41ec-b8d7-0e1f582f8801",
+            "afb4f87d-95f5-4d47-aa51-452ac35ab389",
+            "49ca67e5-ecde-4a79-9de2-201c850d143a",
+            "9270c712-8d1c-42b8-a3df-40a1462b0390",
+            "c693c1d6-85f9-4e5e-beb4-bc7e6b1072d7",
+            "f5259def-36e3-4fa1-bc8d-79a1fc8982f3",
+            "e699f999-1ac7-4427-8fe9-c935ac96150d",
+            "06cf148d-0a20-4cc5-bc46-fd974871c252"
+        ],
+        "tracksCount": 10,
+        "createdAt": "2026-09-13 15:24:21"
+    },
+    "81ad22cb-76bd-450d-a38e-cdc1cc560bf6": {
+        "id": 15,
+        "uuid": "81ad22cb-76bd-450d-a38e-cdc1cc560bf6",
+        "name": "YouTube Music: My Supermix",
+        "description": "Bản kết hợp siêu phối cá nhân hóa từ YouTube Music cho sakai hira",
+        "coverUrl": "https:\/\/i.ytimg.com\/vi\/T9PNAndFJ9w\/hqdefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCggAEOADGC0guwJIWg&rs=AMzJL3lKHETpSqVa2sy5jSIbfwc3ckbKOA",
+        "isPublic": true,
+        "ownerUid": "0ef96678-0d16-4a11-b7be-aa9823d017e6",
+        "trackUuids": [
+            "0ae8a36e-50e5-4f08-a674-b36f4f60bd22",
+            "fba95a20-221a-49f1-b289-5aa55fed589c",
+            "2861dc19-0d19-43f8-ad77-4924f163815b",
+            "e8871db6-7558-4375-8077-76e5d7407123",
+            "175e9124-271f-4f68-b07d-1b41a9b2c14a",
+            "2e760fc7-934c-405a-b4b5-155a4d171b6f"
+        ],
+        "tracksCount": 6,
+        "createdAt": "2026-09-13 15:42:38"
+    },
+    "7a25e041-a8a0-49e9-afed-bc42907fb944": {
+        "id": 16,
+        "uuid": "7a25e041-a8a0-49e9-afed-bc42907fb944",
+        "name": "YouTube Music: Thư Giãn & Chill",
+        "description": "Giai điệu thư giãn, acoustic và lo-fi êm ái",
+        "coverUrl": "https:\/\/i.ytimg.com\/vi\/-7dHBvoeCRk\/hqdefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCggAEOADGC0guwJIWg&rs=AMzJL3lRuj2UhZCOHFsvlYy564ZDKEmyXg",
+        "isPublic": true,
+        "ownerUid": "0ef96678-0d16-4a11-b7be-aa9823d017e6",
+        "trackUuids": [
+            "2219c612-b513-47b3-95ae-a80bed7af78e",
+            "ac431307-cd33-4162-a998-71113a25db32",
+            "be5545c6-f3fe-4aba-83ba-0c0bcd0c9661",
+            "b53e9050-03d4-401a-a112-9305daa9bcce",
+            "faa7cdf6-2ee7-40cc-916e-58fa417c598a",
+            "a3cf2146-9b70-43dd-8d05-8a0e8f8258a2"
+        ],
+        "tracksCount": 6,
+        "createdAt": "2026-09-13 15:42:41"
+    },
+    "3e6f92cf-74a8-4b97-8397-cfccdf2218a1": {
+        "id": 17,
+        "uuid": "3e6f92cf-74a8-4b97-8397-cfccdf2218a1",
+        "name": "YouTube Music: Năng Lượng & Workout",
+        "description": "EDM và Remix sôi động tiếp thêm năng lượng",
+        "coverUrl": "https:\/\/i.ytimg.com\/vi\/GMBWH9bNo7I\/hqdefault.jpg?sqp=-oaymwEWCJADEOEBIAQqCggAEOADGC0guwJIWg&rs=AMzJL3nJogHrH4I5ggPjeJNRPhpw22PxPg",
+        "isPublic": true,
+        "ownerUid": "0ef96678-0d16-4a11-b7be-aa9823d017e6",
+        "trackUuids": [
+            "57822df2-977c-4b94-9d74-5a33cbf2bf56",
+            "8e7331b6-68de-46c8-bbf3-bb136c9fdf8a",
+            "c56d986f-2d91-4d49-9fc2-c3e0afb13a85",
+            "4649038c-5759-4020-8ebc-99f0efab5ce7",
+            "22f5f414-7b53-4659-b330-002c86dd8107",
+            "9585e702-3545-4f8f-b837-3da81726fe70"
+        ],
+        "tracksCount": 6,
+        "createdAt": "2026-09-13 15:42:43"
+    },
+    "68b0028a-a863-44eb-a0b5-ca1f1acf2787": {
+        "id": 13,
+        "uuid": "68b0028a-a863-44eb-a0b5-ca1f1acf2787",
+        "name": "YouTube Music: Minh Duc Verified",
+        "description": "Thư viện âm nhạc YouTube đồng bộ tự động",
+        "coverUrl": "https:\/\/lh3.googleusercontent.com\/aida-public\/AB6AXuBVF6ggMmL9CnND9kKg8BU6E6tRiffz5-ZeSirpXvvr1ra_17MAMrOBcG9FqAkcDkkTUKTcSNKUlNl_n7yGHLRUXaYyS4oJG0V0wnya8IJ91kxA6cijNYYe8f3sumGifyZsgsBRiOOEagEFaFeq1_eeFJT1IYtYNJyPiUzkoFsLGRiBvqH5ckRkcP7rHZplCCUsv0bI7r4bcuJHwdoijK0SD-oVLjPB5m2PdidQFUkb-G8Qduv13SEVRA",
+        "isPublic": true,
+        "ownerUid": "7812a649-bc61-46c8-86cc-7765cad7c27e",
+        "trackUuids": [
+            "87fd9104-bb2a-41d0-810b-ceb23660a874",
+            "0f44758b-f65a-44f7-b8c9-9ac609cb7079",
+            "c129e66a-24e8-41ec-b8d7-0e1f582f8801",
+            "afb4f87d-95f5-4d47-aa51-452ac35ab389",
+            "49ca67e5-ecde-4a79-9de2-201c850d143a",
+            "9270c712-8d1c-42b8-a3df-40a1462b0390",
+            "c693c1d6-85f9-4e5e-beb4-bc7e6b1072d7",
+            "f5259def-36e3-4fa1-bc8d-79a1fc8982f3",
+            "e699f999-1ac7-4427-8fe9-c935ac96150d",
+            "06cf148d-0a20-4cc5-bc46-fd974871c252"
+        ],
+        "tracksCount": 10,
+        "createdAt": "2026-09-13 15:27:42"
+    },
+    "ab163e1a-139e-4f20-98e7-b09be262f64a": {
+        "id": 14,
+        "uuid": "ab163e1a-139e-4f20-98e7-b09be262f64a",
+        "name": "YouTube Music: Minh Đức VIP",
+        "description": "Thư viện âm nhạc YouTube đồng bộ tự động",
+        "coverUrl": "https:\/\/lh3.googleusercontent.com\/aida-public\/AB6AXuBVF6ggMmL9CnND9kKg8BU6E6tRiffz5-ZeSirpXvvr1ra_17MAMrOBcG9FqAkcDkkTUKTcSNKUlNl_n7yGHLRUXaYyS4oJG0V0wnya8IJ91kxA6cijNYYe8f3sumGifyZsgsBRiOOEagEFaFeq1_eeFJT1IYtYNJyPiUzkoFsLGRiBvqH5ckRkcP7rHZplCCUsv0bI7r4bcuJHwdoijK0SD-oVLjPB5m2PdidQFUkb-G8Qduv13SEVRA",
+        "isPublic": true,
+        "ownerUid": "49fc2960-76ad-47ce-898c-79f18e45795d",
+        "trackUuids": [
+            "87fd9104-bb2a-41d0-810b-ceb23660a874",
+            "0f44758b-f65a-44f7-b8c9-9ac609cb7079",
+            "c129e66a-24e8-41ec-b8d7-0e1f582f8801",
+            "afb4f87d-95f5-4d47-aa51-452ac35ab389",
+            "49ca67e5-ecde-4a79-9de2-201c850d143a",
+            "9270c712-8d1c-42b8-a3df-40a1462b0390",
+            "c693c1d6-85f9-4e5e-beb4-bc7e6b1072d7",
+            "f5259def-36e3-4fa1-bc8d-79a1fc8982f3",
+            "e699f999-1ac7-4427-8fe9-c935ac96150d",
+            "06cf148d-0a20-4cc5-bc46-fd974871c252"
+        ],
+        "tracksCount": 10,
+        "createdAt": "2026-09-13 15:33:16"
+    },
+    "57493b42-781e-48e6-b365-60520cd17d56": {
+        "id": 18,
+        "uuid": "57493b42-781e-48e6-b365-60520cd17d56",
+        "name": "YouTube Music: My Supermix",
+        "description": "Bản kết hợp siêu phối cá nhân hóa từ YouTube Music cho Minh Đức VIP",
+        "coverUrl": "https:\/\/i.ytimg.com\/vi\/T9PNAndFJ9w\/hqdefault.jpg",
+        "isPublic": true,
+        "ownerUid": "49fc2960-76ad-47ce-898c-79f18e45795d",
+        "trackUuids": [
+            "0ae8a36e-50e5-4f08-a674-b36f4f60bd22",
+            "fba95a20-221a-49f1-b289-5aa55fed589c",
+            "2861dc19-0d19-43f8-ad77-4924f163815b",
+            "2e760fc7-934c-405a-b4b5-155a4d171b6f",
+            "cd684b91-741c-4ebe-9562-dcae79627636",
+            "c2dd7782-5964-4c38-b250-1903c96734fc"
+        ],
+        "tracksCount": 6,
+        "createdAt": "2026-09-14 09:47:31"
+    },
+    "7b8ad9eb-db86-4853-9c14-c2b4d39f7c85": {
+        "id": 19,
+        "uuid": "7b8ad9eb-db86-4853-9c14-c2b4d39f7c85",
+        "name": "YouTube Music: Thư Giãn & Chill",
+        "description": "Giai điệu thư giãn, acoustic và lo-fi êm ái",
+        "coverUrl": "https:\/\/i.ytimg.com\/vi\/-7dHBvoeCRk\/hqdefault.jpg",
+        "isPublic": true,
+        "ownerUid": "49fc2960-76ad-47ce-898c-79f18e45795d",
+        "trackUuids": [
+            "2219c612-b513-47b3-95ae-a80bed7af78e",
+            "ac431307-cd33-4162-a998-71113a25db32",
+            "be5545c6-f3fe-4aba-83ba-0c0bcd0c9661",
+            "b53e9050-03d4-401a-a112-9305daa9bcce",
+            "faa7cdf6-2ee7-40cc-916e-58fa417c598a",
+            "a3cf2146-9b70-43dd-8d05-8a0e8f8258a2"
+        ],
+        "tracksCount": 6,
+        "createdAt": "2026-09-14 09:47:32"
+    },
+    "0f3554c4-8dbe-445a-a1c2-3eb9f1c2d714": {
+        "id": 20,
+        "uuid": "0f3554c4-8dbe-445a-a1c2-3eb9f1c2d714",
+        "name": "YouTube Music: Năng Lượng & Workout",
+        "description": "EDM và Remix sôi động tiếp thêm năng lượng",
+        "coverUrl": "https:\/\/i.ytimg.com\/vi\/GMBWH9bNo7I\/hqdefault.jpg",
+        "isPublic": true,
+        "ownerUid": "49fc2960-76ad-47ce-898c-79f18e45795d",
+        "trackUuids": [
+            "57822df2-977c-4b94-9d74-5a33cbf2bf56",
+            "8e7331b6-68de-46c8-bbf3-bb136c9fdf8a",
+            "c56d986f-2d91-4d49-9fc2-c3e0afb13a85",
+            "4649038c-5759-4020-8ebc-99f0efab5ce7",
+            "22f5f414-7b53-4659-b330-002c86dd8107",
+            "9585e702-3545-4f8f-b837-3da81726fe70"
+        ],
+        "tracksCount": 6,
+        "createdAt": "2026-09-14 09:47:33"
+    }
+}
