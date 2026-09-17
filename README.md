@@ -42,5 +42,37 @@ MinhDucEar là ứng dụng nghe nhạc trực tuyến hiện đại được x�
 3. **Trải nghiệm ứng dụng**:
    - Mở trình duyệt và truy cập: `http://localhost/MinhDucEar/pages/index.php`
 
+## ☁️ Triển Khai Lên Vercel & Kết Nối Google Firebase
+
+Ứng dụng hỗ trợ cấu trúc **Dual-Mode** hoàn hảo: vừa có thể chạy trên Apache XAMPP cục bộ, vừa có thể triển khai Serverless tức thì lên **Vercel** kết nối **Google Cloud Firestore**.
+
+### 1. Triển khai lên Vercel (1-Click)
+1. Đăng nhập vào [Vercel](https://vercel.com) bằng tài khoản GitHub của bạn.
+2. Nhấn **"Add New..."** ➔ **"Project"**.
+3. Chọn repository: **`binhpham0725/MinhDucEar`**.
+4. Giữ nguyên toàn bộ cấu hình mặc định (Vercel sẽ tự động đọc `vercel.json` và nhận diện các Serverless Functions trong `api/tracks.js`, `api/lyrics.js`).
+5. Nhấn **"Deploy"**. Trang web của bạn sẽ được xuất bản trong 30 giây!
+
+### 2. Thiết lập Google Firebase (Cloud Firestore & Auth)
+1. Truy cập [Google Firebase Console](https://console.firebase.google.com) ➔ Tạo một Project mới (hoặc chọn project có sẵn).
+2. **Kích hoạt Cloud Firestore**:
+   - Vào mục **Firestore Database** ➔ **Create Database** (chọn chế độ *Production* hoặc *Test*).
+   - Trong tab **Rules**, thiết lập cho phép đọc/ghi an toàn:
+     ```javascript
+     rules_version = '2';
+     service cloud.firestore {
+       match /databases/{database}/documents {
+         match /curated_playlists/{id} { allow read: if true; allow write: if request.auth != null; }
+         match /users/{userId}/{document=**} { allow read, write: if request.auth != null && request.auth.uid == userId; }
+         match /tracks/{trackId} { allow read: if true; allow write: if request.auth != null; }
+       }
+     }
+     ```
+3. **Kích hoạt Authentication**:
+   - Vào mục **Authentication** ➔ **Get Started** ➔ Kích hoạt phương thức **Google** và **Email/Password**.
+4. **Lấy Khóa Cấu Hình Web**:
+   - Vào **Project Settings** (biểu tượng bánh răng) ➔ Thẻ **General** ➔ Cuộn xuống **Your apps** ➔ Chọn biểu tượng **Web (</>)**.
+   - Copy các giá trị `apiKey`, `authDomain`, `projectId`, `storageBucket`, `messagingSenderId`, `appId` và dán vào file [`config/firebase.js`](config/firebase.js).
+
 ---
 © 2026 MinhDucEar. Developed by binhpham0725.

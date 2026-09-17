@@ -1,0 +1,37 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/endpoints/tracks.php",
+      "destination": "/api/tracks"
+    },
+    {
+      "source": "/api/endpoints/lyrics.php",
+      "destination": "/api/lyrics"
+    },
+    {
+      "source": "/api/tracks",
+      "destination": "/api/tracks"
+    },
+    {
+      "source": "/api/lyrics",
+      "destination": "/api/lyrics"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ]
+}

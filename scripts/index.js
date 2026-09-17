@@ -25,18 +25,29 @@ import { lyricsService } from '../services/lyricsService.js';
 import { showToast } from '../components/toast.js';
 import { bindLyricsModalClose } from '../components/lyricsModal.js';
 
+import { firebaseService } from '../services/firebaseService.js';
+
 // ─── Bootstrap ─────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  // 1. Restore user session from storage
+document.addEventListener('DOMContentLoaded', async () => {
+  // 1. Initialize Google Firebase
+  try {
+    const isReady = await firebaseService.init();
+    if (isReady) {
+      console.info('[MinhDucEar] Google Firebase Cloud Firestore & Auth initialized.');
+      window.__firebaseService = firebaseService;
+    }
+  } catch (err) {
+    console.warn('[MinhDucEar] Firebase initialization notice:', err);
+  }
+
+  // 2. Restore user session from storage
   const user = authService.getCurrentUser();
 
-  // 2. Bind lyrics modal close behaviour
+  // 3. Bind lyrics modal close behaviour
   bindLyricsModalClose();
 
-  // 3. The existing MinhDucAudioEngine class (in assets/js/player.js) handles
+  // 4. The existing MinhDucAudioEngine class (in assets/js/player.js) handles
   //    all audio playback, UI rendering, and view switching during the migration
-  //    period. Future iterations will progressively migrate logic from player.js
-  //    into the components/services/scripts architecture.
-
+  //    period.
   console.info('[MinhDucEar] index.js controller loaded. User:', user?.username || 'guest');
 });

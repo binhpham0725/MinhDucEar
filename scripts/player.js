@@ -4369,13 +4369,31 @@ class MinhDucAudioEngine {
     try {
       const isPagesDir = window.location.pathname.includes('/pages/');
       const apiUrl = (isPagesDir ? '../' : '') + `api/endpoints/playlists.php?action=playlist_tracks&id=${playlist.id}`;
-      const res = await fetch(apiUrl);
-      const data = await res.json();
+      let tracks = [];
+      try {
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+        if (data && data.success && Array.isArray(data.tracks) && data.tracks.length > 0) {
+          tracks = data.tracks;
+        }
+      } catch (fetchErr) {}
 
-      if (data && data.success && Array.isArray(data.tracks) && data.tracks.length > 0) {
-        this.currentAlbumTracks = data.tracks;
-        if (countEl) countEl.textContent = `${data.tracks.length} TRACKS`;
-        this.renderAlbumTracklist(data.tracks);
+      // Fallback for Vercel / serverless environment
+      if (tracks.length === 0) {
+        try {
+          const fbUrl = (isPagesDir ? '../' : '') + `api/tracks?action=album_tracks&query=${encodeURIComponent(plName)}`;
+          const fbRes = await fetch(fbUrl);
+          const fbData = await fbRes.json();
+          if (fbData && fbData.success && Array.isArray(fbData.tracks) && fbData.tracks.length > 0) {
+            tracks = fbData.tracks;
+          }
+        } catch (e2) {}
+      }
+
+      if (tracks.length > 0) {
+        this.currentAlbumTracks = tracks;
+        if (countEl) countEl.textContent = `${tracks.length} TRACKS`;
+        this.renderAlbumTracklist(tracks);
       } else {
         if (tracklistEl) {
           tracklistEl.innerHTML = `
@@ -4996,8 +5014,29 @@ class MinhDucAudioEngine {
         localPlaylists = JSON.parse(localStorage.getItem('minhduc_local_playlists') || '[]');
       } catch(e) {}
 
-      const existingNames = new Set(serverPlaylists.map(p => p.name.toLowerCase()));
-      const filteredLocal = localPlaylists.filter(lp => !existingNames.has(lp.name.toLowerCase()));
+      // Fallback for Vercel / Cloud Firebase environment
+      if (serverPlaylists.length === 0 && localPlaylists.length === 0) {
+        if (window.__firebaseService) {
+          try {
+            const fbPlaylists = await window.__firebaseService.getCuratedPlaylists();
+            if (fbPlaylists && fbPlaylists.length > 0) {
+              serverPlaylists = fbPlaylists;
+            }
+          } catch(e) {}
+        }
+        if (serverPlaylists.length === 0) {
+          serverPlaylists = [
+            { id: 'pl_supermix', name: 'YouTube Music: My Supermix', tracks_count: 38 },
+            { id: 'pl_chill', name: 'YouTube Music: Thư Giãn & Chill', tracks_count: 38 },
+            { id: 'pl_workout', name: 'YouTube Music: Năng Lượng & Workout', tracks_count: 38 },
+            { id: 'pl_cloud', name: 'YouTube Music: Đồng bộ Đám Mây', tracks_count: 8 },
+            { id: 'pl_trending', name: 'YouTube Top Trending', tracks_count: 8 }
+          ];
+        }
+      }
+
+      const existingNames = new Set(serverPlaylists.map(p => (p.name || '').toLowerCase()));
+      const filteredLocal = localPlaylists.filter(lp => !existingNames.has((lp.name || '').toLowerCase()));
 
       this.currentPlaylists = [...filteredLocal, ...serverPlaylists];
       this.renderSidebarPlaylists();
@@ -5137,15 +5176,34 @@ class MinhDucAudioEngine {
     try {
       const isPagesDir = window.location.pathname.includes('/pages/');
       const apiUrl = (isPagesDir ? '../' : '') + `api/endpoints/playlists.php?action=playlist_tracks&id=${playlistId}`;
-      const res = await fetch(apiUrl);
-      const data = await res.json();
-      if (data && data.success && Array.isArray(data.tracks) && data.tracks.length > 0) {
-        this.tracks = data.tracks;
+      let tracks = [];
+      try {
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+        if (data && data.success && Array.isArray(data.tracks) && data.tracks.length > 0) {
+          tracks = data.tracks;
+        }
+      } catch (e) {}
+
+      // Fallback for Vercel / serverless environment
+      if (tracks.length === 0) {
+        try {
+          const fbUrl = (isPagesDir ? '../' : '') + `api/tracks?action=album_tracks&query=${encodeURIComponent(playlistName)}`;
+          const fbRes = await fetch(fbUrl);
+          const fbData = await fbRes.json();
+          if (fbData && fbData.success && Array.isArray(fbData.tracks) && fbData.tracks.length > 0) {
+            tracks = fbData.tracks;
+          }
+        } catch (e2) {}
+      }
+
+      if (tracks.length > 0) {
+        this.tracks = tracks;
         this.currentTrackIndex = 0;
         this.loadTrack(this.tracks[0], true);
         this.switchView('home');
         if (typeof this.showToast === 'function') {
-          this.showToast(`▶ Đang phát "${playlistName}" (${data.tracks.length} bài hát)`, 'success');
+          this.showToast(`▶ Đang phát "${playlistName}" (${tracks.length} bài hát)`, 'success');
         }
       } else {
         if (typeof this.showToast === 'function') {
