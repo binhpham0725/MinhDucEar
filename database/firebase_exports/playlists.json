@@ -33,6 +33,25 @@
         "tracksCount": 4,
         "createdAt": "2026-09-12 10:53:41"
     },
+    "": {
+        "id": 43,
+        "uuid": null,
+        "name": "YouTube Music: Năng Lượng & Workout",
+        "description": "EDM và Remix sôi động tiếp thêm năng lượng",
+        "coverUrl": "https:\/\/i.ytimg.com\/vi\/fSs_4JQ9-tE\/hqdefault.jpg",
+        "isPublic": true,
+        "ownerUid": null,
+        "trackUuids": [
+            "57822df2-977c-4b94-9d74-5a33cbf2bf56",
+            "3aac5ffa-eab4-48e8-a6df-79472d6bfa84",
+            "8e7331b6-68de-46c8-bbf3-bb136c9fdf8a",
+            null,
+            null,
+            null
+        ],
+        "tracksCount": 6,
+        "createdAt": "2026-09-17 13:39:20"
+    },
     "c4a1f480-29cc-40a7-b61d-6a4f1a7f3ef8": {
         "id": 10,
         "uuid": "c4a1f480-29cc-40a7-b61d-6a4f1a7f3ef8",
@@ -199,9 +218,9 @@
             "0ae8a36e-50e5-4f08-a674-b36f4f60bd22",
             "fba95a20-221a-49f1-b289-5aa55fed589c",
             "2861dc19-0d19-43f8-ad77-4924f163815b",
-            "e8871db6-7558-4375-8077-76e5d7407123",
             "175e9124-271f-4f68-b07d-1b41a9b2c14a",
-            "2e760fc7-934c-405a-b4b5-155a4d171b6f"
+            "cd684b91-741c-4ebe-9562-dcae79627636",
+            "c2dd7782-5964-4c38-b250-1903c96734fc"
         ],
         "tracksCount": 6,
         "createdAt": "2026-09-13 15:42:38"
@@ -217,10 +236,10 @@
         "trackUuids": [
             "2219c612-b513-47b3-95ae-a80bed7af78e",
             "ac431307-cd33-4162-a998-71113a25db32",
-            "be5545c6-f3fe-4aba-83ba-0c0bcd0c9661",
             "b53e9050-03d4-401a-a112-9305daa9bcce",
             "faa7cdf6-2ee7-40cc-916e-58fa417c598a",
-            "a3cf2146-9b70-43dd-8d05-8a0e8f8258a2"
+            "6f551561-6fe7-45c1-93f7-08a00221ad0b",
+            null
         ],
         "tracksCount": 6,
         "createdAt": "2026-09-13 15:42:41"
@@ -236,10 +255,10 @@
         "trackUuids": [
             "57822df2-977c-4b94-9d74-5a33cbf2bf56",
             "8e7331b6-68de-46c8-bbf3-bb136c9fdf8a",
-            "c56d986f-2d91-4d49-9fc2-c3e0afb13a85",
-            "4649038c-5759-4020-8ebc-99f0efab5ce7",
-            "22f5f414-7b53-4659-b330-002c86dd8107",
-            "9585e702-3545-4f8f-b837-3da81726fe70"
+            "85ef1067-9561-4612-87da-00aeca5f77b9",
+            null,
+            null,
+            null
         ],
         "tracksCount": 6,
         "createdAt": "2026-09-13 15:42:43"

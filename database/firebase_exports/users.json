@@ -8,7 +8,7 @@
         "displayName": "Minh Duc Pro",
         "role": "PRODUCER",
         "photoURL": "https:\/\/lh3.googleusercontent.com\/aida-public\/AB6AXuBVF6ggMmL9CnND9kKg8BU6E6tRiffz5-ZeSirpXvvr1ra_17MAMrOBcG9FqAkcDkkTUKTcSNKUlNl_n7yGHLRUXaYyS4oJG0V0wnya8IJ91kxA6cijNYYe8f3sumGifyZsgsBRiOOEagEFaFeq1_eeFJT1IYtYNJyPiUzkoFsLGRiBvqH5ckRkcP7rHZplCCUsv0bI7r4bcuJHwdoijK0SD-oVLjPB5m2PdidQFUkb-G8Qduv13SEVRA",
-        "listeningHours": 5.2,
+        "listeningHours": 5.33,
         "totalListeningSeconds": 0,
         "musicTasteTags": [
             "lofi",
@@ -30,9 +30,9 @@
             },
             {
                 "genre": "chill",
-                "score": 4.2,
-                "play_count": 28,
-                "last_listened_at": "2026-09-16 17:34:19"
+                "score": 4.3,
+                "play_count": 29,
+                "last_listened_at": "2026-09-16 17:39:24"
             },
             {
                 "genre": "vpop",
@@ -57,7 +57,14 @@
                     "created_at": "2026-09-12 10:53:41"
                 }
             ],
-            "history": [],
+            "history": [
+                {
+                    "uuid": "d4bb9a30-53eb-dde8-69d7-4d7de4a2d72f",
+                    "track_uuid": "54c50b48-9b14-4543-a542-486d392e1955",
+                    "duration_played": 240,
+                    "played_at": "2026-09-16 17:39:24"
+                }
+            ],
             "savedAlbums": [],
             "weeklyStats": [
                 {
@@ -65,9 +72,9 @@
                     "week_number": 38,
                     "start_date": "2026-09-14",
                     "end_date": "2026-09-20",
-                    "total_seconds": 13800,
-                    "total_hours": 3.83,
-                    "tracks_count": 46,
+                    "total_seconds": 14040,
+                    "total_hours": 3.9,
+                    "tracks_count": 47,
                     "daily_seconds": "{\"mon\":3600,\"tue\":4800,\"wed\":5400,\"thu\":0,\"fri\":0,\"sat\":0,\"sun\":0}",
                     "top_genres": "[\"lofi\",\"synthwave\",\"chill\",\"vpop\"]"
                 }
@@ -104,8 +111,8 @@
                 {
                     "stat_date": "2026-09-16",
                     "day_of_week": 3,
-                    "listening_seconds": 5400,
-                    "tracks_count": 18,
+                    "listening_seconds": 5640,
+                    "tracks_count": 19,
                     "genres_breakdown": "{\"lofi\":2700,\"synthwave\":1620,\"chill\":1080}"
                 },
                 {
@@ -145,32 +152,7 @@
         "detailedMusicTaste": [],
         "metadata": {},
         "subcollections": {
-            "favorites": [
-                {
-                    "uuid": "e699f999-1ac7-4427-8fe9-c935ac96150d",
-                    "created_at": "2026-09-13 15:33:02"
-                },
-                {
-                    "uuid": "87fd9104-bb2a-41d0-810b-ceb23660a874",
-                    "created_at": "2026-09-12 18:23:41"
-                },
-                {
-                    "uuid": "a7610fa0-9fa6-4f88-b20a-b4bcd05a4ec5",
-                    "created_at": "2026-09-12 18:23:41"
-                },
-                {
-                    "uuid": "f5259def-36e3-4fa1-bc8d-79a1fc8982f3",
-                    "created_at": "2026-09-12 18:23:41"
-                },
-                {
-                    "uuid": "c693c1d6-85f9-4e5e-beb4-bc7e6b1072d7",
-                    "created_at": "2026-09-12 18:23:41"
-                },
-                {
-                    "uuid": "9270c712-8d1c-42b8-a3df-40a1462b0390",
-                    "created_at": "2026-09-12 18:23:41"
-                }
-            ],
+            "favorites": [],
             "history": [],
             "savedAlbums": [],
             "weeklyStats": [],
@@ -214,7 +196,7 @@
         "displayName": "Minh Duc Pro",
         "role": "AUDIOPHILE",
         "photoURL": "https:\/\/lh3.googleusercontent.com\/a\/default-user=s96-c",
-        "listeningHours": 2.5,
+        "listeningHours": 0,
         "totalListeningSeconds": 0,
         "musicTasteTags": [
             "lofi",
@@ -285,7 +267,7 @@
         "displayName": "Minh Duc User",
         "role": "AUDIOPHILE",
         "photoURL": "https:\/\/lh3.googleusercontent.com\/aida-public\/AB6AXuBVF6ggMmL9CnND9kKg8BU6E6tRiffz5-ZeSirpXvvr1ra_17MAMrOBcG9FqAkcDkkTUKTcSNKUlNl_n7yGHLRUXaYyS4oJG0V0wnya8IJ91kxA6cijNYYe8f3sumGifyZsgsBRiOOEagEFaFeq1_eeFJT1IYtYNJyPiUzkoFsLGRiBvqH5ckRkcP7rHZplCCUsv0bI7r4bcuJHwdoijK0SD-oVLjPB5m2PdidQFUkb-G8Qduv13SEVRA",
-        "listeningHours": 2.5,
+        "listeningHours": 0,
         "totalListeningSeconds": 0,
         "musicTasteTags": [
             "lofi",
@@ -333,22 +315,41 @@
         "displayName": "sakai hira",
         "role": "AUDIOPHILE",
         "photoURL": "https:\/\/lh3.googleusercontent.com\/a\/ACg8ocJYWcIhPVxTCnZq8igIWazzifLnfufsD84LvmvTC8H2dcuKlvZo=s96-c",
-        "listeningHours": 2.5,
+        "listeningHours": 8.52,
         "totalListeningSeconds": 0,
         "musicTasteTags": [
             "anime"
         ],
-        "detailedMusicTaste": [],
+        "detailedMusicTaste": [
+            {
+                "genre": "chill",
+                "score": 18.85,
+                "play_count": 354,
+                "last_listened_at": "2026-09-17 02:55:45"
+            }
+        ],
         "metadata": {},
         "subcollections": {
             "favorites": [
+                {
+                    "uuid": null,
+                    "created_at": "2026-09-16 19:27:30"
+                },
+                {
+                    "uuid": "0c3406e4-72b3-4063-8d0e-f6ee1efb6045",
+                    "created_at": "2026-09-16 17:51:30"
+                },
+                {
+                    "uuid": "175e9124-271f-4f68-b07d-1b41a9b2c14a",
+                    "created_at": "2026-09-14 10:23:20"
+                },
                 {
                     "uuid": "e8871db6-7558-4375-8077-76e5d7407123",
                     "created_at": "2026-09-14 10:23:20"
                 },
                 {
-                    "uuid": "175e9124-271f-4f68-b07d-1b41a9b2c14a",
-                    "created_at": "2026-09-14 10:23:20"
+                    "uuid": "c2dd7782-5964-4c38-b250-1903c96734fc",
+                    "created_at": "2026-09-14 09:48:19"
                 },
                 {
                     "uuid": "cd684b91-741c-4ebe-9562-dcae79627636",
@@ -356,10 +357,6 @@
                 },
                 {
                     "uuid": "2e760fc7-934c-405a-b4b5-155a4d171b6f",
-                    "created_at": "2026-09-14 09:48:19"
-                },
-                {
-                    "uuid": "c2dd7782-5964-4c38-b250-1903c96734fc",
                     "created_at": "2026-09-14 09:48:19"
                 },
                 {
@@ -375,15 +372,15 @@
                     "created_at": "2026-09-14 09:48:19"
                 },
                 {
-                    "uuid": "37afdf2d-ae79-42d1-8dce-17162101d7a6",
-                    "created_at": "2026-09-13 16:22:06"
-                },
-                {
-                    "uuid": "fa961fd8-84e3-4b56-a99a-086f0f71725e",
-                    "created_at": "2026-09-13 16:22:06"
-                },
-                {
                     "uuid": "74e7a611-6a3e-4938-b827-5f40c3486910",
+                    "created_at": "2026-09-13 16:22:06"
+                },
+                {
+                    "uuid": "9712da05-9f02-4b84-af39-09dcf927c7ac",
+                    "created_at": "2026-09-13 16:22:06"
+                },
+                {
+                    "uuid": "37afdf2d-ae79-42d1-8dce-17162101d7a6",
                     "created_at": "2026-09-13 16:22:06"
                 },
                 {
@@ -399,7 +396,7 @@
                     "created_at": "2026-09-13 16:22:06"
                 },
                 {
-                    "uuid": "aeb44115-e84f-4897-ad8e-d96d48782c43",
+                    "uuid": "fa961fd8-84e3-4b56-a99a-086f0f71725e",
                     "created_at": "2026-09-13 16:22:06"
                 },
                 {
@@ -407,7 +404,7 @@
                     "created_at": "2026-09-13 16:22:06"
                 },
                 {
-                    "uuid": "9712da05-9f02-4b84-af39-09dcf927c7ac",
+                    "uuid": "aeb44115-e84f-4897-ad8e-d96d48782c43",
                     "created_at": "2026-09-13 16:22:06"
                 },
                 {
@@ -415,7 +412,7 @@
                     "created_at": "2026-09-13 16:22:06"
                 },
                 {
-                    "uuid": "49ca67e5-ecde-4a79-9de2-201c850d143a",
+                    "uuid": "afb4f87d-95f5-4d47-aa51-452ac35ab389",
                     "created_at": "2026-09-13 16:06:38"
                 },
                 {
@@ -435,6 +432,10 @@
                     "created_at": "2026-09-13 16:06:38"
                 },
                 {
+                    "uuid": "49ca67e5-ecde-4a79-9de2-201c850d143a",
+                    "created_at": "2026-09-13 16:06:38"
+                },
+                {
                     "uuid": "06cf148d-0a20-4cc5-bc46-fd974871c252",
                     "created_at": "2026-09-13 16:06:38"
                 },
@@ -447,18 +448,340 @@
                     "created_at": "2026-09-13 16:06:38"
                 },
                 {
-                    "uuid": "afb4f87d-95f5-4d47-aa51-452ac35ab389",
-                    "created_at": "2026-09-13 16:06:38"
-                },
-                {
                     "uuid": "9270c712-8d1c-42b8-a3df-40a1462b0390",
                     "created_at": "2026-09-13 16:06:38"
                 }
             ],
-            "history": [],
-            "savedAlbums": [],
-            "weeklyStats": [],
-            "dailyStats": []
+            "history": [
+                {
+                    "uuid": "9a11ecc3-9bac-2dfc-0dcc-096d9195927c",
+                    "track_uuid": null,
+                    "duration_played": 3,
+                    "played_at": "2026-09-17 02:55:41"
+                },
+                {
+                    "uuid": "6447e221-1da6-e86f-9d69-03b5ab7d4a8f",
+                    "track_uuid": null,
+                    "duration_played": 4,
+                    "played_at": "2026-09-17 02:49:36"
+                },
+                {
+                    "uuid": "58d1aa19-d02b-e2ad-ba3b-50519a914ae6",
+                    "track_uuid": null,
+                    "duration_played": 30,
+                    "played_at": "2026-09-17 02:49:03"
+                },
+                {
+                    "uuid": "444a3365-1bf5-044b-3ce5-f229cec1239c",
+                    "track_uuid": null,
+                    "duration_played": 3,
+                    "played_at": "2026-09-17 02:49:00"
+                },
+                {
+                    "uuid": "aa31d130-be22-9822-664a-033d6f0f45ea",
+                    "track_uuid": null,
+                    "duration_played": 3,
+                    "played_at": "2026-09-17 02:48:56"
+                },
+                {
+                    "uuid": "982126c8-457b-04b8-9d2e-a11337c5dda1",
+                    "track_uuid": "e8871db6-7558-4375-8077-76e5d7407123",
+                    "duration_played": 73,
+                    "played_at": "2026-09-17 02:48:08"
+                },
+                {
+                    "uuid": "997a76db-d428-1c95-cde5-608bc4a4aff0",
+                    "track_uuid": "2e760fc7-934c-405a-b4b5-155a4d171b6f",
+                    "duration_played": 6,
+                    "played_at": "2026-09-17 02:48:02"
+                },
+                {
+                    "uuid": "870e9dab-f2fa-5d1d-056a-e562d95328ba",
+                    "track_uuid": "cd684b91-741c-4ebe-9562-dcae79627636",
+                    "duration_played": 1,
+                    "played_at": "2026-09-17 02:48:00"
+                },
+                {
+                    "uuid": "a90ad66b-099b-71df-a6f3-0cfc397a838a",
+                    "track_uuid": "0c3406e4-72b3-4063-8d0e-f6ee1efb6045",
+                    "duration_played": 1,
+                    "played_at": "2026-09-17 02:47:59"
+                },
+                {
+                    "uuid": "f315e3f4-de27-1c46-bd9b-7fa407565e81",
+                    "track_uuid": "c2dd7782-5964-4c38-b250-1903c96734fc",
+                    "duration_played": 1,
+                    "played_at": "2026-09-17 02:47:57"
+                },
+                {
+                    "uuid": "423dc977-c274-07f3-20a9-5cd4adf8c9e3",
+                    "track_uuid": "870d3546-04ed-48de-aa92-d2308d0fd0c1",
+                    "duration_played": 12,
+                    "played_at": "2026-09-17 02:47:26"
+                },
+                {
+                    "uuid": "b9a32660-c055-9207-1ac3-69b5692c086e",
+                    "track_uuid": "e8871db6-7558-4375-8077-76e5d7407123",
+                    "duration_played": 0,
+                    "played_at": "2026-09-17 01:31:44"
+                },
+                {
+                    "uuid": "209219ba-8ee1-cc11-0d5d-26f265cf6f81",
+                    "track_uuid": null,
+                    "duration_played": 0,
+                    "played_at": "2026-09-17 01:31:40"
+                },
+                {
+                    "uuid": "be972b5d-2833-336f-8813-000c5a820a29",
+                    "track_uuid": null,
+                    "duration_played": 0,
+                    "played_at": "2026-09-17 01:31:33"
+                },
+                {
+                    "uuid": "5632e580-60ec-785b-ca92-7f2c5c83b758",
+                    "track_uuid": "9712da05-9f02-4b84-af39-09dcf927c7ac",
+                    "duration_played": 0,
+                    "played_at": "2026-09-17 01:30:38"
+                },
+                {
+                    "uuid": "1e57a89e-8137-996d-ef27-0034968d462c",
+                    "track_uuid": "ab4fea37-735c-4c59-839a-5098d920ed84",
+                    "duration_played": 0,
+                    "played_at": "2026-09-17 01:30:13"
+                },
+                {
+                    "uuid": "be9a6438-35b5-5999-1cb0-4d48b90b9d55",
+                    "track_uuid": "74e7a611-6a3e-4938-b827-5f40c3486910",
+                    "duration_played": 0,
+                    "played_at": "2026-09-17 01:30:01"
+                },
+                {
+                    "uuid": "252d9db9-11a0-5fa8-a707-30981bcee6c8",
+                    "track_uuid": "9712da05-9f02-4b84-af39-09dcf927c7ac",
+                    "duration_played": 0,
+                    "played_at": "2026-09-17 01:29:46"
+                },
+                {
+                    "uuid": "cdfc2010-0884-b1e0-c96f-463912e017d6",
+                    "track_uuid": null,
+                    "duration_played": 0,
+                    "played_at": "2026-09-17 01:07:00"
+                },
+                {
+                    "uuid": "a83d9618-fb92-5f22-7ef2-1c4b32c146d1",
+                    "track_uuid": null,
+                    "duration_played": 0,
+                    "played_at": "2026-09-17 01:06:57"
+                },
+                {
+                    "uuid": "377c1e44-660c-f7f8-73de-1c3670aba24d",
+                    "track_uuid": null,
+                    "duration_played": 0,
+                    "played_at": "2026-09-17 01:06:55"
+                },
+                {
+                    "uuid": "02b1d048-bf8a-35e8-ae55-055c983d4d0b",
+                    "track_uuid": null,
+                    "duration_played": 0,
+                    "played_at": "2026-09-17 01:06:54"
+                },
+                {
+                    "uuid": "0fe17667-d628-a3d4-8824-ca84d74cb9c1",
+                    "track_uuid": null,
+                    "duration_played": 0,
+                    "played_at": "2026-09-17 01:06:51"
+                },
+                {
+                    "uuid": "f04f4cb5-e853-1f5b-683c-83cffec6db89",
+                    "track_uuid": null,
+                    "duration_played": 0,
+                    "played_at": "2026-09-17 01:06:44"
+                },
+                {
+                    "uuid": "b8d72c09-8447-c396-c6f8-4ea89c5f4712",
+                    "track_uuid": "e8871db6-7558-4375-8077-76e5d7407123",
+                    "duration_played": 0,
+                    "played_at": "2026-09-17 01:00:48"
+                },
+                {
+                    "uuid": "a8825c13-f86a-faf7-7235-54b36de4b555",
+                    "track_uuid": "5d08663d-e670-49f2-aff7-6bf734ed9948",
+                    "duration_played": 0,
+                    "played_at": "2026-09-17 00:59:32"
+                },
+                {
+                    "uuid": "bcac6502-4e18-031e-778c-8f7c2ddb6062",
+                    "track_uuid": null,
+                    "duration_played": 0,
+                    "played_at": "2026-09-17 00:58:54"
+                },
+                {
+                    "uuid": "e7712ad8-96c6-246e-c718-42b379910fc1",
+                    "track_uuid": null,
+                    "duration_played": 0,
+                    "played_at": "2026-09-17 00:56:04"
+                },
+                {
+                    "uuid": "d27b6d2c-9d57-f3e3-c25e-eb7baee4b4b5",
+                    "track_uuid": "2e760fc7-934c-405a-b4b5-155a4d171b6f",
+                    "duration_played": 0,
+                    "played_at": "2026-09-17 00:55:17"
+                },
+                {
+                    "uuid": "0ee74e5b-bdc6-0d80-450d-f15df2f6ffff",
+                    "track_uuid": "175e9124-271f-4f68-b07d-1b41a9b2c14a",
+                    "duration_played": 0,
+                    "played_at": "2026-09-17 00:55:02"
+                },
+                {
+                    "uuid": "ed0d41a3-8734-d763-c056-894392bdce52",
+                    "track_uuid": "e8871db6-7558-4375-8077-76e5d7407123",
+                    "duration_played": 0,
+                    "played_at": "2026-09-17 00:52:17"
+                },
+                {
+                    "uuid": "3b65eb04-3c99-b0ef-e307-931024b6db23",
+                    "track_uuid": null,
+                    "duration_played": 2,
+                    "played_at": "2026-09-17 00:15:28"
+                },
+                {
+                    "uuid": "b762b9d1-21bd-606e-c23b-fd5df86e8754",
+                    "track_uuid": "e8871db6-7558-4375-8077-76e5d7407123",
+                    "duration_played": 304,
+                    "played_at": "2026-09-17 00:10:33"
+                },
+                {
+                    "uuid": "19f2d209-0d1f-05bb-2664-e0b7df3d3715",
+                    "track_uuid": "175e9124-271f-4f68-b07d-1b41a9b2c14a",
+                    "duration_played": 6,
+                    "played_at": "2026-09-17 00:10:31"
+                },
+                {
+                    "uuid": "bdc2d9de-c54c-eba0-bf21-97ad459c0a36",
+                    "track_uuid": "cd684b91-741c-4ebe-9562-dcae79627636",
+                    "duration_played": 234,
+                    "played_at": "2026-09-17 00:06:16"
+                },
+                {
+                    "uuid": "6c0aafc4-384b-2d02-0da2-6539710fe173",
+                    "track_uuid": "175e9124-271f-4f68-b07d-1b41a9b2c14a",
+                    "duration_played": 7,
+                    "played_at": "2026-09-17 00:06:07"
+                },
+                {
+                    "uuid": "7c7dc008-f3d5-b250-5f6f-5b033823d44d",
+                    "track_uuid": null,
+                    "duration_played": 5,
+                    "played_at": "2026-09-17 00:06:00"
+                },
+                {
+                    "uuid": "90b02036-7062-e0f7-b4d1-69039f97d6bd",
+                    "track_uuid": null,
+                    "duration_played": 100,
+                    "played_at": "2026-09-17 00:01:06"
+                },
+                {
+                    "uuid": "aae578f9-8484-2e77-134d-160e4a21e760",
+                    "track_uuid": null,
+                    "duration_played": 1,
+                    "played_at": "2026-09-17 00:01:02"
+                },
+                {
+                    "uuid": "e7104f9d-7ff7-be65-dc05-1d33398de84d",
+                    "track_uuid": null,
+                    "duration_played": 3,
+                    "played_at": "2026-09-17 00:00:59"
+                },
+                {
+                    "uuid": "40eb3863-65cc-7d01-fe9c-dbb4d745856e",
+                    "track_uuid": null,
+                    "duration_played": 976,
+                    "played_at": "2026-09-16 23:44:30"
+                },
+                {
+                    "uuid": "7012c5e9-a6ac-2350-5a97-bb1ca3a2070a",
+                    "track_uuid": "e8871db6-7558-4375-8077-76e5d7407123",
+                    "duration_played": 293,
+                    "played_at": "2026-09-16 23:39:35"
+                },
+                {
+                    "uuid": "119e39a4-f7f0-7244-a60a-e5799dd61f95",
+                    "track_uuid": null,
+                    "duration_played": 780,
+                    "played_at": "2026-09-16 19:36:47"
+                },
+                {
+                    "uuid": "1c1cc87e-2f85-b96d-107c-d9b794db4041",
+                    "track_uuid": null,
+                    "duration_played": 419,
+                    "played_at": "2026-09-16 19:33:16"
+                },
+                {
+                    "uuid": "e9ff0866-8a89-cb9e-00f2-9fb980c3e6eb",
+                    "track_uuid": "e8871db6-7558-4375-8077-76e5d7407123",
+                    "duration_played": 293,
+                    "played_at": "2026-09-16 19:28:21"
+                },
+                {
+                    "uuid": "ea19b81f-b771-a253-77f8-258372426605",
+                    "track_uuid": "e8871db6-7558-4375-8077-76e5d7407123",
+                    "duration_played": 293,
+                    "played_at": "2026-09-16 19:28:21"
+                },
+                {
+                    "uuid": "d14f828d-8401-b61e-4777-e59c48dd7811",
+                    "track_uuid": "e8871db6-7558-4375-8077-76e5d7407123",
+                    "duration_played": 293,
+                    "played_at": "2026-09-16 19:28:21"
+                },
+                {
+                    "uuid": "5e441b57-be91-4ced-74dc-86dd322feb99",
+                    "track_uuid": "e8871db6-7558-4375-8077-76e5d7407123",
+                    "duration_played": 586,
+                    "played_at": "2026-09-16 19:28:21"
+                },
+                {
+                    "uuid": "abfc2ba5-3a44-0f64-4082-5a6aff4382b0",
+                    "track_uuid": "e8871db6-7558-4375-8077-76e5d7407123",
+                    "duration_played": 293,
+                    "played_at": "2026-09-16 19:28:20"
+                },
+                {
+                    "uuid": "7cccc2db-6389-c0b6-f9f6-68e5bab5ca85",
+                    "track_uuid": "e8871db6-7558-4375-8077-76e5d7407123",
+                    "duration_played": 293,
+                    "played_at": "2026-09-16 19:28:20"
+                }
+            ],
+            "savedAlbums": [
+                {
+                    "uuid": "bcf4c176-bb0b-2b6a-3f78-64c81b6ddc03",
+                    "saved_at": "2026-09-16 19:32:48"
+                }
+            ],
+            "weeklyStats": [
+                {
+                    "year": 2026,
+                    "week_number": 38,
+                    "start_date": "2026-09-14",
+                    "end_date": "2026-09-20",
+                    "total_seconds": 3305,
+                    "total_hours": 0.92,
+                    "tracks_count": 1,
+                    "daily_seconds": null,
+                    "top_genres": null
+                }
+            ],
+            "dailyStats": [
+                {
+                    "stat_date": "2026-09-16",
+                    "day_of_week": 3,
+                    "listening_seconds": 3305,
+                    "tracks_count": 1,
+                    "genres_breakdown": null
+                }
+            ]
         },
         "createdAt": "2026-09-13 15:24:21"
     },
@@ -471,7 +794,7 @@
         "displayName": "Minh Duc Verified",
         "role": "AUDIOPHILE",
         "photoURL": "https:\/\/lh3.googleusercontent.com\/aida-public\/AB6AXuBVF6ggMmL9CnND9kKg8BU6E6tRiffz5-ZeSirpXvvr1ra_17MAMrOBcG9FqAkcDkkTUKTcSNKUlNl_n7yGHLRUXaYyS4oJG0V0wnya8IJ91kxA6cijNYYe8f3sumGifyZsgsBRiOOEagEFaFeq1_eeFJT1IYtYNJyPiUzkoFsLGRiBvqH5ckRkcP7rHZplCCUsv0bI7r4bcuJHwdoijK0SD-oVLjPB5m2PdidQFUkb-G8Qduv13SEVRA",
-        "listeningHours": 2.5,
+        "listeningHours": 0,
         "totalListeningSeconds": 0,
         "musicTasteTags": [
             "lofi",
@@ -519,7 +842,7 @@
         "displayName": "Minh Đức VIP",
         "role": "AUDIOPHILE",
         "photoURL": "https:\/\/lh3.googleusercontent.com\/aida-public\/AB6AXuBVF6ggMmL9CnND9kKg8BU6E6tRiffz5-ZeSirpXvvr1ra_17MAMrOBcG9FqAkcDkkTUKTcSNKUlNl_n7yGHLRUXaYyS4oJG0V0wnya8IJ91kxA6cijNYYe8f3sumGifyZsgsBRiOOEagEFaFeq1_eeFJT1IYtYNJyPiUzkoFsLGRiBvqH5ckRkcP7rHZplCCUsv0bI7r4bcuJHwdoijK0SD-oVLjPB5m2PdidQFUkb-G8Qduv13SEVRA",
-        "listeningHours": 2.5,
+        "listeningHours": 0,
         "totalListeningSeconds": 0,
         "musicTasteTags": [
             "lofi",
@@ -581,5 +904,32 @@
             "dailyStats": []
         },
         "createdAt": "2026-09-13 15:33:16"
+    },
+    "": {
+        "id": 15,
+        "uuid": null,
+        "firebaseUid": null,
+        "username": "testuser_demo_788",
+        "email": "testuser_demo@gmail.com",
+        "displayName": "Demo Listener",
+        "role": "AUDIOPHILE",
+        "photoURL": "https:\/\/images.unsplash.com\/photo-1534528741775-53994a69daeb?w=100",
+        "listeningHours": 0,
+        "totalListeningSeconds": 0,
+        "musicTasteTags": [
+            "lofi",
+            "synthwave",
+            "chill"
+        ],
+        "detailedMusicTaste": [],
+        "metadata": {},
+        "subcollections": {
+            "favorites": [],
+            "history": [],
+            "savedAlbums": [],
+            "weeklyStats": [],
+            "dailyStats": []
+        },
+        "createdAt": "2026-09-17 13:39:18"
     }
 }

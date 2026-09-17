@@ -165,6 +165,30 @@ foreach ($plRows as $pl) {
 file_put_contents($exportDir . '/playlists.json', json_encode($firestorePlaylists, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
 // -------------------------------------------------------------
+// 3b. Export Albums Collection -> /albums/{album_uuid}
+// -------------------------------------------------------------
+$albStmt = $pdo->query("SELECT id, uuid, title, artist, cover_url, year, badge, genre, description, is_public, created_at FROM albums WHERE is_deleted = 0");
+$albRows = $albStmt ? $albStmt->fetchAll(PDO::FETCH_ASSOC) : [];
+$firestoreAlbums = [];
+foreach ($albRows as $a) {
+    $docId = $a['uuid'];
+    $firestoreAlbums[$docId] = [
+        'id' => (int)$a['id'],
+        'uuid' => $a['uuid'],
+        'title' => $a['title'],
+        'artist' => $a['artist'],
+        'coverUrl' => $a['cover_url'],
+        'year' => (int)($a['year'] ?? 2026),
+        'badge' => $a['badge'] ?? 'ALBUM',
+        'genre' => $a['genre'] ?? 'Chill',
+        'description' => $a['description'] ?? '',
+        'isPublic' => (bool)($a['is_public'] ?? true),
+        'createdAt' => $a['created_at']
+    ];
+}
+file_put_contents($exportDir . '/albums.json', json_encode($firestoreAlbums, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+// -------------------------------------------------------------
 // 4. Output Summary
 // -------------------------------------------------------------
 $summary = [

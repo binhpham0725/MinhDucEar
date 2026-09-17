@@ -1,0 +1,28 @@
+{
+    "bcf4c176-bb0b-2b6a-3f78-64c81b6ddc03": {
+        "id": 1,
+        "uuid": "bcf4c176-bb0b-2b6a-3f78-64c81b6ddc03",
+        "title": "Farewell of Voyager Star",
+        "artist": "鸣潮先约电台 \/ Emi Evans",
+        "coverUrl": "https:\/\/lh3.googleusercontent.com\/aida-public\/AB6AXuCgjdnQliGTIf0xhiSBiil6TjgxEyH-8kQe5jsjqUJcIoqDI6clB-BoBSHKTbfVdIR_QTsOGyz6EzPiDzPj_xokHC5mihJPToNI7WdUEOmvosxtpGV05W9A53x_BSXqJgIyCcZS2dlJDSHzI27eD-giTKzPOcPzdRvcQs7YvtYYlUMOZfbvBy3B3T9-qON25NtTHDPx0gujBhT2ZEpMzW8xHAaM_pWS4G_tvbkMFVRS55WsCylqR_4EQQ",
+        "year": 2026,
+        "badge": "FLAC 192k 24-bit",
+        "genre": "Chill",
+        "description": "",
+        "isPublic": true,
+        "createdAt": "2026-09-16 19:32:48"
+    },
+    "01f8a0d8-462c-0877-146d-9cbe72a3f778": {
+        "id": 2,
+        "uuid": "01f8a0d8-462c-0877-146d-9cbe72a3f778",
+        "title": "Energy & Workout: Bùng Nổ Năng Lượng",
+        "artist": "YouTube Music Workout Curators",
+        "coverUrl": "https:\/\/images.unsplash.com\/photo-1517838277536-f5f99be501cd?w=600&auto=format&fit=crop&q=80",
+        "year": 2026,
+        "badge": "ENERGY & WORKOUT",
+        "genre": "Chill",
+        "description": "",
+        "isPublic": true,
+        "createdAt": "2026-09-17 10:28:38"
+    }
+}
