@@ -5002,43 +5002,40 @@ class MinhDucAudioEngine {
 
   async loadSidebarPlaylists() {
     try {
-      const isPagesDir = window.location.pathname.includes('/pages/');
-      const apiUrl = (isPagesDir ? '../' : '') + 'api/endpoints/playlists.php?action=playlists_list';
-      const res = await fetch(apiUrl);
-      const data = await res.json();
-      let serverPlaylists = (data && data.success && Array.isArray(data.playlists)) ? data.playlists : [];
+      const isGuest = !this.currentUser || this.currentUser.role === 'GUEST' || this.currentUser.is_guest;
 
-      // Merge with locally created playlists (offline / guest support)
-      let localPlaylists = [];
-      try {
-        localPlaylists = JSON.parse(localStorage.getItem('minhduc_local_playlists') || '[]');
-      } catch(e) {}
+      let serverPlaylists = [];
+      if (!isGuest && this.currentUser?.id) {
+        const isPagesDir = window.location.pathname.includes('/pages/');
+        const apiUrl = (isPagesDir ? '../' : '') + 'api/endpoints/playlists.php?action=playlists_list';
+        try {
+          const res = await fetch(apiUrl);
+          const data = await res.json();
+          if (data && data.success && Array.isArray(data.playlists)) {
+            serverPlaylists = data.playlists;
+          }
+        } catch(e) {}
 
-      // Fallback for Vercel / Cloud Firebase environment
-      if (serverPlaylists.length === 0 && localPlaylists.length === 0) {
-        if (window.__firebaseService) {
+        if (serverPlaylists.length === 0 && window.__firebaseService && this.currentUser?.uid) {
           try {
-            const fbPlaylists = await window.__firebaseService.getCuratedPlaylists();
+            const fbPlaylists = await window.__firebaseService.getUserPlaylists(this.currentUser.uid);
             if (fbPlaylists && fbPlaylists.length > 0) {
               serverPlaylists = fbPlaylists;
             }
           } catch(e) {}
         }
-        if (serverPlaylists.length === 0) {
-          serverPlaylists = [
-            { id: 'pl_supermix', name: 'YouTube Music: My Supermix', tracks_count: 38 },
-            { id: 'pl_chill', name: 'YouTube Music: Thư Giãn & Chill', tracks_count: 38 },
-            { id: 'pl_workout', name: 'YouTube Music: Năng Lượng & Workout', tracks_count: 38 },
-            { id: 'pl_cloud', name: 'YouTube Music: Đồng bộ Đám Mây', tracks_count: 8 },
-            { id: 'pl_trending', name: 'YouTube Top Trending', tracks_count: 8 }
-          ];
-        }
       }
+
+      // Guest only sees locally created playlists (or empty if none created yet)
+      let localPlaylists = [];
+      try {
+        localPlaylists = JSON.parse(localStorage.getItem('minhduc_local_playlists') || '[]');
+      } catch(e) {}
 
       const existingNames = new Set(serverPlaylists.map(p => (p.name || '').toLowerCase()));
       const filteredLocal = localPlaylists.filter(lp => !existingNames.has((lp.name || '').toLowerCase()));
 
-      this.currentPlaylists = [...filteredLocal, ...serverPlaylists];
+      this.currentPlaylists = isGuest ? filteredLocal : [...filteredLocal, ...serverPlaylists];
       this.renderSidebarPlaylists();
     } catch (err) {
       console.warn('Error loading playlists:', err);

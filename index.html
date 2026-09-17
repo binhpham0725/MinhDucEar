@@ -1749,9 +1749,6 @@ html.light .bg-surface-container\/80 {
           <span>PLAYLISTS</span>
         </div>
         <nav id="mobile-sidebar-playlists" class="flex flex-col gap-1">
-          <a class="flex items-center justify-between px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-xs cursor-pointer" onclick="if(window.minhDucPlayer) { window.minhDucPlayer.openPlaylistDetail('Night Drive (Đêm)'); bootstrap.Offcanvas.getInstance(document.getElementById('mobile-nav-offcanvas'))?.hide(); }"><span class="truncate font-medium">Night Drive (Đêm)</span><span class="font-pixel text-[8px] text-secondary">16</span></a>
-          <a class="flex items-center justify-between px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-xs cursor-pointer" onclick="if(window.minhDucPlayer) { window.minhDucPlayer.openPlaylistDetail('Anime & Chiptune'); bootstrap.Offcanvas.getInstance(document.getElementById('mobile-nav-offcanvas'))?.hide(); }"><span class="truncate font-medium">Anime &amp; Chiptune</span><span class="font-pixel text-[8px] text-tertiary">24</span></a>
-          <a class="flex items-center justify-between px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-xs cursor-pointer" onclick="if(window.minhDucPlayer) { window.minhDucPlayer.openPlaylistDetail('Chill Beats Lo-fi'); bootstrap.Offcanvas.getInstance(document.getElementById('mobile-nav-offcanvas'))?.hide(); }"><span class="truncate font-medium">Chill Beats Lo-fi</span><span class="font-pixel text-[8px] text-primary">32</span></a>
         </nav>
       </div>
     </div>
@@ -1825,7 +1822,7 @@ html.light .bg-surface-container\/80 {
         </svg>
       </button>
     </div>
-  </div><nav id="sidebar-playlists-container" class="flex flex-col gap-1"><a class="flex items-center justify-between px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-[12px]" href="#"><span class="truncate font-medium">Night Drive (Đêm)</span><span class="font-pixel text-[8px] text-secondary">16</span></a><a class="flex items-center justify-between px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-[12px]" href="#"><span class="truncate font-medium">Anime &amp; Chiptune</span><span class="font-pixel text-[8px] text-tertiary">24</span></a><a class="flex items-center justify-between px-3 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-[12px]" href="#"><span class="truncate font-medium">Chill Beats Lo-fi</span><span class="font-pixel text-[8px] text-primary">32</span></a></nav></div></div><div class="pt-2 border-t border-outline-variant/30"><div id="sidebar-user-profile-btn" class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-high/80 pixel-border-sm cursor-pointer hover:bg-surface-container-high transition-colors select-none group" title="Thông tin tài khoản & Đăng nhập">
+  </div><nav id="sidebar-playlists-container" class="flex flex-col gap-1"></nav></div></div><div class="pt-2 border-t border-outline-variant/30"><div id="sidebar-user-profile-btn" class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-high/80 pixel-border-sm cursor-pointer hover:bg-surface-container-high transition-colors select-none group" title="Thông tin tài khoản & Đăng nhập">
   <div class="flex items-center gap-2.5">
     <div id="sidebar-avatar-container" class="w-8 h-8 rounded bg-primary flex items-center justify-center pixel-border-sm relative overflow-hidden">
       <img id="sidebar-avatar-img" src="" class="w-full h-full object-cover hidden">
@@ -2390,11 +2387,11 @@ html.light .bg-surface-container\/80 {
       <form id="inpage-form-login" class="space-y-3.5">
         <div>
           <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">TÊN ĐĂNG NHẬP HOẶC EMAIL</label>
-          <input id="inpage-login-username" type="text" value="minhduc" placeholder="Username / Email..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
+          <input id="inpage-login-username" type="text" placeholder="Nhập tên đăng nhập hoặc email..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
         </div>
         <div>
           <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">MẬT KHẨU</label>
-          <input id="inpage-login-password" type="password" value="123456" placeholder="Mật khẩu..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
+          <input id="inpage-login-password" type="password" placeholder="Nhập mật khẩu..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
         </div>
         <button type="submit" class="w-full py-2.5 rounded-lg bg-primary-container text-on-primary font-bold text-xs pixel-btn pixel-border-sm hover:brightness-110 tracking-wider">
           ĐĂNG NHẬP NGAY
@@ -3364,6 +3361,13 @@ html.light .bg-surface-container\/80 {
 
     <!-- Direct Real Google Sign-In Form -->
     <form id="form-real-google-login" class="space-y-3">
+      <div class="flex items-center justify-between p-2 rounded-lg bg-secondary/10 border border-secondary/30 cursor-pointer hover:bg-secondary/20 transition-all" onclick="const e=document.getElementById('input-real-google-email'),n=document.getElementById('input-real-google-name');if(e)e.value='binhpham2k5@gmail.com';if(n)n.value='PTB Nightcore';">
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] text-secondary">⚡</span>
+          <span class="text-[10px] text-white font-mono">Nhập nhanh: <b class="text-secondary underline">binhpham2k5@gmail.com</b></span>
+        </div>
+        <span class="text-[9px] font-silkscreen text-secondary uppercase bg-secondary/20 px-2 py-0.5 rounded">Chọn</span>
+      </div>
       <div>
         <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">EMAIL GOOGLE CỦA BẠN *</label>
         <input id="input-real-google-email" type="email" placeholder="yourname@gmail.com..." required class="w-full bg-black/60 border border-white/15 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-secondary font-mono transition-colors">

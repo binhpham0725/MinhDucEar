@@ -158,11 +158,11 @@
       <form id="pane-login" class="space-y-3.5">
         <div>
           <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">TÊN ĐĂNG NHẬP HOẶC EMAIL</label>
-          <input id="login-username" type="text" value="minhduc" placeholder="Username / Email..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
+          <input id="login-username" type="text" placeholder="Nhập tên đăng nhập hoặc email..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
         </div>
         <div>
           <label class="block font-silkscreen text-[8px] text-gray-400 mb-1">MẬT KHẨU</label>
-          <input id="login-password" type="password" value="123456" placeholder="Mật khẩu..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
+          <input id="login-password" type="password" placeholder="Nhập mật khẩu..." class="w-full bg-black/60 border border-white/15 rounded-lg px-3.5 py-2 text-xs text-white focus:outline-none focus:border-primary font-mono transition-colors">
         </div>
         <button type="submit" id="btn-submit-login" class="w-full py-2.5 rounded-lg bg-primary-container text-on-primary font-bold text-xs pixel-btn pixel-border-sm hover:brightness-110 tracking-wider">
           ĐĂNG NHẬP NGAY

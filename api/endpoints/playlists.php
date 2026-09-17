@@ -246,28 +246,7 @@ if ($action === 'playlists_list') {
         $stmt->execute([$userId]);
         $playlists = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
-    // If user has no custom playlists or is Guest: return featured YouTube Music playlists
-    if (empty($playlists) && $pdo) {
-        $stmtPub = $pdo->query("
-            SELECT p.id, p.user_id, p.name, p.description, p.cover_url, p.is_public, 1 as is_curated, COUNT(pt.track_id) as total_tracks 
-            FROM playlists p 
-            LEFT JOIN playlist_tracks pt ON p.id = pt.playlist_id 
-            WHERE p.is_public = 1 
-              AND p.name IN (
-                'YouTube Music: My Supermix', 
-                'YouTube Music: Thư Giãn & Chill', 
-                'YouTube Music: Năng Lượng & Workout', 
-                'YouTube Top Trending',
-                'YouTube Music: Đồng bộ Đám Mây'
-              )
-            GROUP BY p.name 
-            ORDER BY total_tracks DESC, p.id ASC 
-            LIMIT 5
-        ");
-        $playlists = $stmtPub ? $stmtPub->fetchAll(PDO::FETCH_ASSOC) : [];
-    }
-
+    // Guest has empty playlist list by default (unless they create one in localStorage)
     echo json_encode(['success' => true, 'playlists' => $playlists]);
     exit;
 }
