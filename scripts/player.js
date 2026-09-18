@@ -2441,6 +2441,7 @@ class MinhDucAudioEngine {
     const modal = document.getElementById('modal-add-to-playlist');
     const closeBtn = document.getElementById('btn-close-add-to-pl');
     const cancelBtn = document.getElementById('btn-cancel-add-to-pl');
+    const quickCreateBtn = document.getElementById('btn-quick-create-pl-from-modal');
 
     const closeModal = () => {
       if (modal) modal.classList.add('hidden');
@@ -2449,6 +2450,27 @@ class MinhDucAudioEngine {
 
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
     if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+    if (quickCreateBtn) {
+      quickCreateBtn.addEventListener('click', () => {
+        this.pendingTrackForNewPlaylist = this.pendingAddToPlaylistTrack;
+        if (modal) modal.classList.add('hidden');
+        const btnAdd = document.getElementById('btn-playlist-add');
+        if (btnAdd) {
+          btnAdd.click();
+        } else {
+          const modalCreate = document.getElementById('modal-playlist-create');
+          if (modalCreate) {
+            document.getElementById('input-create-pl-name').value = '';
+            document.getElementById('input-create-pl-desc').value = '';
+            document.getElementById('input-create-pl-cover').value = '';
+            this.clearModalAlert('alert-playlist-create');
+            modalCreate.classList.remove('hidden');
+            setTimeout(() => document.getElementById('input-create-pl-name')?.focus(), 50);
+          }
+        }
+      });
+    }
   }
 
   // ─── Floating Synced Lyrics (Single-Line Karaoke Pill) ────────────────────
@@ -3053,7 +3075,35 @@ class MinhDucAudioEngine {
     list.innerHTML = '';
 
     if (!this.currentPlaylists || this.currentPlaylists.length === 0) {
-      list.innerHTML = '<div class="p-3 text-center text-xs font-silkscreen text-gray-400">Bạn chưa có playlist nào. Hãy tạo playlist ở thanh bên trái!</div>';
+      list.innerHTML = `
+        <div class="p-4 text-center text-xs font-silkscreen text-gray-400 flex flex-col items-center gap-2.5">
+          <span>BẠN CHƯA CÓ PLAYLIST NÀO.</span>
+          <button type="button" class="btn-create-pl-from-empty px-3 py-1.5 rounded-lg bg-secondary text-[#131316] font-bold text-[11px] hover:bg-secondary/90 transition-all cursor-pointer shadow-md flex items-center gap-1">
+            <span>+ TẠO PLAYLIST MỚI</span>
+          </button>
+        </div>
+      `;
+      const btnCreateEmpty = list.querySelector('.btn-create-pl-from-empty');
+      if (btnCreateEmpty) {
+        btnCreateEmpty.addEventListener('click', () => {
+          this.pendingTrackForNewPlaylist = this.pendingAddToPlaylistTrack;
+          modal.classList.add('hidden');
+          const btnAdd = document.getElementById('btn-playlist-add');
+          if (btnAdd) {
+            btnAdd.click();
+          } else {
+            const modalCreate = document.getElementById('modal-playlist-create');
+            if (modalCreate) {
+              document.getElementById('input-create-pl-name').value = '';
+              document.getElementById('input-create-pl-desc').value = '';
+              document.getElementById('input-create-pl-cover').value = '';
+              this.clearModalAlert('alert-playlist-create');
+              modalCreate.classList.remove('hidden');
+              setTimeout(() => document.getElementById('input-create-pl-name')?.focus(), 50);
+            }
+          }
+        });
+      }
     } else {
       this.currentPlaylists.forEach(pl => {
         const item = document.createElement('div');
@@ -5059,7 +5109,7 @@ class MinhDucAudioEngine {
   }
 
   highlightActiveSidebarPlaylist(activeId) {
-    const links = document.querySelectorAll('#sidebar-playlists-container a');
+    const links = document.querySelectorAll('#sidebar-playlists-container a, #mobile-sidebar-playlists a');
     links.forEach(link => {
       const pId = link.getAttribute('data-playlist-id');
       if (activeId !== null && activeId !== undefined && String(pId) === String(activeId)) {
@@ -5504,21 +5554,34 @@ class MinhDucAudioEngine {
 
 // --- DYNAMIC PLAYLISTS & CRUD MANAGEMENT ---
   bindPlaylistActions() {
-    // 1. Button Thêm Playlist (+)
+    // 1. Button Thêm Playlist (+) Desktop & Mobile
     const btnAdd = document.getElementById('btn-playlist-add');
+    const btnMobileAdd = document.getElementById('btn-mobile-playlist-add');
     const modalCreate = document.getElementById('modal-playlist-create');
     const btnCloseCreate = document.getElementById('btn-close-playlist-create');
     const btnCancelCreate = document.getElementById('btn-cancel-playlist-create');
     const formCreate = document.getElementById('form-playlist-create');
 
+    const openCreateModal = () => {
+      document.getElementById('input-create-pl-name').value = '';
+      document.getElementById('input-create-pl-desc').value = '';
+      document.getElementById('input-create-pl-cover').value = '';
+      this.clearModalAlert('alert-playlist-create');
+      if (modalCreate) modalCreate.classList.remove('hidden');
+      setTimeout(() => document.getElementById('input-create-pl-name')?.focus(), 50);
+    };
+
     if (btnAdd && modalCreate) {
-      btnAdd.addEventListener('click', () => {
-        document.getElementById('input-create-pl-name').value = '';
-        document.getElementById('input-create-pl-desc').value = '';
-        document.getElementById('input-create-pl-cover').value = '';
-        this.clearModalAlert('alert-playlist-create');
-        modalCreate.classList.remove('hidden');
-        document.getElementById('input-create-pl-name').focus();
+      btnAdd.addEventListener('click', openCreateModal);
+    }
+    if (btnMobileAdd && modalCreate) {
+      btnMobileAdd.addEventListener('click', () => {
+        const offcanvasEl = document.getElementById('mobile-sidebar-offcanvas');
+        if (offcanvasEl && window.bootstrap) {
+          const inst = bootstrap.Offcanvas.getInstance(offcanvasEl);
+          if (inst) inst.hide();
+        }
+        openCreateModal();
       });
     }
 
@@ -5539,28 +5602,104 @@ class MinhDucAudioEngine {
           return this.showModalAlert('alert-playlist-create', 'Vui lòng nhập tên playlist!');
         }
 
+        const cloudUid = (typeof this.getCloudUid === 'function') ? this.getCloudUid() : null;
+        const uidParam = cloudUid || this.currentUser?.id || this.currentUser?.email || '';
+
+        // Prepare local playlist object for immediate optimistic display
+        const tempId = 'pl_' + Date.now();
+        const newLocalPl = {
+          id: tempId,
+          uuid: tempId,
+          name: name,
+          description: description || '',
+          cover_url: cover_url || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300',
+          total_tracks: 0,
+          tracks_count: 0,
+          created_at: new Date().toISOString(),
+          is_public: 1
+        };
+
+        // Save to localStorage immediately so guests & offline users never lose it
+        try {
+          const localList = JSON.parse(localStorage.getItem('minhduc_local_playlists') || '[]');
+          localList.unshift(newLocalPl);
+          localStorage.setItem('minhduc_local_playlists', JSON.stringify(localList));
+        } catch (e) {}
+
+        let createdServerId = null;
+
         try {
           const isPagesDir = window.location.pathname.includes('/pages/');
           const apiUrl = (isPagesDir ? '../' : '') + 'api/endpoints/playlists.php?action=playlist_create';
           const res = await fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, description, cover_url })
+            body: JSON.stringify({
+              name,
+              description,
+              cover_url,
+              user_id: uidParam,
+              owner_uid: cloudUid || uidParam
+            })
           });
           const result = await res.json();
           if (result && result.success) {
-            closeCreateModal();
-            this.loadSidebarPlaylists();
-            if (typeof this.showToast === 'function') {
-              this.showToast(`Đã tạo playlist "${name}" thành công!`, 'success');
-            } else {
-              this.showInpageAlert('Tạo playlist mới thành công!', 'success');
-            }
-          } else {
-            this.showModalAlert('alert-playlist-create', (result && result.message) || 'Lỗi tạo playlist!');
+            createdServerId = result.id;
+            newLocalPl.id = result.id;
+            newLocalPl.uuid = result.uuid || result.id;
+            try {
+              const localList = JSON.parse(localStorage.getItem('minhduc_local_playlists') || '[]');
+              if (localList.length > 0 && localList[0].name === name) {
+                localList[0].id = result.id;
+                localList[0].uuid = result.uuid || result.id;
+                localStorage.setItem('minhduc_local_playlists', JSON.stringify(localList));
+              }
+            } catch (e) {}
           }
         } catch (err) {
-          this.showModalAlert('alert-playlist-create', 'Lỗi kết nối máy chủ!');
+          console.warn('[Playlist Create] Server sync failed, retained in local storage:', err);
+        }
+
+        // Sync to Firebase if available
+        if (window.__firebaseService && cloudUid) {
+          try {
+            await window.__firebaseService.createPlaylist(cloudUid, {
+              name,
+              description,
+              coverUrl: cover_url || '',
+              tracks: []
+            });
+          } catch (e) {}
+        }
+
+        // If this playlist was triggered from "Add to Playlist" modal with a pending track:
+        if (this.pendingTrackForNewPlaylist) {
+          const tr = this.pendingTrackForNewPlaylist;
+          this.pendingTrackForNewPlaylist = null;
+          const targetPlId = createdServerId || tempId;
+          try {
+            await fetch('api/endpoints/tracks.php?action=add_to_playlist', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                playlist_id: targetPlId,
+                track_id: tr.db_id || tr.id,
+                youtube_id: tr.youtube_id,
+                title: tr.title,
+                artist: tr.artist,
+                cover_url: tr.cover_url,
+                duration: tr.duration
+              })
+            });
+          } catch (e) {}
+        }
+
+        closeCreateModal();
+        await this.loadSidebarPlaylists();
+        if (typeof this.showToast === 'function') {
+          this.showToast(`Đã tạo playlist "${name}" thành công!`, 'success');
+        } else {
+          this.showInpageAlert('Tạo playlist mới thành công!', 'success');
         }
       });
     }
@@ -5762,107 +5901,154 @@ class MinhDucAudioEngine {
   }
 
   renderSidebarPlaylists() {
-    const container = document.getElementById('sidebar-playlists-container');
-    if (!container) return;
-    container.innerHTML = '';
+    const desktopContainer = document.getElementById('sidebar-playlists-container');
+    const mobileContainer = document.getElementById('mobile-sidebar-playlists');
+    const containers = [
+      { el: desktopContainer, isMobile: false },
+      { el: mobileContainer, isMobile: true }
+    ].filter(c => c.el !== null);
 
-    if (!this.currentPlaylists || this.currentPlaylists.length === 0) {
-      const empty = document.createElement('div');
-      empty.className = 'px-3 py-3 rounded-lg bg-surface-container-high/40 border border-outline-variant/30 text-center flex flex-col items-center gap-2 my-1';
-      empty.innerHTML = `
-        <span class="text-[10px] text-gray-400 font-silkscreen tracking-wider">CHƯA CÓ PLAYLIST</span>
-        <button type="button" class="btn-sidebar-create-empty px-2.5 py-1 rounded bg-secondary/15 hover:bg-secondary/25 text-secondary text-[9px] font-silkscreen border border-secondary/40 transition-all hover:scale-105 cursor-pointer flex items-center gap-1">
-          <span>+ TẠO PLAYLIST</span>
-        </button>
-      `;
-      const btnFirst = empty.querySelector('.btn-sidebar-create-empty');
-      if (btnFirst) {
-        btnFirst.addEventListener('click', () => {
-          const btnAdd = document.getElementById('btn-playlist-add');
-          if (btnAdd) btnAdd.click();
-        });
-      }
-      container.appendChild(empty);
-      return;
-    }
+    if (containers.length === 0) return;
 
-    this.currentPlaylists.forEach((pl) => {
-      if (!this.isPlaylistEditMode) {
-        // Normal View: Click to expand playlist detail view (Bung ra chi tiết playlist)
-        const item = document.createElement('a');
-        item.className = 'flex items-center justify-between px-2.5 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-[12px] cursor-pointer group transition-colors';
-        item.setAttribute('data-playlist-id', pl.id);
-        if (this.isShowingPlaylistDetail && this.currentPlaylistDetail && String(this.currentPlaylistDetail.id) === String(pl.id)) {
-          item.classList.add('bg-surface-container-high', 'text-on-surface', 'ring-1', 'ring-secondary/40');
+    containers.forEach(({ el: container, isMobile }) => {
+      container.innerHTML = '';
+
+      if (!this.currentPlaylists || this.currentPlaylists.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'px-3 py-3 rounded-lg bg-surface-container-high/40 border border-outline-variant/30 text-center flex flex-col items-center gap-2 my-1';
+        empty.innerHTML = `
+          <span class="text-[10px] text-gray-400 font-silkscreen tracking-wider">CHƯA CÓ PLAYLIST</span>
+          <button type="button" class="btn-sidebar-create-empty px-2.5 py-1 rounded bg-secondary/15 hover:bg-secondary/25 text-secondary text-[9px] font-silkscreen border border-secondary/40 transition-all hover:scale-105 cursor-pointer flex items-center gap-1">
+            <span>+ TẠO PLAYLIST</span>
+          </button>
+        `;
+        const btnFirst = empty.querySelector('.btn-sidebar-create-empty');
+        if (btnFirst) {
+          btnFirst.addEventListener('click', () => {
+            if (isMobile) {
+              const offcanvasEl = document.getElementById('mobile-sidebar-offcanvas');
+              if (offcanvasEl && window.bootstrap) {
+                const inst = bootstrap.Offcanvas.getInstance(offcanvasEl);
+                if (inst) inst.hide();
+              }
+            }
+            const btnAdd = document.getElementById('btn-playlist-add');
+            if (btnAdd) {
+              btnAdd.click();
+            } else {
+              const btnMobileAdd = document.getElementById('btn-mobile-playlist-add');
+              if (btnMobileAdd) btnMobileAdd.click();
+            }
+          });
         }
-        item.title = pl.description ? `${pl.name} - ${pl.description}` : pl.name;
-        item.innerHTML = `
-          <span class="truncate font-medium group-hover:text-primary transition-colors flex items-center gap-1.5 min-w-0">
-            <span class="w-1.5 h-1.5 rounded-full bg-secondary shrink-0"></span>
-            <span class="truncate">${this.escapeHtml(pl.name)}</span>
-          </span>
-          <span class="font-mono text-[9px] font-semibold text-secondary px-1.5 py-0.5 rounded bg-secondary/10 border border-secondary/30 shrink-0 ml-1.5 leading-none">${pl.total_tracks || 0}</span>
-        `;
-        item.addEventListener('click', () => {
-          this.openPlaylistDetail(pl);
-        });
-        container.appendChild(item);
-      } else {
-        // Edit Mode: Shows Edit and Delete Buttons
-        const item = document.createElement('div');
-        item.className = 'flex items-center justify-between px-2 py-1.5 rounded-lg bg-surface-container-high/50 border border-outline-variant/30 text-[12px] group gap-1 transition-all';
-        
-        const isCurated = !!pl.is_curated;
-        item.innerHTML = `
-          <span class="truncate font-medium text-on-surface flex-1 text-[11px]" title="${this.escapeHtml(pl.name)}">
-            ${this.escapeHtml(pl.name)}
-          </span>
-          <div class="flex items-center gap-1 shrink-0">
-            ${isCurated ? `
-              <span class="text-[8px] font-mono px-1.5 py-0.5 rounded bg-secondary/10 text-secondary border border-secondary/30">MẶC ĐỊNH</span>
-            ` : `
-              <!-- Nút sửa -->
-              <button type="button" class="btn-pl-edit w-5 h-5 flex items-center justify-center rounded bg-primary/20 hover:bg-primary/40 text-primary border border-primary/40 transition-colors cursor-pointer" title="Chỉnh sửa playlist này">
-                <svg class="w-3 h-3 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-              </button>
-              <!-- Nút xóa -->
-              <button type="button" class="btn-pl-delete w-5 h-5 flex items-center justify-center rounded bg-red-950/50 hover:bg-red-900 text-red-400 border border-red-800/50 transition-colors cursor-pointer" title="Xóa playlist này">
-                <svg class="w-3 h-3 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
-            `}
-          </div>
-        `;
+        container.appendChild(empty);
+        return;
+      }
 
-        if (!isCurated) {
-          // Bind Sửa
-          const editBtn = item.querySelector('.btn-pl-edit');
-          if (editBtn) {
-            editBtn.addEventListener('click', (e) => {
-              e.stopPropagation();
-              this.openEditPlaylistModal(pl);
-            });
+      this.currentPlaylists.forEach((pl) => {
+        if (!this.isPlaylistEditMode) {
+          // Normal View: Click to expand playlist detail view (Bung ra chi tiết playlist)
+          const item = document.createElement('a');
+          item.className = 'flex items-center justify-between px-2.5 py-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface text-[12px] cursor-pointer group transition-colors';
+          item.setAttribute('data-playlist-id', pl.id);
+          if (this.isShowingPlaylistDetail && this.currentPlaylistDetail && String(this.currentPlaylistDetail.id) === String(pl.id)) {
+            item.classList.add('bg-surface-container-high', 'text-on-surface', 'ring-1', 'ring-secondary/40');
+          }
+          item.title = pl.description ? `${pl.name} - ${pl.description}` : pl.name;
+          item.innerHTML = `
+            <span class="truncate font-medium group-hover:text-primary transition-colors flex items-center gap-1.5 min-w-0">
+              <span class="w-1.5 h-1.5 rounded-full bg-secondary shrink-0"></span>
+              <span class="truncate">${this.escapeHtml(pl.name)}</span>
+            </span>
+            <span class="font-mono text-[9px] font-semibold text-secondary px-1.5 py-0.5 rounded bg-secondary/10 border border-secondary/30 shrink-0 ml-1.5 leading-none">${pl.total_tracks || 0}</span>
+          `;
+          item.addEventListener('click', () => {
+            if (isMobile) {
+              const offcanvasEl = document.getElementById('mobile-sidebar-offcanvas');
+              if (offcanvasEl && window.bootstrap) {
+                const inst = bootstrap.Offcanvas.getInstance(offcanvasEl);
+                if (inst) inst.hide();
+              }
+            }
+            this.openPlaylistDetail(pl);
+          });
+          container.appendChild(item);
+        } else {
+          // Edit Mode: Shows Edit and Delete Buttons
+          const item = document.createElement('div');
+          item.className = 'flex items-center justify-between px-2 py-1.5 rounded-lg bg-surface-container-high/50 border border-outline-variant/30 text-[12px] group gap-1 transition-all';
+          
+          const isCurated = !!pl.is_curated;
+          item.innerHTML = `
+            <span class="truncate font-medium text-on-surface flex-1 text-[11px]" title="${this.escapeHtml(pl.name)}">
+              ${this.escapeHtml(pl.name)}
+            </span>
+            <div class="flex items-center gap-1 shrink-0">
+              ${isCurated ? `
+                <span class="text-[8px] font-mono px-1.5 py-0.5 rounded bg-secondary/10 text-secondary border border-secondary/30">MẶC ĐỊNH</span>
+              ` : `
+                <!-- Nút sửa -->
+                <button type="button" class="btn-pl-edit w-5 h-5 flex items-center justify-center rounded bg-primary/20 hover:bg-primary/40 text-primary border border-primary/40 transition-colors cursor-pointer" title="Chỉnh sửa playlist này">
+                  <svg class="w-3 h-3 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                </button>
+                <!-- Nút xóa -->
+                <button type="button" class="btn-pl-delete w-5 h-5 flex items-center justify-center rounded bg-red-950/50 hover:bg-red-900 text-red-400 border border-red-800/50 transition-colors cursor-pointer" title="Xóa playlist này">
+                  <svg class="w-3 h-3 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              `}
+            </div>
+          `;
+
+          if (!isCurated) {
+            // Bind Sửa
+            const editBtn = item.querySelector('.btn-pl-edit');
+            if (editBtn) {
+              editBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (isMobile) {
+                  const offcanvasEl = document.getElementById('mobile-sidebar-offcanvas');
+                  if (offcanvasEl && window.bootstrap) {
+                    const inst = bootstrap.Offcanvas.getInstance(offcanvasEl);
+                    if (inst) inst.hide();
+                  }
+                }
+                this.openEditPlaylistModal(pl);
+              });
+            }
+
+            // Bind Xóa
+            const delBtn = item.querySelector('.btn-pl-delete');
+            if (delBtn) {
+              delBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (isMobile) {
+                  const offcanvasEl = document.getElementById('mobile-sidebar-offcanvas');
+                  if (offcanvasEl && window.bootstrap) {
+                    const inst = bootstrap.Offcanvas.getInstance(offcanvasEl);
+                    if (inst) inst.hide();
+                  }
+                }
+                this.openDeletePlaylistModal(pl);
+              });
+            }
           }
 
-          // Bind Xóa
-          const delBtn = item.querySelector('.btn-pl-delete');
-          if (delBtn) {
-            delBtn.addEventListener('click', (e) => {
-              e.stopPropagation();
-              this.openDeletePlaylistModal(pl);
-            });
-          }
+          container.appendChild(item);
         }
-
-        container.appendChild(item);
-      }
+      });
     });
   }
 
   openEditPlaylistModal(pl) {
+    const offcanvasEl = document.getElementById('mobile-sidebar-offcanvas');
+    if (offcanvasEl && window.bootstrap) {
+      const inst = bootstrap.Offcanvas.getInstance(offcanvasEl);
+      if (inst) inst.hide();
+    }
     const modal = document.getElementById('modal-playlist-edit');
     if (!modal) return;
     document.getElementById('input-edit-pl-id').value = pl.id;
@@ -5875,6 +6061,11 @@ class MinhDucAudioEngine {
   }
 
   openDeletePlaylistModal(pl) {
+    const offcanvasEl = document.getElementById('mobile-sidebar-offcanvas');
+    if (offcanvasEl && window.bootstrap) {
+      const inst = bootstrap.Offcanvas.getInstance(offcanvasEl);
+      if (inst) inst.hide();
+    }
     const modal = document.getElementById('modal-playlist-delete-confirm');
     if (!modal) return;
     this.pendingDeletePlaylist = pl;

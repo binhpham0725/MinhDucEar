@@ -1807,6 +1807,11 @@ html.light .bg-surface-container\/80 {
       <div class="space-y-1.5">
         <div class="px-2 font-label-caps text-[10px] text-outline uppercase tracking-wider flex justify-between items-center font-silkscreen">
           <span>PLAYLISTS</span>
+          <button type="button" id="btn-mobile-playlist-add" class="w-5 h-5 flex items-center justify-center rounded bg-surface-container-high hover:bg-surface-container-highest text-secondary hover:text-white border border-outline-variant/30 pixel-border-sm transition-all hover:scale-110 cursor-pointer" title="Tạo playlist mới (+)">
+            <svg class="w-3 h-3 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+          </button>
         </div>
         <nav id="mobile-sidebar-playlists" class="flex flex-col gap-1">
         </nav>
@@ -3407,7 +3412,7 @@ html.light .bg-surface-container\/80 {
 
 
 
-<script src="assets/js/player.js?v=3.8.8"></script>
+<script src="assets/js/player.js?v=3.8.9"></script>
   <!-- YouTube Audio Engine & HTML5 Audio -->
   <div id="yt-player-container" style="position:fixed;bottom:0;right:0;width:64px;height:64px;opacity:0.01;pointer-events:none;z-index:-1">
     <div id="yt-player"></div>
@@ -3639,7 +3644,12 @@ html.light .bg-surface-container\/80 {
       </div>
     </div>
 
-    <p class="font-silkscreen text-[9px] text-gray-300 mb-2">CHỌN PLAYLIST ĐỂ LƯU:</p>
+    <div class="flex items-center justify-between mb-2">
+      <p class="font-silkscreen text-[9px] text-gray-300">CHỌN PLAYLIST ĐỂ LƯU:</p>
+      <button type="button" id="btn-quick-create-pl-from-modal" class="text-[9px] font-silkscreen text-secondary hover:text-white flex items-center gap-1 transition-colors cursor-pointer px-1.5 py-0.5 rounded bg-secondary/10 border border-secondary/30 hover:bg-secondary/20">
+        <span>+ TẠO MỚI</span>
+      </button>
+    </div>
     <div id="add-to-pl-list" class="max-h-48 overflow-y-auto space-y-1.5 custom-scroll mb-4 pr-1">
       <!-- Dynamic Playlist options rendered by JS -->
     </div>

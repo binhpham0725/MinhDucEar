@@ -258,23 +258,77 @@ if ($action === 'album_favorite_toggle') {
 
 if ($action === 'playlists_list') {
     $playlists = [];
-    if ($userId && $pdo) {
-        $stmt = $pdo->prepare("SELECT p.*, 0 as is_curated, COUNT(pt.track_id) as total_tracks FROM playlists p LEFT JOIN playlist_tracks pt ON p.id = pt.playlist_id WHERE p.user_id = ? GROUP BY p.id ORDER BY p.created_at DESC");
-        $stmt->execute([$userId]);
-        $playlists = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $rawUserInput = trim($_GET['user_id'] ?? $_POST['user_id'] ?? $_REQUEST['user_id'] ?? '');
+    if (!$userId && !empty($rawUserInput)) {
+        if (is_numeric($rawUserInput)) {
+            $userId = (int)$rawUserInput;
+        } else if ($pdo) {
+            $cleanEmail = strtolower($rawUserInput);
+            $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? OR username = ? OR REPLACE(REPLACE(LOWER(email), '@', '_'), '.', '_') = ? OR google_id = ? OR uuid = ? LIMIT 1");
+            $stmt->execute([$rawUserInput, $rawUserInput, $cleanEmail, $rawUserInput, $rawUserInput]);
+            $found = $stmt->fetchColumn();
+            if ($found) $userId = (int)$found;
+        }
     }
-    // If user has no custom playlists, include public playlists as fallback
-    if (empty($playlists) && $pdo) {
-        $stmt = $pdo->query("SELECT p.*, 1 as is_curated, COUNT(pt.track_id) as total_tracks FROM playlists p LEFT JOIN playlist_tracks pt ON p.id = pt.playlist_id WHERE p.is_public = 1 GROUP BY p.id ORDER BY p.created_at DESC LIMIT 10");
-        $playlists = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if ($pdo) {
+        $conditions = [];
+        $params = [];
+        if ($userId) {
+            $conditions[] = "p.user_id = ?";
+            $params[] = $userId;
+        }
+        if (!empty($rawUserInput)) {
+            $conditions[] = "p.owner_uid = ?";
+            $params[] = $rawUserInput;
+        }
+
+        if (!empty($conditions)) {
+            $sqlWhere = implode(' OR ', $conditions);
+            $stmt = $pdo->prepare("SELECT p.*, 0 as is_curated, COUNT(pt.track_id) as total_tracks FROM playlists p LEFT JOIN playlist_tracks pt ON p.id = pt.playlist_id WHERE ($sqlWhere) AND (p.is_deleted IS NULL OR p.is_deleted = 0) GROUP BY p.id ORDER BY p.created_at DESC");
+            $stmt->execute($params);
+            $playlists = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
+        // If user has no custom playlists, include public playlists as fallback
+        if (empty($playlists)) {
+            $stmt = $pdo->query("SELECT p.*, 1 as is_curated, COUNT(pt.track_id) as total_tracks FROM playlists p LEFT JOIN playlist_tracks pt ON p.id = pt.playlist_id WHERE p.is_public = 1 AND (p.is_deleted IS NULL OR p.is_deleted = 0) GROUP BY p.id ORDER BY p.created_at DESC LIMIT 10");
+            $playlists = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
     }
     echo json_encode(['success' => true, 'playlists' => $playlists]);
     exit;
 }
 
 if ($action === 'playlist_create') {
-    $effectiveUserId = $userId ?: 1;
     $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+    $rawUserInput = trim($input['user_id'] ?? $_GET['user_id'] ?? $_POST['user_id'] ?? '');
+    $ownerUid = trim($input['owner_uid'] ?? $input['uid'] ?? $rawUserInput);
+
+    // If userId not yet resolved from session, check rawUserInput
+    if (!$userId && !empty($rawUserInput)) {
+        if (is_numeric($rawUserInput)) {
+            $userId = (int)$rawUserInput;
+        } else if ($pdo) {
+            $cleanEmail = strtolower($rawUserInput);
+            $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? OR username = ? OR REPLACE(REPLACE(LOWER(email), '@', '_'), '.', '_') = ? OR google_id = ? OR uuid = ? LIMIT 1");
+            $stmt->execute([$rawUserInput, $rawUserInput, $cleanEmail, $rawUserInput, $rawUserInput]);
+            $found = $stmt->fetchColumn();
+            if ($found) $userId = (int)$found;
+        }
+    }
+
+    $effectiveUserId = $userId ?: 1;
+    // Verify that $effectiveUserId actually exists in users table to prevent FK constraint failure
+    if ($pdo) {
+        $chkUser = $pdo->prepare("SELECT id FROM users WHERE id = ?");
+        $chkUser->execute([$effectiveUserId]);
+        if (!$chkUser->fetchColumn()) {
+            $firstUser = $pdo->query("SELECT id FROM users ORDER BY id ASC LIMIT 1")->fetchColumn();
+            $effectiveUserId = $firstUser ? (int)$firstUser : 1;
+        }
+    }
+
     $name = trim($input['name'] ?? '');
     $desc = trim($input['description'] ?? '');
     $cover = trim($input['cover_url'] ?? '');
@@ -282,21 +336,37 @@ if ($action === 'playlist_create') {
         $cover = 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=300&auto=format&fit=crop&q=60';
     }
 
-    if ($pdo && !empty($name)) {
-        $stmt = $pdo->prepare("INSERT INTO playlists (user_id, name, description, cover_url, is_public) VALUES (?, ?, ?, ?, 1)");
-        $stmt->execute([$effectiveUserId, $name, $desc, $cover]);
-        $newId = (int)$pdo->lastInsertId();
-        echo json_encode([
-            'success' => true,
-            'id' => $newId,
-            'name' => $name,
-            'description' => $desc,
-            'cover_url' => $cover,
-            'message' => 'Đã tạo playlist thành công!'
-        ]);
+    if (empty($name)) {
+        echo json_encode(['success' => false, 'message' => 'Tên playlist không được để trống!']);
         exit;
     }
-    echo json_encode(['success' => false, 'message' => 'Tên playlist không được để trống!']);
+
+    if ($pdo) {
+        try {
+            $uuid = vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex(random_bytes(16)), 4));
+            $stmt = $pdo->prepare("INSERT INTO playlists (user_id, owner_uid, uuid, name, description, cover_url, is_public) VALUES (?, ?, ?, ?, ?, ?, 1)");
+            $stmt->execute([$effectiveUserId, $ownerUid ?: null, $uuid, $name, $desc, $cover]);
+            $newId = (int)$pdo->lastInsertId();
+            echo json_encode([
+                'success' => true,
+                'id' => $newId,
+                'uuid' => $uuid,
+                'name' => $name,
+                'description' => $desc,
+                'cover_url' => $cover,
+                'user_id' => $effectiveUserId,
+                'owner_uid' => $ownerUid,
+                'message' => 'Đã tạo playlist thành công!'
+            ]);
+            exit;
+        } catch (Exception $e) {
+            error_log('[playlists.php] Create playlist error: ' . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Lỗi lưu playlist: ' . $e->getMessage()]);
+            exit;
+        }
+    }
+
+    echo json_encode(['success' => false, 'message' => 'Lỗi kết nối cơ sở dữ liệu!']);
     exit;
 }
 
