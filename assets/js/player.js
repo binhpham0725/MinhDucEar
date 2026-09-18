@@ -33,6 +33,7 @@ class MinhDucAudioEngine {
     this.lastRenderedTotalSec = -1;
     this.timerInterval = null;
     this.audioEl = document.getElementById('real-audio-player');
+    this.audioCache = new Map(); // In-memory Blob URL cache for instant zero-latency playback
     this.ytPlayer = null;
     this.ytReady = false;
     this.currentSource = 'youtube'; // 'youtube' | 'audio'
@@ -536,6 +537,12 @@ class MinhDucAudioEngine {
       document.body.appendChild(this.audioEl);
     }
     this.audioEl.volume = this.volume;
+    this.audioEl.preload = 'auto';
+    this.audioEl.addEventListener('progress', () => {
+      if (this.currentSource === 'audio') {
+        this.updateTimelineUI();
+      }
+    });
 
     this.audioEl.addEventListener('loadedmetadata', () => {
       if (this.audioEl.duration && !isNaN(this.audioEl.duration) && this.audioEl.duration > 0) {
@@ -578,6 +585,59 @@ class MinhDucAudioEngine {
     });
   }
 
+  // Smart In-Memory / Blob Audio Cache for HTML5 Audio (Zero Latency & Seamless Seeking)
+  async getAudioStreamUrl(track) {
+    if (!track) return '';
+    const rawUrl = track.audio_url || `api/endpoints/stream.php?id=${track.id}`;
+    if (this.audioCache.has(rawUrl)) {
+      return this.audioCache.get(rawUrl);
+    }
+
+    // Try reading from Browser CacheStorage first
+    if ('caches' in window) {
+      try {
+        const cache = await caches.open('minhduc-audio-v1');
+        const cachedRes = await cache.match(rawUrl);
+        if (cachedRes) {
+          const blob = await cachedRes.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          this.audioCache.set(rawUrl, blobUrl);
+          return blobUrl;
+        }
+      } catch (e) {}
+    }
+
+    // Preload & cache in background into Memory / CacheStorage
+    fetch(rawUrl)
+      .then(async (res) => {
+        if (res.ok) {
+          const clone = res.clone();
+          if ('caches' in window) {
+            try {
+              const cache = await caches.open('minhduc-audio-v1');
+              cache.put(rawUrl, clone).catch(() => {});
+            } catch (e) {}
+          }
+          const blob = await res.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          this.audioCache.set(rawUrl, blobUrl);
+        }
+      })
+      .catch(() => {});
+
+    return rawUrl;
+  }
+
+  preloadNextTrack() {
+    if (!this.tracks || this.tracks.length === 0) return;
+    const nextIdx = (this.currentTrackIndex + 1) % this.tracks.length;
+    const nextTrack = this.tracks[nextIdx];
+    if (!nextTrack) return;
+    if (nextTrack.source_type === 'database' || nextTrack.audio_url) {
+      this.getAudioStreamUrl(nextTrack);
+    }
+  }
+
   // 3. Play / Pause Control
   togglePlay() {
     if (!this.currentTrack) {
@@ -616,11 +676,17 @@ class MinhDucAudioEngine {
       this.currentSource = 'audio';
       if (this.ytPlayer && this.ytPlayer.pauseVideo) this.ytPlayer.pauseVideo();
 
-      const url = track.audio_url || `api/endpoints/stream.php?id=${track.id}`;
-      if (this.audioEl.src !== url) {
-        this.audioEl.src = url;
+      const rawUrl = track.audio_url || `api/endpoints/stream.php?id=${track.id}`;
+      const playUrl = this.audioCache.get(rawUrl) || rawUrl;
+      if (this.audioEl.src !== playUrl) {
+        this.audioEl.src = playUrl;
       }
       this.audioEl.play().catch(e => console.log('Audio autoplay prevented:', e));
+
+      if (!this.audioCache.has(rawUrl)) {
+        this.getAudioStreamUrl(track);
+      }
+      this.preloadNextTrack();
     }
 
     this.isPlaying = true;
@@ -707,12 +773,18 @@ class MinhDucAudioEngine {
       this.currentSource = 'audio';
       if (this.ytPlayer && this.ytPlayer.pauseVideo) this.ytPlayer.pauseVideo();
 
-      const url = track.audio_url || `api/endpoints/stream.php?id=${track.id}`;
-      if (this.audioEl.src !== url) {
-        this.audioEl.src = url;
+      const rawUrl = track.audio_url || `api/endpoints/stream.php?id=${track.id}`;
+      const playUrl = this.audioCache.get(rawUrl) || rawUrl;
+      if (this.audioEl.src !== playUrl) {
+        this.audioEl.src = playUrl;
       }
       this.audioEl.currentTime = 0;
       this.audioEl.play().catch(e => console.log('Playback error:', e));
+
+      if (!this.audioCache.has(rawUrl)) {
+        this.getAudioStreamUrl(track);
+      }
+      this.preloadNextTrack();
     }
 
     this.isPlaying = true;
@@ -1038,6 +1110,7 @@ class MinhDucAudioEngine {
     const totTimeEl = document.getElementById('player-total-time');
     const seekProgEl = document.getElementById('player-seek-progress');
     const seekThumbEl = document.getElementById('player-seek-thumb');
+    const seekBufferEl = document.getElementById('player-seek-buffer');
 
     if (!this.currentTrack) {
       this.lastRenderedIntSec = -1;
@@ -1046,20 +1119,25 @@ class MinhDucAudioEngine {
       if (totTimeEl) totTimeEl.textContent = '00:00';
       if (seekProgEl) seekProgEl.style.width = '0%';
       if (seekThumbEl) seekThumbEl.style.left = '0%';
+      if (seekBufferEl) seekBufferEl.style.width = '0%';
 
       const rightCurTime = document.getElementById('right-player-curtime');
       const rightDuration = document.getElementById('right-player-duration');
       const rightProgress = document.getElementById('right-player-progress');
+      const rightBufferEl = document.getElementById('right-player-buffer');
       if (rightCurTime) rightCurTime.textContent = '00:00';
       if (rightDuration) rightDuration.textContent = '00:00';
       if (rightProgress) rightProgress.style.width = '0%';
+      if (rightBufferEl) rightBufferEl.style.width = '0%';
 
       const mobCurTime = document.getElementById('mobile-drawer-cur-time');
       const mobTotalTime = document.getElementById('mobile-drawer-total-time');
       const mobProgress = document.getElementById('mobile-drawer-seek-progress');
+      const mobBufferEl = document.getElementById('mobile-drawer-seek-buffer');
       if (mobCurTime) mobCurTime.textContent = '00:00';
       if (mobTotalTime) mobTotalTime.textContent = '00:00';
       if (mobProgress) mobProgress.style.width = '0%';
+      if (mobBufferEl) mobBufferEl.style.width = '0%';
       return;
     }
 
@@ -1092,17 +1170,37 @@ class MinhDucAudioEngine {
       if (mobTotalTime) mobTotalTime.textContent = formattedTot;
     }
 
+    // Calculate buffered percentage for visual preloaded buffer indicator
+    let bufferedPct = 0;
+    if (this.currentSource === 'youtube' && this.ytPlayer && typeof this.ytPlayer.getVideoLoadedFraction === 'function') {
+      try {
+        bufferedPct = Math.min(100, Math.max(0, (this.ytPlayer.getVideoLoadedFraction() || 0) * 100));
+      } catch (e) {}
+    } else if (this.currentSource === 'audio' && this.audioEl) {
+      try {
+        if (this.audioEl.buffered && this.audioEl.buffered.length > 0 && totalSecs > 0) {
+          bufferedPct = Math.min(100, Math.max(0, (this.audioEl.buffered.end(this.audioEl.buffered.length - 1) / totalSecs) * 100));
+        }
+      } catch (e) {}
+    }
+    bufferedPct = Math.max(pct, bufferedPct);
+
     // Seekbars update smoothly with subsecond resolution (at 250ms)
+    if (seekBufferEl) seekBufferEl.style.width = `${bufferedPct}%`;
     if (seekProgEl) seekProgEl.style.width = `${pct}%`;
     if (seekThumbEl) {
       seekThumbEl.style.left = `calc(${pct}% - ${(pct / 100) * 18}px)`;
     }
 
+    const rightBufferEl = document.getElementById('right-player-buffer');
+    if (rightBufferEl) rightBufferEl.style.width = `${bufferedPct}%`;
     const rightProgress = document.getElementById('right-player-progress');
     if (rightProgress) {
       rightProgress.style.width = `${pct}%`;
     }
 
+    const mobBufferEl = document.getElementById('mobile-drawer-seek-buffer');
+    if (mobBufferEl) mobBufferEl.style.width = `${bufferedPct}%`;
     const mobProgress = document.getElementById('mobile-drawer-seek-progress');
     if (mobProgress) {
       mobProgress.style.width = `${pct}%`;
@@ -2317,10 +2415,18 @@ class MinhDucAudioEngine {
     } else {
       this.currentSource = 'audio';
       if (this.ytPlayer && this.ytPlayer.pauseVideo) this.ytPlayer.pauseVideo();
-      const url = formattedTrack.audio_url || `api/endpoints/stream.php?id=${formattedTrack.id}`;
-      this.audioEl.src = url;
+      const rawUrl = formattedTrack.audio_url || `api/endpoints/stream.php?id=${formattedTrack.id}`;
+      const playUrl = this.audioCache.get(rawUrl) || rawUrl;
+      if (this.audioEl.src !== playUrl) {
+        this.audioEl.src = playUrl;
+      }
       this.audioEl.currentTime = 0;
       this.audioEl.play().catch(e => console.log('Playback error:', e));
+
+      if (!this.audioCache.has(rawUrl)) {
+        this.getAudioStreamUrl(formattedTrack);
+      }
+      this.preloadNextTrack();
     }
 
     this.isPlaying = true;

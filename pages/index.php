@@ -2140,7 +2140,8 @@ html.light .bg-surface-container\/80 {
       <!-- Mini Timeline Progress in Card -->
       <div class="flex flex-col gap-1 pt-1 border-t border-white/5">
         <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden cursor-pointer relative" id="right-player-progressbar" title="Tua nhạc">
-          <div id="right-player-progress" class="h-full bg-gradient-to-r from-secondary to-[#a78bfa] rounded-full w-0 transition-all duration-150"></div>
+          <div id="right-player-buffer" class="h-full bg-white/20 absolute left-0 top-0 rounded-full w-0 transition-all duration-300 pointer-events-none"></div>
+          <div id="right-player-progress" class="h-full bg-gradient-to-r from-secondary to-[#a78bfa] rounded-full w-0 relative z-10 transition-all duration-150"></div>
         </div>
         <div class="flex items-center justify-between font-mono text-[9px] text-gray-400">
           <span id="right-player-curtime">00:00</span>
@@ -3231,6 +3232,7 @@ html.light .bg-surface-container\/80 {
           <div class="absolute top-1 left-[82%] w-[2px] h-[2px] bg-primary-container"></div>
           <div class="absolute bottom-1 left-[93%] w-[1px] h-[1px] bg-secondary"></div>
         </div>
+        <div id="player-seek-buffer" class="h-1.5 bg-white/20 absolute left-0 top-1/2 -translate-y-1/2 w-[0%] pointer-events-none transition-all duration-300"></div>
         <div id="player-seek-progress" class="h-1.5 bg-gradient-to-r from-[#620040] via-[#a78bfa] to-[#54d8e8] w-[0%] relative flex items-center shadow-[0_0_8px_rgba(84,216,232,0.5)]">
           <div class="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pr-0.5">
             <div class="w-1.5 h-1 bg-[#ffd8e7] animate-pulse"></div>
@@ -3350,7 +3352,8 @@ html.light .bg-surface-container\/80 {
         <span id="mobile-drawer-total-time">00:00</span>
       </div>
       <div id="mobile-drawer-seekbar" class="w-full h-3 bg-black/70 rounded-full border border-white/15 relative cursor-pointer flex items-center overflow-hidden">
-        <div id="mobile-drawer-seek-progress" class="h-full bg-gradient-to-r from-primary to-secondary rounded-full w-[0%]"></div>
+        <div id="mobile-drawer-seek-buffer" class="h-full bg-white/20 absolute left-0 top-0 rounded-full w-[0%] pointer-events-none transition-all duration-300"></div>
+        <div id="mobile-drawer-seek-progress" class="h-full bg-gradient-to-r from-primary to-secondary rounded-full w-[0%] relative z-10"></div>
       </div>
     </div>
 
