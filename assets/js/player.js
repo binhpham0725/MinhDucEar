@@ -29,6 +29,8 @@ class MinhDucAudioEngine {
     this.isTransitioningTrack = false;
     this.currentTime = 0;
     this.duration = 0;
+    this.lastRenderedIntSec = -1;
+    this.lastRenderedTotalSec = -1;
     this.timerInterval = null;
     this.audioEl = document.getElementById('real-audio-player');
     this.ytPlayer = null;
@@ -686,6 +688,8 @@ class MinhDucAudioEngine {
     this.lastActiveTrack = track;
     this.currentTime = 0;
     this.duration = track.duration || 210;
+    this.lastRenderedIntSec = -1;
+    this.lastRenderedTotalSec = -1;
 
     if (track.source_type === 'youtube' && track.youtube_id) {
       this.currentSource = 'youtube';
@@ -783,6 +787,7 @@ class MinhDucAudioEngine {
 
     const targetSeconds = Math.max(0, Math.min(totalDur, Math.floor(totalDur * fraction)));
     this.currentTime = targetSeconds;
+    this.lastRenderedIntSec = -1;
 
     if (this.currentSource === 'youtube') {
       if (this.ytPlayer && this.ytReady && this.ytPlayer.seekTo) {
@@ -816,7 +821,7 @@ class MinhDucAudioEngine {
     if (volEl) volEl.style.width = `${Math.floor(this.volume * 100)}%`;
   }
 
-  // 5. Timer & Progress Synchronization (High-Frequency 120ms Polling & Subsecond Precision)
+  // 5. Timer & Progress Synchronization (Safe 250ms Polling & Subsecond Precision)
   startTimer() {
     this.stopTimer();
     let lastStatsTickTime = Date.now();
@@ -824,33 +829,39 @@ class MinhDucAudioEngine {
     this.timerInterval = setInterval(() => {
       let isPlayingAudio = false;
 
-      if (this.currentSource === 'youtube' && this.ytPlayer && this.ytReady && this.ytPlayer.getPlayerState) {
-        const state = this.ytPlayer.getPlayerState();
-        if (state === 1) { // PLAYING
-          isPlayingAudio = true;
-          if (!this.isSeeking) {
+      if (this.currentSource === 'youtube' && this.ytPlayer && this.ytReady && this.isPlaying) {
+        if (!this.isSeeking && typeof this.ytPlayer.getCurrentTime === 'function') {
+          try {
             const ytTime = this.ytPlayer.getCurrentTime();
-            if (typeof ytTime === 'number' && !isNaN(ytTime)) {
+            if (typeof ytTime === 'number' && !isNaN(ytTime) && ytTime >= 0) {
               this.currentTime = ytTime;
+              isPlayingAudio = true;
             }
-          }
-          const realDur = this.ytPlayer.getDuration();
-          if (typeof realDur === 'number' && realDur > 0) {
-            this.duration = realDur;
-            if (this.currentTrack) this.currentTrack.duration = realDur;
-            const t = this.tracks[this.currentTrackIndex];
-            if (t) t.duration = realDur;
-          }
-          if (!this.isSeeking) {
-            this.updateTimelineUI();
-          }
+          } catch (e) {}
+        }
+
+        // Only query duration once or when unset, preventing YouTube iframe postMessage flooding
+        if ((!this.duration || this.duration <= 0 || this.duration === 210) && typeof this.ytPlayer.getDuration === 'function') {
+          try {
+            const realDur = this.ytPlayer.getDuration();
+            if (typeof realDur === 'number' && realDur > 0) {
+              this.duration = realDur;
+              if (this.currentTrack) this.currentTrack.duration = realDur;
+              const t = this.tracks[this.currentTrackIndex];
+              if (t) t.duration = realDur;
+            }
+          } catch (e) {}
+        }
+
+        if (!this.isSeeking) {
+          this.updateTimelineUI();
         }
       } else if (this.currentSource === 'audio' && this.audioEl && !this.audioEl.paused) {
         isPlayingAudio = true;
         if (!this.isSeeking) {
           this.currentTime = this.audioEl.currentTime;
         }
-        if (this.audioEl.duration && !isNaN(this.audioEl.duration) && this.audioEl.duration > 0) {
+        if ((!this.duration || this.duration <= 0 || this.duration === 210) && this.audioEl.duration && !isNaN(this.audioEl.duration) && this.audioEl.duration > 0) {
           this.duration = this.audioEl.duration;
           if (this.currentTrack) this.currentTrack.duration = this.duration;
           const t = this.tracks[this.currentTrackIndex];
@@ -871,7 +882,7 @@ class MinhDucAudioEngine {
       } else {
         lastStatsTickTime = Date.now();
       }
-    }, 120);
+    }, 250);
   }
 
   stopTimer() {
@@ -1029,6 +1040,8 @@ class MinhDucAudioEngine {
     const seekThumbEl = document.getElementById('player-seek-thumb');
 
     if (!this.currentTrack) {
+      this.lastRenderedIntSec = -1;
+      this.lastRenderedTotalSec = -1;
       if (curTimeEl) curTimeEl.textContent = '00:00';
       if (totTimeEl) totTimeEl.textContent = '00:00';
       if (seekProgEl) seekProgEl.style.width = '0%';
@@ -1054,35 +1067,52 @@ class MinhDucAudioEngine {
     const curSecs = Math.max(0, Math.min(totalSecs, this.currentTime || 0));
     const pct = totalSecs > 0 ? Math.max(0, Math.min(100, (curSecs / totalSecs) * 100)) : 0;
 
-    if (curTimeEl) curTimeEl.textContent = this.formatTime(curSecs, curSecs >= 3600);
-    if (totTimeEl) totTimeEl.textContent = this.formatTime(totalSecs);
+    const currentIntSec = Math.floor(curSecs);
+    const totalIntSec = Math.floor(totalSecs);
+
+    // Only update text time labels when integer second has changed to avoid DOM churn
+    if (this.lastRenderedIntSec !== currentIntSec || this.lastRenderedTotalSec !== totalIntSec) {
+      this.lastRenderedIntSec = currentIntSec;
+      this.lastRenderedTotalSec = totalIntSec;
+
+      const formattedCur = this.formatTime(currentIntSec, currentIntSec >= 3600);
+      const formattedTot = this.formatTime(totalIntSec);
+
+      if (curTimeEl) curTimeEl.textContent = formattedCur;
+      if (totTimeEl) totTimeEl.textContent = formattedTot;
+
+      const rightCurTime = document.getElementById('right-player-curtime');
+      const rightDuration = document.getElementById('right-player-duration');
+      if (rightCurTime) rightCurTime.textContent = formattedCur;
+      if (rightDuration) rightDuration.textContent = formattedTot;
+
+      const mobCurTime = document.getElementById('mobile-drawer-cur-time');
+      const mobTotalTime = document.getElementById('mobile-drawer-total-time');
+      if (mobCurTime) mobCurTime.textContent = formattedCur;
+      if (mobTotalTime) mobTotalTime.textContent = formattedTot;
+    }
+
+    // Seekbars update smoothly with subsecond resolution (at 250ms)
     if (seekProgEl) seekProgEl.style.width = `${pct}%`;
     if (seekThumbEl) {
       seekThumbEl.style.left = `calc(${pct}% - ${(pct / 100) * 18}px)`;
+    }
+
+    const rightProgress = document.getElementById('right-player-progress');
+    if (rightProgress) {
+      rightProgress.style.width = `${pct}%`;
+    }
+
+    const mobProgress = document.getElementById('mobile-drawer-seek-progress');
+    if (mobProgress) {
+      mobProgress.style.width = `${pct}%`;
     }
 
     // Synchronize floating lyrics with current playback time
     this.syncFloatingLyrics(curSecs);
 
     // Synchronize right sidebar media player progress & lyrics
-    const rightCurTime = document.getElementById('right-player-curtime');
-    const rightDuration = document.getElementById('right-player-duration');
-    const rightProgress = document.getElementById('right-player-progress');
-    if (rightCurTime) rightCurTime.textContent = this.formatTime(curSecs);
-    if (rightDuration) rightDuration.textContent = this.formatTime(totalSecs);
-    if (rightProgress) {
-      rightProgress.style.width = `${pct}%`;
-    }
     this.syncRightLyrics(curSecs);
-
-    // Synchronize mobile drawer seekbar & time
-    const mobCurTime = document.getElementById('mobile-drawer-cur-time');
-    const mobTotalTime = document.getElementById('mobile-drawer-total-time');
-    const mobProgress = document.getElementById('mobile-drawer-seek-progress');
-    if (mobCurTime) mobCurTime.textContent = this.formatTime(curSecs);
-    if (mobTotalTime) mobTotalTime.textContent = this.formatTime(totalSecs);
-    if (mobProgress) mobProgress.style.width = `${pct}%`;
-
   }
 
 
@@ -2261,6 +2291,8 @@ class MinhDucAudioEngine {
     this.lastActiveTrack = formattedTrack;
     this.currentTime = 0;
     this.duration = formattedTrack.duration || 210;
+    this.lastRenderedIntSec = -1;
+    this.lastRenderedTotalSec = -1;
 
     const exIdx = this.tracks.findIndex(t => (t.youtube_id && t.youtube_id === formattedTrack.youtube_id) || t.id === formattedTrack.id);
     if (exIdx === -1) {
@@ -2497,6 +2529,7 @@ class MinhDucAudioEngine {
 
   seekToSeconds(seconds) {
     this.currentTime = seconds;
+    this.lastRenderedIntSec = -1;
     if (this.currentSource === 'youtube') {
       if (this.ytPlayer && this.ytReady && this.ytPlayer.seekTo) {
         this.ytPlayer.seekTo(seconds, true);
