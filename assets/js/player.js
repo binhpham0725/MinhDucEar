@@ -547,7 +547,7 @@ class MinhDucAudioEngine {
 
     this.audioEl.addEventListener('timeupdate', () => {
       if (this.currentSource === 'audio' && !this.isSeeking) {
-        this.currentTime = Math.floor(this.audioEl.currentTime);
+        this.currentTime = this.audioEl.currentTime;
         this.updateTimelineUI();
       }
     });
@@ -800,6 +800,7 @@ class MinhDucAudioEngine {
     }
 
     this.startTimer();
+    this.updateTimelineUI();
     this.updateUI();
   }
 
@@ -815,20 +816,26 @@ class MinhDucAudioEngine {
     if (volEl) volEl.style.width = `${Math.floor(this.volume * 100)}%`;
   }
 
-  // 5. Timer & Progress Synchronization
+  // 5. Timer & Progress Synchronization (High-Frequency 120ms Polling & Subsecond Precision)
   startTimer() {
     this.stopTimer();
+    let lastStatsTickTime = Date.now();
+
     this.timerInterval = setInterval(() => {
       let isPlayingAudio = false;
+
       if (this.currentSource === 'youtube' && this.ytPlayer && this.ytReady && this.ytPlayer.getPlayerState) {
         const state = this.ytPlayer.getPlayerState();
         if (state === 1) { // PLAYING
           isPlayingAudio = true;
           if (!this.isSeeking) {
-            this.currentTime = Math.floor(this.ytPlayer.getCurrentTime());
+            const ytTime = this.ytPlayer.getCurrentTime();
+            if (typeof ytTime === 'number' && !isNaN(ytTime)) {
+              this.currentTime = ytTime;
+            }
           }
-          const realDur = Math.floor(this.ytPlayer.getDuration());
-          if (realDur > 0) {
+          const realDur = this.ytPlayer.getDuration();
+          if (typeof realDur === 'number' && realDur > 0) {
             this.duration = realDur;
             if (this.currentTrack) this.currentTrack.duration = realDur;
             const t = this.tracks[this.currentTrackIndex];
@@ -841,10 +848,10 @@ class MinhDucAudioEngine {
       } else if (this.currentSource === 'audio' && this.audioEl && !this.audioEl.paused) {
         isPlayingAudio = true;
         if (!this.isSeeking) {
-          this.currentTime = Math.floor(this.audioEl.currentTime);
+          this.currentTime = this.audioEl.currentTime;
         }
         if (this.audioEl.duration && !isNaN(this.audioEl.duration) && this.audioEl.duration > 0) {
-          this.duration = Math.floor(this.audioEl.duration);
+          this.duration = this.audioEl.duration;
           if (this.currentTrack) this.currentTrack.duration = this.duration;
           const t = this.tracks[this.currentTrackIndex];
           if (t) t.duration = this.duration;
@@ -854,11 +861,17 @@ class MinhDucAudioEngine {
         }
       }
 
-      // Tick live listening time statistics whenever music is playing
+      // Tick live listening time statistics honestly once every second (1000ms)
       if (isPlayingAudio) {
-        this.tickListeningTime();
+        const now = Date.now();
+        if (now - lastStatsTickTime >= 1000) {
+          this.tickListeningTime();
+          lastStatsTickTime = now;
+        }
+      } else {
+        lastStatsTickTime = Date.now();
       }
-    }, 1000);
+    }, 120);
   }
 
   stopTimer() {
@@ -2418,26 +2431,47 @@ class MinhDucAudioEngine {
   parseLrcString(lrcString) {
     if (!lrcString) return [];
     const lines = [];
-    const regex = /\[(\d{1,2}):(\d{1,2}(?:\.\d{1,3})?)\](.*)/g;
-    let match;
-    while ((match = regex.exec(lrcString)) !== null) {
-      const m = parseInt(match[1], 10);
-      const s = parseFloat(match[2]);
-      const text = match[3].trim();
-      const time = m * 60 + s;
-      if (text) {
-        lines.push({ time, text });
+
+    // Check for global [offset:+/-xxx] in milliseconds
+    let fileOffset = 0;
+    const offsetMatch = lrcString.match(/\[offset:\s*([+-]?\d+)\]/i);
+    if (offsetMatch) {
+      fileOffset = parseInt(offsetMatch[1], 10) / 1000;
+    }
+
+    const rawLines = lrcString.split('\n');
+    const timeTagRegex = /\[(\d{1,2}):(\d{1,2}(?:\.\d{1,3})?)\]/g;
+
+    for (const rawLine of rawLines) {
+      const trimmed = rawLine.trim();
+      if (!trimmed) continue;
+
+      const matches = [...trimmed.matchAll(timeTagRegex)];
+      if (matches.length > 0) {
+        const text = trimmed.replace(timeTagRegex, '').trim();
+        if (text) {
+          for (const m of matches) {
+            const min = parseInt(m[1], 10);
+            const sec = parseFloat(m[2]);
+            const time = Math.max(0, min * 60 + sec + fileOffset);
+            lines.push({ time, text });
+          }
+        }
       }
     }
+
     return lines.sort((a, b) => a.time - b.time);
   }
 
   syncFloatingLyrics(currentTime) {
     if (!this.isFloatingLyricsOpen || !this.currentLyrics || this.currentLyrics.length === 0) return;
 
+    // Anticipation offset (+0.35s) so the lyric line activates synchronously with the vocal onset
+    const syncTime = (typeof currentTime === 'number') ? currentTime + 0.35 : 0.35;
+
     let newIndex = -1;
     for (let i = this.currentLyrics.length - 1; i >= 0; i--) {
-      if (currentTime >= this.currentLyrics[i].time) {
+      if (syncTime >= this.currentLyrics[i].time) {
         newIndex = i;
         break;
       }
@@ -2475,6 +2509,7 @@ class MinhDucAudioEngine {
       this.isPlaying = true;
     }
     this.startTimer();
+    this.updateTimelineUI();
     this.updateUI();
   }
 
@@ -2818,9 +2853,12 @@ class MinhDucAudioEngine {
     const mobContainer = document.getElementById('mobile-drawer-lyrics-container');
     if (!container && !mobContainer) return;
 
+    // Anticipation offset (+0.35s) so the active line scrolls and highlights in sync with vocal onset
+    const syncTime = (typeof currentTime === 'number') ? currentTime + 0.35 : 0.35;
+
     let newIndex = -1;
     for (let i = this.rightLyrics.length - 1; i >= 0; i--) {
-      if (currentTime >= this.rightLyrics[i].time) {
+      if (syncTime >= this.rightLyrics[i].time) {
         newIndex = i;
         break;
       }
@@ -2832,6 +2870,11 @@ class MinhDucAudioEngine {
     const highlightLines = (box) => {
       if (!box) return;
       const lines = box.querySelectorAll('.right-lyric-line');
+      if (newIndex === -1) {
+        lines.forEach(lineEl => lineEl.classList.remove('active-lyric'));
+        box.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
       const boxRect = box.getBoundingClientRect();
       const parentHeight = box.clientHeight;
 
