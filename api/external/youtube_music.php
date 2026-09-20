@@ -332,8 +332,9 @@ class YouTubeMusicService {
                     continue;
                 }
 
-                // If duration is > 10 minutes (600s) or <= 0, it is definitely NOT a song - SKIP IT!
-                if ($durationSeconds > 21600 || $durationSeconds <= 0) {
+                // Strict Song Filter: Duration must be between 60s (1 min) and 540s (9 min)
+                // Exclude full albums, 1-hour compilations, tutorials, and non-music streams
+                if ($durationSeconds > 540 || $durationSeconds < 60) {
                     continue;
                 }
 
@@ -422,8 +423,8 @@ class YouTubeMusicService {
                             $durationText = $v['lengthText']['simpleText'] ?? '';
                             $durationSeconds = self::parseDurationSeconds($durationText);
 
-                            // Strict Music Filter: duration <= 600s (10 min), > 0s, and no non-music titles/artists!
-                            if ($durationSeconds > 21600 || $durationSeconds <= 0 || self::isNonMusicTitle($title, $artist)) {
+                            // Strict Music Filter: duration between 60s and 540s, and no non-music / compilation titles!
+                            if ($durationSeconds > 540 || $durationSeconds < 60 || self::isNonMusicTitle($title, $artist)) {
                                 continue;
                             }
 
@@ -460,7 +461,7 @@ class YouTubeMusicService {
     }
 
     /**
-     * Check if a video title or artist is non-music (gaming stream, podcast, vlog, restream, audiobook, story, drama)
+     * Check if a video title or artist is non-music (gaming stream, podcast, vlog, restream, audiobook, story, drama, compilation)
      */
     private static function isNonMusicTitle($title, $artist = '') {
         $combined = mb_strtolower(trim($title . ' ' . $artist), 'UTF-8');
@@ -477,7 +478,11 @@ class YouTubeMusicService {
             'tóm tắt', 'giải mã', 'bản tin', 'thời sự', 'phóng sự', 'chính trị', 'truyện audio',
             'kể chuyện đêm khuya', 'truyện ma', 'quàng a tũn', 'nguyễn ngọc ngạn', 'cười nhạo', 'ăn mày',
             'bài học cuộc sống', 'truyện thực tế', 'chuyện lạ', 'phim tài liệu', 'chuyện đời', 'radio:',
-            'vở kịch', 'nàng dâu', 'mẹ chồng', 'spiderum', 'phân tích', 'bình luận'
+            'vở kịch', 'nàng dâu', 'mẹ chồng', 'spiderum', 'phân tích', 'bình luận',
+            // Compilations, Tutorials & Non-singles
+            'tuyển tập', 'liên khúc', 'lk ', 'nonstop', 'full album', 'tổng hợp', 'karaoke',
+            'beat chuẩn', 'guitar cover', 'hướng dẫn', 'học đàn', 'dạy đàn', 'đệm hát',
+            'fingerstyle', '1 tiếng', '2 tiếng', '3 tiếng', '1h', '2h', '3h', 'nhạc sống'
         ];
 
         foreach ($nonMusicKeywords as $bad) {

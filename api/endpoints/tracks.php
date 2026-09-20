@@ -337,13 +337,30 @@ if ($action === 'history_record') {
 }
 
 // -------------------------------------------------------------
-// Related Tracks / Smart Radio Endpoint (Same Artist & Vibe)
+// -------------------------------------------------------------
+// Related Tracks / Smart Radio Endpoint (Same Artist & Genre-Matched Peers)
 // -------------------------------------------------------------
 if ($action === 'related_tracks') {
-    $artist = trim($_REQUEST['artist'] ?? '');
-    $title = trim($_REQUEST['title'] ?? '');
+    $rawArtist = trim($_REQUEST['artist'] ?? '');
+    $rawTitle = trim($_REQUEST['title'] ?? '');
     $excludeYtId = trim($_REQUEST['youtube_id'] ?? $_REQUEST['exclude_id'] ?? '');
-    $limit = min(20, max(4, intval($_REQUEST['limit'] ?? 10)));
+    $limit = min(20, max(6, intval($_REQUEST['limit'] ?? 10)));
+
+    // Clean artist & title
+    $artist = $rawArtist;
+    $title = $rawTitle;
+    if (empty($artist) || $artist === 'YouTube Music' || $artist === 'Nghệ sĩ' || $artist === 'Nghệ sĩ YouTube') {
+        if (preg_match('/^(.*?)\s*[-–—|:]\s*(.*?)$/u', $title, $m)) {
+            $candidateA = trim($m[1]);
+            $candidateB = trim(preg_replace('/[\(\[\{].*?[\)\]\}]|official|mv|audio|video|lyrics/iu', '', $m[2]));
+            if (mb_strlen($candidateA) < 30) {
+                $artist = $candidateA;
+                $title = $candidateB;
+            }
+        }
+    }
+    $cleanArtist = trim(preg_replace('/(official|channel|vevo|music|topic|\s*ft\.|\s*feat\.|\s*x\s*|\s*,\s*|\s*\/\s*).*$/iu', '', $artist));
+    $cleanTitle = trim(preg_replace('/[\(\[\{].*?[\)\]\}]|official|audio|mv|remix|lyrics|video|4k|hd|live/iu', '', $title));
 
     $related = [];
     $seenIds = [];
@@ -351,50 +368,112 @@ if ($action === 'related_tracks') {
         $seenIds[$excludeYtId] = true;
     }
 
-    // 1. Same Artist query
-    if (!empty($artist) && $artist !== 'YouTube Music' && $artist !== 'Nghệ sĩ') {
-        $cleanArtist = preg_replace('/(\s*ft\.|\s*feat\.|\s*x\s*|\s*,\s*|\s*\/\s*).*$/i', '', $artist);
-        $artistHits = YouTubeMusicService::search("{$cleanArtist} bài hát hay nhất tuyển tập official audio", $limit + 4);
-        foreach ($artistHits as $hit) {
+    // Comprehensive Genre & Peer Artist Knowledge Graph
+    $genreClusters = [
+        'vpop_mainstream' => [
+            'keywords' => ['sơn tùng', 'm-tp', 'soobin', 'hieuthuhai', 'mono', 'vũ cát tường', 'wren evans', 'grey d', 'đức phúc', 'erik', 'noo phước thịnh', 'isaac', 'lou hoàng', 'onlyc', 'quân a.p', 'kai đinh'],
+            'peers' => ['Sơn Tùng M-TP', 'SOOBIN', 'HIEUTHUHAI', 'MONO', 'Wren Evans', 'GREY D', 'Đức Phúc', 'Erik', 'Quân A.P', 'Lou Hoàng']
+        ],
+        'v_indie_ballad' => [
+            'keywords' => ['vũ.', 'thái đinh', 'thịnh suy', 'chillies', 'ngọt', 'trang', 'hà anh tuấn', 'nguyên hà', 'bùi anh tuấn', 'trung quân', 'hoàng dũng', 'kai đinh', 'những đứa trẻ', 'the sheep', 'hứa kim tuyền'],
+            'peers' => ['Vũ.', 'Thái Đinh', 'Thịnh Suy', 'Chillies', 'Ngọt', 'Hà Anh Tuấn', 'Hoàng Dũng', 'Trung Quân', 'Nguyên Hà']
+        ],
+        'v_rap_hiphop' => [
+            'keywords' => ['đen', 'đen vâu', 'mck', 'tlinh', 'b ray', 'karik', 'justatee', 'bigdaddy', 'low g', '24k.right', 'andree', 'obito', 'wxrdie', 'rhymastic', 'binz', 'tage', 'double2t'],
+            'peers' => ['Đen', 'HIEUTHUHAI', 'MCK', 'tlinh', 'B Ray', 'Karik', 'JustaTee', 'Low G', '24k.Right', 'Binz']
+        ],
+        'usuk_pop' => [
+            'keywords' => ['taylor swift', 'olivia rodrigo', 'sabrina carpenter', 'billie eilish', 'ariana grande', 'dua lipa', 'bruno mars', 'ed sheeran', 'the weeknd', 'justin bieber', 'charlie puth', 'katy perry', 'shawn mendes'],
+            'peers' => ['Taylor Swift', 'Olivia Rodrigo', 'Sabrina Carpenter', 'Billie Eilish', 'Ariana Grande', 'Dua Lipa', 'Bruno Mars', 'The Weeknd']
+        ],
+        'kpop' => [
+            'keywords' => ['bts', 'blackpink', 'newjeans', 'le sserafim', 'aespa', 'ive', 'twice', 'iu', 'seventeen', 'jungkook', 'jennie', 'rose', 'jisoo', 'g-dragon', 'bigbang'],
+            'peers' => ['BLACKPINK', 'NewJeans', 'BTS', 'LE SSERAFIM', 'aespa', 'IVE', 'TWICE', 'IU']
+        ],
+        'bolero' => [
+            'keywords' => ['như quỳnh', 'quang lê', 'phi nhung', 'đan nguyên', 'mạnh quỳnh', 'lệ quyên', 'cẩm ly', 'trường vũ', 'chế linh', 'tuấn vũ', 'giao linh'],
+            'peers' => ['Như Quỳnh', 'Quang Lê', 'Phi Nhung', 'Đan Nguyên', 'Mạnh Quỳnh', 'Lệ Quyên', 'Trường Vũ']
+        ]
+    ];
+
+    $matchedCluster = null;
+    $lowerText = mb_strtolower("{$cleanArtist} {$cleanTitle}", 'UTF-8');
+    foreach ($genreClusters as $clusterKey => $clusterData) {
+        foreach ($clusterData['keywords'] as $kw) {
+            if (str_contains($lowerText, $kw)) {
+                $matchedCluster = $clusterData;
+                break 2;
+            }
+        }
+    }
+
+    $artistHits = [];
+    // 1. Same Artist Singles (Official audio / MV)
+    if (!empty($cleanArtist) && mb_strlen($cleanArtist) >= 2) {
+        $rawSame = YouTubeMusicService::search("{$cleanArtist} official audio mv", 8);
+        foreach ($rawSame as $hit) {
             $yId = $hit['youtube_id'] ?? $hit['id'];
             if ($yId && empty($seenIds[$yId])) {
                 $seenIds[$yId] = true;
-                $hit['tag'] = '[CÙNG CA SĨ]';
-                $hit['badge'] = 'CÙNG NGHỆ SĨ';
-                $related[] = $hit;
-                if (count($related) >= $limit) break;
+                $hit['tag'] = '[CÙNG NGHỆ SĨ]';
+                $hit['badge'] = 'CÙNG CA SĨ';
+                $artistHits[] = $hit;
+                if (count($artistHits) >= 4) break;
             }
         }
     }
 
-    // 2. Similar Vibe / Radio query
-    if (count($related) < $limit) {
-        $cleanTitle = preg_replace('/\(.*?\)|\[.*?\]|official|audio|mv|remix|lyrics/i', '', $title);
-        $vibeQuery = trim($cleanTitle . ' ' . $artist . ' radio playlist');
-        if (!empty($vibeQuery)) {
-            $vibeHits = YouTubeMusicService::search($vibeQuery, $limit);
-            foreach ($vibeHits as $vh) {
-                $yId = $vh['youtube_id'] ?? $vh['id'];
+    // 2. Peer Artists in the Same Genre Cluster
+    $peerHits = [];
+    if ($matchedCluster && !empty($matchedCluster['peers'])) {
+        $peers = $matchedCluster['peers'];
+        $peers = array_values(array_filter($peers, function($p) use ($cleanArtist) {
+            return mb_stripos($p, $cleanArtist) === false && mb_stripos($cleanArtist, $p) === false;
+        }));
+        shuffle($peers); // Randomize so it never repeats the exact same sequence!
+        $selectedPeers = array_slice($peers, 0, 3);
+        foreach ($selectedPeers as $peer) {
+            $rawPeer = YouTubeMusicService::search("{$peer} official audio", 4);
+            foreach ($rawPeer as $ph) {
+                $yId = $ph['youtube_id'] ?? $ph['id'];
                 if ($yId && empty($seenIds[$yId])) {
                     $seenIds[$yId] = true;
-                    $vh['tag'] = '[ĐỒNG ĐIỆU]';
-                    $vh['badge'] = 'GỢI Ý TƯƠNG TỰ';
-                    $related[] = $vh;
-                    if (count($related) >= $limit) break;
+                    $ph['tag'] = '[ĐỒNG ĐIỆU]';
+                    $ph['badge'] = 'CÙNG THỂ LOẠI';
+                    $peerHits[] = $ph;
+                    if (count($peerHits) >= 6) break 2;
                 }
             }
         }
-    }
-
-    // 3. Fallback to trending V-Pop if still insufficient
-    if (count($related) < 4) {
-        $trendHits = YouTubeMusicService::search("vpop thịnh hành việt nam 2026", 6);
-        foreach ($trendHits as $th) {
-            $yId = $th['youtube_id'] ?? $th['id'];
+    } else {
+        // Fallback for unclustered artist: search YouTube Music Radio by artist/title
+        $radioQuery = trim("{$cleanArtist} {$cleanTitle} radio");
+        $rawRadio = YouTubeMusicService::search($radioQuery, 6);
+        foreach ($rawRadio as $rh) {
+            $yId = $rh['youtube_id'] ?? $rh['id'];
             if ($yId && empty($seenIds[$yId])) {
                 $seenIds[$yId] = true;
-                $th['tag'] = '[THỊNH HÀNH]';
-                $related[] = $th;
+                $rh['tag'] = '[ĐỒNG ĐIỆU]';
+                $rh['badge'] = 'GỢI Ý TƯƠNG TỰ';
+                $peerHits[] = $rh;
+            }
+        }
+    }
+
+    // 3. Interleave Same Artist and Peers (1 same artist, 1 peer, 1 same artist...)
+    $maxCount = max(count($artistHits), count($peerHits));
+    for ($i = 0; $i < $maxCount; $i++) {
+        if (isset($artistHits[$i])) $related[] = $artistHits[$i];
+        if (isset($peerHits[$i])) $related[] = $peerHits[$i];
+        if (count($related) >= $limit) break;
+    }
+
+    // 4. Fallback if still under limit
+    if (count($related) < $limit) {
+        foreach (array_merge($artistHits, $peerHits) as $item) {
+            $yId = $item['youtube_id'] ?? $item['id'];
+            if (!in_array($yId, array_column($related, 'youtube_id'))) {
+                $related[] = $item;
                 if (count($related) >= $limit) break;
             }
         }
@@ -411,7 +490,7 @@ if ($action === 'related_tracks') {
 
     echo json_encode([
         'success' => true,
-        'tracks' => $related,
+        'tracks' => array_values($related),
         'artist' => $artist,
         'title' => $title
     ], JSON_UNESCAPED_UNICODE);

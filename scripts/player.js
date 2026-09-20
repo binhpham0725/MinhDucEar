@@ -61,7 +61,10 @@ class MinhDucAudioEngine {
     this.isHeroHovered = false;
     this.smartRadioQueue = [];
     this.isFetchingRadio = false;
-    this._lastRadioSourceYtId = null;
+    this.activeRadioSourceId = null;
+    this.currentRadioPromise = null;
+    this.queue = null;
+    this.queueIndex = -1;
 
     // Floating Synced Lyrics (Karaoke) state
     this.isFloatingLyricsOpen = false;
@@ -749,7 +752,7 @@ class MinhDucAudioEngine {
     }
   }
 
-  playTrack(index) {
+  playTrack(index, resetRadio = true) {
     if (index < 0 || index >= this.tracks.length) return;
     if (this.pendingSyncSeconds > 0) {
       this.flushListeningTime();
@@ -795,26 +798,27 @@ class MinhDucAudioEngine {
 
     this.isPlaying = true;
     this.recordHistory(track);
-    this.fetchRelatedRadioTracks(track);
+    if (resetRadio) {
+      this.smartRadioQueue = [];
+      const trackKey = track.youtube_id || track.id || track.title;
+      this.activeRadioSourceId = trackKey;
+      this.currentRadioPromise = this.fetchRelatedRadioTracks(track, true);
+    }
     this.startPlaybackWatchdog(track);
     this.startTimer();
     this.updateUI();
   }
 
-  // Smart Radio Recommendations (Same Artist & Genre/Vibe - YouTube Music algorithm)
-  async fetchRelatedRadioTracks(track) {
-    if (!track || (!track.title && !track.artist)) return;
+  // Smart Radio Recommendations (Same Artist & Genre-Matched Peers)
+  async fetchRelatedRadioTracks(track, isNewSource = true) {
+    if (!track || (!track.title && !track.artist)) return [];
     const artist = (track.artist || '').trim();
     const title = (track.title || '').trim();
     const ytId = track.youtube_id || (typeof track.id === 'string' && track.id.startsWith('yt_') ? track.id.substring(3) : '');
-
-    if (this._lastRadioSourceYtId === ytId && this.smartRadioQueue && this.smartRadioQueue.length >= 4) {
-      return;
-    }
-    this._lastRadioSourceYtId = ytId;
+    const trackKey = ytId || track.id || title;
 
     try {
-      const res = await fetch(`api/endpoints/tracks.php?action=related_tracks&artist=${encodeURIComponent(artist)}&title=${encodeURIComponent(title)}&youtube_id=${encodeURIComponent(ytId)}&limit=12`);
+      const res = await fetch(`api/endpoints/tracks.php?action=related_tracks&artist=${encodeURIComponent(artist)}&title=${encodeURIComponent(title)}&youtube_id=${encodeURIComponent(ytId)}&limit=10`);
       const data = await res.json();
       if (data && data.success && Array.isArray(data.tracks) && data.tracks.length > 0) {
         const freshTracks = data.tracks.filter(t => {
@@ -836,11 +840,26 @@ class MinhDucAudioEngine {
           tag: t.tag || '[ĐỒNG ĐIỆU]'
         }));
 
-        this.smartRadioQueue = freshTracks;
+        if (isNewSource) {
+          if (this.activeRadioSourceId === trackKey) {
+            this.smartRadioQueue = freshTracks;
+          }
+        } else {
+          const existingIds = new Set(this.smartRadioQueue.map(q => q.youtube_id || q.id));
+          freshTracks.forEach(ft => {
+            const ftId = ft.youtube_id || ft.id;
+            if (!existingIds.has(ftId)) {
+              this.smartRadioQueue.push(ft);
+              existingIds.add(ftId);
+            }
+          });
+        }
+        return freshTracks;
       }
     } catch (err) {
       console.warn('[SmartRadio] Lỗi nạp radio:', err);
     }
+    return [];
   }
 
   onTrackEnded() {
@@ -850,7 +869,7 @@ class MinhDucAudioEngine {
     if (this.repeatMode === 'one') {
       this.seek(0);
       this.play();
-    } else if (this.repeatMode === 'off' && !this.isShuffle && this.currentTrackIndex === this.tracks.length - 1) {
+    } else if (this.repeatMode === 'off' && !this.isShuffle && this.currentTrackIndex === this.tracks.length - 1 && (!this.smartRadioQueue || this.smartRadioQueue.length === 0)) {
       this.pause();
       this.seek(0);
     } else {
@@ -858,52 +877,95 @@ class MinhDucAudioEngine {
     }
   }
 
-  next() {
+  async next() {
     if (this.repeatMode === 'one') {
       this.seek(0);
       this.play();
       return;
     }
 
-    // 1. Smart Radio: Prioritize artist & genre matching queue
+    // 1. Explicit Album / Playlist / Favorites / History queue
+    if (this.queue && Array.isArray(this.queue) && this.queue.length > 0) {
+      if (this.queueIndex + 1 < this.queue.length) {
+        this.queueIndex++;
+        const nextTrack = this.queue[this.queueIndex];
+        this.playTrackDirect(nextTrack, true);
+        return;
+      } else {
+        // Reached end of current album or playlist queue!
+        // Transition seamlessly to Smart Radio based on the last track
+        this.queue = null;
+        this.queueIndex = -1;
+      }
+    }
+
+    // 2. Smart Radio Queue: If fetch is in-flight, wait briefly for it!
+    if ((!this.smartRadioQueue || this.smartRadioQueue.length === 0) && this.currentRadioPromise) {
+      try {
+        await Promise.race([
+          this.currentRadioPromise,
+          new Promise(resolve => setTimeout(resolve, 1800))
+        ]);
+      } catch (e) {}
+    }
+
+    // 3. Play next song from Smart Radio Queue
     if (this.smartRadioQueue && this.smartRadioQueue.length > 0) {
       const nextRadioTrack = this.smartRadioQueue.shift();
       if (this.smartRadioQueue.length <= 2) {
-        this.fetchRelatedRadioTracks(nextRadioTrack);
+        this.fetchRelatedRadioTracks(nextRadioTrack, false); // append mode
       }
-      this.playTrackDirect(nextRadioTrack);
+      this.playTrackDirect(nextRadioTrack, false); // resetRadio = false to keep queue
       return;
     }
 
-    // 2. Sequential / Shuffle fallback
-    if (!this.tracks || this.tracks.length === 0) return;
-    if (!this.currentTrack) {
-      this.playTrack(0);
+    // 4. Fallback when radio is unavailable:
+    // Match current artist or genre, NEVER just repeating fixed index 1
+    const currentTrack = this.currentTrack || (this.tracks ? this.tracks[this.currentTrackIndex] : null);
+    if (this.tracks && this.tracks.length > 1 && currentTrack) {
+      const curArtist = (currentTrack.artist || '').toLowerCase().trim();
+      if (curArtist && curArtist !== 'youtube music' && curArtist !== 'nghệ sĩ') {
+        const matchIdx = this.tracks.findIndex((t, idx) => {
+          if (idx === this.currentTrackIndex) return false;
+          const a = (t.artist || '').toLowerCase().trim();
+          return a && (a.includes(curArtist) || curArtist.includes(a));
+        });
+        if (matchIdx !== -1) {
+          this.playTrack(matchIdx, true);
+          return;
+        }
+      }
+      // Pick a random non-current track rather than fixed index 1
+      let randomIdx = this.currentTrackIndex;
+      for (let attempt = 0; attempt < 5; attempt++) {
+        randomIdx = Math.floor(Math.random() * this.tracks.length);
+        if (randomIdx !== this.currentTrackIndex) break;
+      }
+      this.playTrack(randomIdx, true);
       return;
     }
-    let nextIdx;
-    if (this.isShuffle && this.tracks.length > 1) {
-      do {
-        nextIdx = Math.floor(Math.random() * this.tracks.length);
-      } while (nextIdx === this.currentTrackIndex);
-    } else {
-      nextIdx = (this.currentTrackIndex + 1) % this.tracks.length;
+
+    if (this.tracks && this.tracks.length > 0) {
+      const nextIdx = (this.currentTrackIndex + 1) % this.tracks.length;
+      this.playTrack(nextIdx, true);
     }
-    this.playTrack(nextIdx);
   }
 
   prev() {
-    if (!this.tracks || this.tracks.length === 0) return;
-    if (!this.currentTrack) {
-      this.playTrack(0);
-      return;
-    }
     if (this.currentTime > 3) {
       this.seek(0);
       return;
     }
+    // If playing an album or playlist queue, step back
+    if (this.queue && Array.isArray(this.queue) && this.queue.length > 0 && this.queueIndex > 0) {
+      this.queueIndex--;
+      this.playTrackDirect(this.queue[this.queueIndex], true);
+      return;
+    }
+    // Otherwise fallback
+    if (!this.tracks || this.tracks.length === 0) return;
     const prevIdx = (this.currentTrackIndex - 1 + this.tracks.length) % this.tracks.length;
-    this.playTrack(prevIdx);
+    this.playTrack(prevIdx, true);
   }
 
   // 4. Robust Timeline Seeking (Fixed: Actually jumps audio position & plays immediately)
@@ -2433,7 +2495,7 @@ class MinhDucAudioEngine {
   }
 
   // Play any track directly (YouTube or DB) - 100% Guaranteed sync with audio & UI
-  playTrackDirect(track) {
+  playTrackDirect(track, resetRadio = true) {
     if (!track) return;
 
     if (this.pendingSyncSeconds > 0) {
@@ -2498,7 +2560,12 @@ class MinhDucAudioEngine {
 
     this.isPlaying = true;
     this.recordHistory(formattedTrack);
-    this.fetchRelatedRadioTracks(formattedTrack);
+    if (resetRadio) {
+      this.smartRadioQueue = [];
+      const trackKey = formattedTrack.youtube_id || formattedTrack.id || formattedTrack.title;
+      this.activeRadioSourceId = trackKey;
+      this.currentRadioPromise = this.fetchRelatedRadioTracks(formattedTrack, true);
+    }
     this.startPlaybackWatchdog(formattedTrack);
     this.startTimer();
     this.updateUI();
@@ -7808,15 +7875,10 @@ class MinhDucAudioEngine {
     return card;
   }
 
-  // 10. Load Initial Real Feed from Backend (100% Real YouTube Music & Personalized Shelves)
+  // 10. Load Initial Real Feed from Backend (100% Real YouTube Music & Personalized Feed)
   async loadInitialFeed(moodCategory = 'all') {
     try {
-      const quickPicksGrid = document.getElementById('home-quick-picks-grid');
       const madeForYouGrid = document.getElementById('home-made-for-you-grid');
-      const similarToGrid = document.getElementById('home-similar-to-grid');
-      const similarToTitle = document.getElementById('home-similar-to-title');
-      const similarToDesc = document.getElementById('home-similar-to-desc');
-      const trendingGrid = document.getElementById('home-trending-grid');
 
       if (moodCategory !== 'all' && moodCategory !== 'supermix' && madeForYouGrid) {
         madeForYouGrid.innerHTML = `
@@ -7836,7 +7898,7 @@ class MinhDucAudioEngine {
       });
       const data = await res.json();
       if (data && data.success) {
-        const tracksList = (data.tracks && data.tracks.length > 0) ? data.tracks : (data.quick_picks || []);
+        const tracksList = (data.tracks && data.tracks.length > 0) ? data.tracks : (data.made_for_you || data.quick_picks || []);
         if (tracksList && tracksList.length > 0) {
           if (moodCategory === 'all' || moodCategory === 'supermix' || !this.tracks || this.tracks.length <= 4) {
             this.tracks = tracksList.map(t => ({
@@ -7868,54 +7930,14 @@ class MinhDucAudioEngine {
           this.startFeaturedAlbumCarousel();
         }
 
-        // 1. Render Shelf: QUICK PICKS (Lựa chọn nhanh - 8 cards)
-        const quickPicksList = (data.quick_picks && data.quick_picks.length > 0)
-          ? data.quick_picks
-          : (data.listen_again && data.listen_again.length > 0 ? data.listen_again : (this.tracks ? this.tracks.slice(0, 8) : []));
-        if (quickPicksGrid && quickPicksList && quickPicksList.length > 0) {
-          quickPicksGrid.innerHTML = '';
-          quickPicksList.slice(0, 8).forEach((t, idx) => {
-            quickPicksGrid.appendChild(this.createYtMusicCard(t, idx, 'quick_picks'));
-          });
-        }
-
-        // 2. Render Shelf: MADE FOR YOU (Đề xuất cho bạn - 8 cards)
-        const madeForYouList = (data.made_for_you && data.made_for_you.length > 0) 
+        // Render Single High Quality Shelf: MADE FOR YOU (Đề xuất cho bạn - 8 cards)
+        const displayList = (data.made_for_you && data.made_for_you.length > 0) 
           ? data.made_for_you 
-          : (this.tracks ? this.tracks.slice(0, 8) : []);
-        if (madeForYouGrid && madeForYouList.length > 0) {
+          : ((data.tracks && data.tracks.length > 0) ? data.tracks : (this.tracks ? this.tracks.slice(0, 8) : []));
+        if (madeForYouGrid && displayList.length > 0) {
           madeForYouGrid.innerHTML = '';
-          madeForYouList.slice(0, 8).forEach((t, idx) => {
+          displayList.slice(0, 8).forEach((t, idx) => {
             madeForYouGrid.appendChild(this.createYtMusicCard(t, idx, 'made_for_you'));
-          });
-        }
-
-        // 3. Render Shelf: SIMILAR TO ARTIST (Tương tự nghệ sĩ bạn yêu thích - 8 cards)
-        if (data.similar_to) {
-          const simArtist = data.similar_to.artist || '';
-          if (simArtist && similarToTitle) {
-            similarToTitle.innerHTML = `<span class="w-2 h-2 bg-[#a78bfa]"></span>TƯƠNG TỰ NHƯ ${this.escapeHtml(simArtist.toUpperCase())}`;
-          }
-          if (simArtist && similarToDesc) {
-            similarToDesc.textContent = `Tuyển tập các ca khúc của ${simArtist} và phong cách âm nhạc liên quan`;
-          }
-          const simTracks = data.similar_to.tracks || [];
-          if (similarToGrid && simTracks.length > 0) {
-            similarToGrid.innerHTML = '';
-            simTracks.slice(0, 8).forEach((t, idx) => {
-              similarToGrid.appendChild(this.createYtMusicCard(t, idx, 'similar_to'));
-            });
-          }
-        }
-
-        // 4. Render Shelf: TRENDING HITS (Bảng xếp hạng thịnh hành V-Pop - 8 cards)
-        const trendingList = (data.trending && data.trending.length > 0)
-          ? data.trending
-          : (this.tracks ? this.tracks.slice(0, 8) : []);
-        if (trendingGrid && trendingList && trendingList.length > 0) {
-          trendingGrid.innerHTML = '';
-          trendingList.slice(0, 8).forEach((t, idx) => {
-            trendingGrid.appendChild(this.createYtMusicCard(t, idx, 'trending'));
           });
         }
       }

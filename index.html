@@ -2013,20 +2013,7 @@ html.light .bg-surface-container\/80 {
   </div>
 </section>
 
-<!-- 1. YouTube Music Shelf: Quick Picks (Lựa chọn nhanh) -->
-<section id="home-quick-picks-section" class="flex flex-col justify-between shrink-0">
-  <div class="flex items-center justify-between shrink-0 mb-2">
-    <div>
-      <span class="font-silkscreen text-[11px] text-[#54d8e8] uppercase tracking-widest flex items-center gap-2 font-bold">
-        <span class="w-2 h-2 bg-[#54d8e8]"></span>LỰA CHỌN NHANH / QUICK PICKS
-      </span>
-      <p class="text-[11px] text-gray-400 font-sans mt-0.5">Bắt đầu phát radio từ các bản nhạc quen thuộc và tương tự gu của bạn</p>
-    </div>
-  </div>
-  <div id="home-quick-picks-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-space-sm"></div>
-</section>
-
-<!-- 2. YouTube Music Shelf: Made For You / Đề xuất cho bạn -->
+<!-- Home Track Recommendations Grid (Dynamic by Mood Filter Pills) -->
 <section id="home-made-for-you-section" class="flex flex-col justify-between shrink-0">
   <div class="flex items-center justify-between shrink-0 mb-2">
     <div>
@@ -2040,32 +2027,6 @@ html.light .bg-surface-container\/80 {
     </button>
   </div>
   <div id="home-made-for-you-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-space-sm h-full"></div>
-</section>
-
-<!-- 3. YouTube Music Shelf: Similar To Favorite Artist (Tương tự như nghệ sĩ yêu thích) -->
-<section id="home-similar-to-section" class="flex flex-col justify-between shrink-0">
-  <div class="flex items-center justify-between shrink-0 mb-2">
-    <div>
-      <span id="home-similar-to-title" class="font-silkscreen text-[11px] text-[#a78bfa] uppercase tracking-widest flex items-center gap-2 font-bold">
-        <span class="w-2 h-2 bg-[#a78bfa]"></span>TƯƠNG TỰ NHƯ NGHỆ SĨ BẠN YÊU THÍCH
-      </span>
-      <p id="home-similar-to-desc" class="text-[11px] text-gray-400 font-sans mt-0.5">Các bản nhạc cùng màu sắc nghệ thuật và phong cách biểu diễn</p>
-    </div>
-  </div>
-  <div id="home-similar-to-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-space-sm"></div>
-</section>
-
-<!-- 4. YouTube Music Shelf: Trending Hits (Thịnh hành V-Pop 2026) -->
-<section id="home-trending-section" class="flex flex-col justify-between shrink-0">
-  <div class="flex items-center justify-between shrink-0 mb-2">
-    <div>
-      <span id="home-trending-title" class="font-silkscreen text-[11px] text-[#ffafd3] uppercase tracking-widest flex items-center gap-2 font-bold">
-        <span class="w-2 h-2 bg-[#ffafd3]"></span>BẢNG XẾP HẠNG THỊNH HÀNH / TRENDING HITS
-      </span>
-      <p class="text-[11px] text-gray-400 font-sans mt-0.5">Những ca khúc V-Pop hot nhất đang tạo xu hướng trên YouTube Music</p>
-    </div>
-  </div>
-  <div id="home-trending-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-space-sm"></div>
 </section>
 </div></main><aside id="app-right-sidebar" class="hidden xl:flex w-80 shrink-0 bg-surface-dim/70 backdrop-blur-2xl border-l border-outline-variant/30 p-3 flex-col overflow-y-auto custom-scroll relative">
   <!-- NORMAL SIDEBAR CONTENT (Thống kê tuần, Top 3, Vừa phát) -->
