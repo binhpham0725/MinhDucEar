@@ -26,14 +26,17 @@ $action = $_GET['action'] ?? $_POST['action'] ?? $_REQUEST['action'] ?? 'list';
 $db = Database::getInstance();
 $pdo = $db->getConnection();
 $userId = $_SESSION['user']['id'] ?? null;
-if (!$userId && !empty($_REQUEST['user_id'])) {
-    $rawUser = trim($_REQUEST['user_id']);
-    if (is_numeric($rawUser)) {
-        $userId = (int)$rawUser;
+$rawUserInput = trim($_REQUEST['user_id'] ?? $_REQUEST['owner_uid'] ?? $_REQUEST['uid'] ?? '');
+if (!$userId && !empty($rawUserInput)) {
+    if (is_numeric($rawUserInput)) {
+        $userId = (int)$rawUserInput;
+    } else if (strpos($rawUserInput, 'user_') === 0 && is_numeric(substr($rawUserInput, 5))) {
+        $userId = (int)substr($rawUserInput, 5);
     } else if ($pdo) {
-        $cleanEmail = strtolower($rawUser);
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? OR username = ? OR REPLACE(REPLACE(LOWER(email), '@', '_'), '.', '_') = ? OR google_id = ? OR uuid = ? LIMIT 1");
-        $stmt->execute([$rawUser, $rawUser, $cleanEmail, $rawUser, $rawUser]);
+        $cleanRaw = strtolower($rawUserInput);
+        $cleanEmailDot = str_replace('_', '.', $cleanRaw);
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? OR email = ? OR username = ? OR firebase_uid = ? OR google_id = ? OR uuid = ? OR REPLACE(REPLACE(LOWER(email), '@', '_'), '.', '_') = ? LIMIT 1");
+        $stmt->execute([$rawUserInput, $cleanEmailDot, $rawUserInput, $rawUserInput, $rawUserInput, $rawUserInput, $cleanRaw]);
         $found = $stmt->fetchColumn();
         if ($found) $userId = (int)$found;
     }
@@ -73,8 +76,11 @@ function cacheYouTubeTrack($pdo, $t) {
 /**
  * Helper to fetch 3 featured albums (YouTube Trending for Guest, or Google Personalized if Logged in)
  */
-function getFeaturedAlbums($pdo) {
-    $isLoggedIn = !empty($_SESSION['user']);
+function getFeaturedAlbums($pdo, $userId = null) {
+    if (!$userId && !empty($_SESSION['user']['id'])) {
+        $userId = $_SESSION['user']['id'];
+    }
+    $isLoggedIn = !empty($userId) || !empty($_SESSION['user']);
 
     if (!$isLoggedIn) {
         // TOP 3 TRENDING ALBUMS FROM YOUTUBE MUSIC (GUEST)
@@ -128,14 +134,25 @@ function getFeaturedAlbums($pdo) {
         ];
     } else {
         // PERSONALIZED ALBUMS FOR LOGGED IN GOOGLE ACCOUNT (YOUTUBE MUSIC MIX STYLES)
-        $user = $_SESSION['user'];
-        $displayName = !empty($user['display_name']) ? $user['display_name'] : 'Google User';
+        $user = $_SESSION['user'] ?? [];
+        if ($userId && $pdo && (empty($user['display_name']) || empty($user['music_taste']))) {
+            try {
+                $stmtU = $pdo->prepare("SELECT id, display_name, username, email, avatar_url, google_picture, music_taste FROM users WHERE id = ?");
+                $stmtU->execute([$userId]);
+                $dbU = $stmtU->fetch(PDO::FETCH_ASSOC);
+                if ($dbU) {
+                    $user = array_merge($user, $dbU);
+                }
+            } catch (Exception $e) {}
+        }
+
+        $displayName = !empty($user['display_name']) ? $user['display_name'] : (!empty($user['username']) ? $user['username'] : 'Google User');
         $userAvatar = !empty($user['google_picture']) ? $user['google_picture'] : (!empty($user['avatar_url']) ? $user['avatar_url'] : 'https://lh3.googleusercontent.com/aida-public/AB6AXuCgjdnQliGTIf0xhiSBiil6TjgxEyH-8kQe5jsjqUJcIoqDI6clB-BoBSHKTbfVdIR_QTsOGyz6EzPiDzPj_xokHC5mihJPToNI7WdUEOmvosxtpGV05W9A53x_BSXqJgIyCcZS2dlJDSHzI27eD-giTKzPOcPzdRvcQs7YvtYYlUMOZfbvBy3B3T9-qON25NtTHDPx0gujBhT2ZEpMzW8xHAaM_pWS4G_tvbkMFVRS55WsCylqR_4EQQ');
 
-        $userTaste = 'lofi, synthwave, chill';
-        if (!empty($user['id']) && $pdo) {
+        $userTaste = !empty($user['music_taste']) ? $user['music_taste'] : 'lofi, synthwave, chill';
+        if ($userId && $pdo && empty($user['music_taste'])) {
             $stmtT = $pdo->prepare("SELECT music_taste FROM users WHERE id = ?");
-            $stmtT->execute([$user['id']]);
+            $stmtT->execute([$userId]);
             $tVal = $stmtT->fetchColumn();
             if (!empty($tVal)) $userTaste = $tVal;
         }
@@ -200,7 +217,23 @@ function getFeaturedAlbums($pdo) {
 // -------------------------------------------------------------
 // History List & Clear Endpoints (Per User Account)
 // -------------------------------------------------------------
+// History List & Clear Endpoints (Per User Account)
+// -------------------------------------------------------------
 if ($action === 'history_list') {
+    if (!$userId && !empty($rawUserInput) && $pdo) {
+        if (is_numeric($rawUserInput)) {
+            $userId = (int)$rawUserInput;
+        } else if (strpos($rawUserInput, 'user_') === 0 && is_numeric(substr($rawUserInput, 5))) {
+            $userId = (int)substr($rawUserInput, 5);
+        } else {
+            $cleanRaw = strtolower($rawUserInput);
+            $cleanEmailDot = str_replace('_', '.', $cleanRaw);
+            $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? OR email = ? OR username = ? OR firebase_uid = ? OR google_id = ? OR uuid = ? OR REPLACE(REPLACE(LOWER(email), '@', '_'), '.', '_') = ? LIMIT 1");
+            $stmt->execute([$rawUserInput, $cleanEmailDot, $rawUserInput, $rawUserInput, $rawUserInput, $rawUserInput, $cleanRaw]);
+            $found = $stmt->fetchColumn();
+            if ($found) $userId = (int)$found;
+        }
+    }
     if (!$userId || !$pdo) {
         echo json_encode(['success' => true, 'history' => []]);
         exit;
@@ -225,23 +258,34 @@ if ($action === 'history_list') {
 }
 
 if ($action === 'history_record') {
-    if (!$userId || !$pdo) {
-        echo json_encode(['success' => true, 'is_guest' => true, 'message' => 'Guest play not saved to user account']);
-        exit;
+    if (!$userId && !empty($rawUserInput) && $pdo) {
+        if (is_numeric($rawUserInput)) {
+            $userId = (int)$rawUserInput;
+        } else if (strpos($rawUserInput, 'user_') === 0 && is_numeric(substr($rawUserInput, 5))) {
+            $userId = (int)substr($rawUserInput, 5);
+        } else {
+            $cleanRaw = strtolower($rawUserInput);
+            $cleanEmailDot = str_replace('_', '.', $cleanRaw);
+            $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? OR email = ? OR username = ? OR firebase_uid = ? OR google_id = ? OR uuid = ? OR REPLACE(REPLACE(LOWER(email), '@', '_'), '.', '_') = ? LIMIT 1");
+            $stmt->execute([$rawUserInput, $cleanEmailDot, $rawUserInput, $rawUserInput, $rawUserInput, $rawUserInput, $cleanRaw]);
+            $found = $stmt->fetchColumn();
+            if ($found) $userId = (int)$found;
+        }
     }
-    $rawId = $_POST['track_id'] ?? $_GET['track_id'] ?? '';
+
+    $rawId = $_POST['track_id'] ?? $_GET['track_id'] ?? $_REQUEST['track_id'] ?? '';
     $trackId = is_numeric($rawId) ? intval($rawId) : 0;
-    $ytId = trim($_POST['youtube_id'] ?? $_GET['youtube_id'] ?? '');
-    $title = trim($_POST['title'] ?? $_GET['title'] ?? '');
-    $artist = trim($_POST['artist'] ?? $_GET['artist'] ?? '');
-    $cover = trim($_POST['cover_url'] ?? $_GET['cover_url'] ?? '');
-    $duration = intval($_POST['duration'] ?? $_GET['duration'] ?? 210);
+    $ytId = trim($_POST['youtube_id'] ?? $_GET['youtube_id'] ?? $_REQUEST['youtube_id'] ?? '');
+    $title = trim($_POST['title'] ?? $_GET['title'] ?? $_REQUEST['title'] ?? '');
+    $artist = trim($_POST['artist'] ?? $_GET['artist'] ?? $_REQUEST['artist'] ?? '');
+    $cover = trim($_POST['cover_url'] ?? $_GET['cover_url'] ?? $_REQUEST['cover_url'] ?? '');
+    $duration = intval($_POST['duration'] ?? $_GET['duration'] ?? $_REQUEST['duration'] ?? 210);
 
     if (empty($ytId) && is_string($rawId) && strpos($rawId, 'yt_') === 0) {
         $ytId = substr($rawId, 3);
     }
 
-    if ($trackId <= 0 && !empty($ytId)) {
+    if ($trackId <= 0 && !empty($ytId) && $pdo) {
         $chk = $pdo->prepare("SELECT id FROM tracks WHERE youtube_id = ?");
         $chk->execute([$ytId]);
         $existingId = $chk->fetchColumn();
@@ -261,9 +305,18 @@ if ($action === 'history_record') {
         }
     }
 
-    if ($trackId > 0) {
-        // Prevent duplicate history entries and spamming when clicking repeatedly within 30 seconds
-        $chkRecent = $pdo->prepare("SELECT id FROM history WHERE user_id = ? AND track_id = ? AND played_at >= DATE_SUB(NOW(), INTERVAL 30 SECOND) ORDER BY played_at DESC LIMIT 1");
+    if ($trackId <= 0 && !empty($title) && $pdo) {
+        $chkTitle = $pdo->prepare("SELECT id FROM tracks WHERE title = ? AND artist = ? LIMIT 1");
+        $chkTitle->execute([$title, $artist]);
+        $existingTitleId = $chkTitle->fetchColumn();
+        if ($existingTitleId) {
+            $trackId = (int)$existingTitleId;
+        }
+    }
+
+    if ($userId && $trackId > 0 && $pdo) {
+        // Prevent duplicate spamming when clicking repeatedly within 15 seconds, but update played_at to NOW()
+        $chkRecent = $pdo->prepare("SELECT id FROM history WHERE user_id = ? AND track_id = ? AND played_at >= DATE_SUB(NOW(), INTERVAL 15 SECOND) ORDER BY played_at DESC LIMIT 1");
         $chkRecent->execute([$userId, $trackId]);
         $recentId = $chkRecent->fetchColumn();
 
@@ -275,13 +328,93 @@ if ($action === 'history_record') {
             $stmtH->execute([$hUuid, $userId, $trackId]);
         }
 
-        // Note: Real listening time is accumulated second-by-second while playing via stats.php?action=record_listen.
-        // It must NOT be added here on track click.
-
         echo json_encode(['success' => true, 'track_id' => $trackId, 'message' => 'Recorded to account history']);
         exit;
     }
-    echo json_encode(['success' => false, 'message' => 'Could not determine track ID']);
+
+    echo json_encode(['success' => true, 'is_guest' => true, 'track_id' => $trackId, 'message' => 'Play recorded']);
+    exit;
+}
+
+// -------------------------------------------------------------
+// Related Tracks / Smart Radio Endpoint (Same Artist & Vibe)
+// -------------------------------------------------------------
+if ($action === 'related_tracks') {
+    $artist = trim($_REQUEST['artist'] ?? '');
+    $title = trim($_REQUEST['title'] ?? '');
+    $excludeYtId = trim($_REQUEST['youtube_id'] ?? $_REQUEST['exclude_id'] ?? '');
+    $limit = min(20, max(4, intval($_REQUEST['limit'] ?? 10)));
+
+    $related = [];
+    $seenIds = [];
+    if (!empty($excludeYtId)) {
+        $seenIds[$excludeYtId] = true;
+    }
+
+    // 1. Same Artist query
+    if (!empty($artist) && $artist !== 'YouTube Music' && $artist !== 'Nghệ sĩ') {
+        $cleanArtist = preg_replace('/(\s*ft\.|\s*feat\.|\s*x\s*|\s*,\s*|\s*\/\s*).*$/i', '', $artist);
+        $artistHits = YouTubeMusicService::search("{$cleanArtist} bài hát hay nhất tuyển tập official audio", $limit + 4);
+        foreach ($artistHits as $hit) {
+            $yId = $hit['youtube_id'] ?? $hit['id'];
+            if ($yId && empty($seenIds[$yId])) {
+                $seenIds[$yId] = true;
+                $hit['tag'] = '[CÙNG CA SĨ]';
+                $hit['badge'] = 'CÙNG NGHỆ SĨ';
+                $related[] = $hit;
+                if (count($related) >= $limit) break;
+            }
+        }
+    }
+
+    // 2. Similar Vibe / Radio query
+    if (count($related) < $limit) {
+        $cleanTitle = preg_replace('/\(.*?\)|\[.*?\]|official|audio|mv|remix|lyrics/i', '', $title);
+        $vibeQuery = trim($cleanTitle . ' ' . $artist . ' radio playlist');
+        if (!empty($vibeQuery)) {
+            $vibeHits = YouTubeMusicService::search($vibeQuery, $limit);
+            foreach ($vibeHits as $vh) {
+                $yId = $vh['youtube_id'] ?? $vh['id'];
+                if ($yId && empty($seenIds[$yId])) {
+                    $seenIds[$yId] = true;
+                    $vh['tag'] = '[ĐỒNG ĐIỆU]';
+                    $vh['badge'] = 'GỢI Ý TƯƠNG TỰ';
+                    $related[] = $vh;
+                    if (count($related) >= $limit) break;
+                }
+            }
+        }
+    }
+
+    // 3. Fallback to trending V-Pop if still insufficient
+    if (count($related) < 4) {
+        $trendHits = YouTubeMusicService::search("vpop thịnh hành việt nam 2026", 6);
+        foreach ($trendHits as $th) {
+            $yId = $th['youtube_id'] ?? $th['id'];
+            if ($yId && empty($seenIds[$yId])) {
+                $seenIds[$yId] = true;
+                $th['tag'] = '[THỊNH HÀNH]';
+                $related[] = $th;
+                if (count($related) >= $limit) break;
+            }
+        }
+    }
+
+    // Cache to DB
+    if ($pdo && !empty($related)) {
+        foreach ($related as &$rel) {
+            $dbId = cacheYouTubeTrack($pdo, $rel);
+            if ($dbId) $rel['db_id'] = $dbId;
+        }
+        unset($rel);
+    }
+
+    echo json_encode([
+        'success' => true,
+        'tracks' => $related,
+        'artist' => $artist,
+        'title' => $title
+    ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -373,30 +506,95 @@ if ($action === 'resolve_alternative') {
 // 1. Initial Real Feed & Made For You (YouTube Music Moods & Categories)
 // -------------------------------------------------------------
 if ($action === 'list' || $action === 'initial_feed' || $action === 'made_for_you') {
-    $isLoggedIn = !empty($_SESSION['user']);
-    $userId = $_SESSION['user']['id'] ?? null;
+    if (!$userId && !empty($rawUserInput) && $pdo) {
+        if (is_numeric($rawUserInput)) {
+            $userId = (int)$rawUserInput;
+        } else if (strpos($rawUserInput, 'user_') === 0 && is_numeric(substr($rawUserInput, 5))) {
+            $userId = (int)substr($rawUserInput, 5);
+        } else {
+            $cleanRaw = strtolower($rawUserInput);
+            $cleanEmailDot = str_replace('_', '.', $cleanRaw);
+            $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? OR email = ? OR username = ? OR firebase_uid = ? OR google_id = ? OR uuid = ? OR REPLACE(REPLACE(LOWER(email), '@', '_'), '.', '_') = ? LIMIT 1");
+            $stmt->execute([$rawUserInput, $cleanEmailDot, $rawUserInput, $rawUserInput, $rawUserInput, $rawUserInput, $cleanRaw]);
+            $found = $stmt->fetchColumn();
+            if ($found) $userId = (int)$found;
+        }
+    }
+    $isLoggedIn = !empty($userId) || !empty($_SESSION['user']);
     $category = strtolower(trim($_GET['category'] ?? 'all'));
 
     $userTaste = 'lofi, synthwave, chill';
-    if ($isLoggedIn && $userId && $pdo) {
-        $stmtT = $pdo->prepare("SELECT music_taste FROM users WHERE id = ?");
-        $stmtT->execute([$userId]);
-        $tVal = $stmtT->fetchColumn();
-        if (!empty($tVal)) $userTaste = $tVal;
+    if ($userId && $pdo) {
+        try {
+            $stmtT = $pdo->prepare("SELECT music_taste FROM users WHERE id = ?");
+            $stmtT->execute([$userId]);
+            $tVal = $stmtT->fetchColumn();
+            if (!empty($tVal)) $userTaste = $tVal;
+        } catch (Exception $e) {}
     }
 
-    $userSyncedTracks = [];
-    if ($isLoggedIn && $userId && $pdo) {
+    $topArtists = [];
+    $recentHistoryTracks = [];
+    $userFavorites = [];
+
+    if ($userId && $pdo) {
+        // 1. History tracks (Nghe lại / Listen Again)
         try {
-            $stmtSync = $pdo->prepare("SELECT DISTINCT t.id, t.title, t.artist, t.album, t.duration, t.format, t.cover_url, t.source_type, t.youtube_id, t.views_count, 1 as is_synced 
-                FROM tracks t 
-                LEFT JOIN playlist_tracks pt ON t.id = pt.track_id 
-                LEFT JOIN playlists p ON pt.playlist_id = p.id 
-                LEFT JOIN favorites f ON t.id = f.track_id 
-                WHERE p.user_id = ? OR f.user_id = ? 
-                ORDER BY t.id DESC LIMIT 14");
-            $stmtSync->execute([$userId, $userId]);
-            $userSyncedTracks = $stmtSync->fetchAll(PDO::FETCH_ASSOC);
+            $stmtHist = $pdo->prepare("
+                SELECT DISTINCT t.id, t.title, t.artist, t.album, t.cover_url, t.duration, t.format, t.youtube_id,
+                       h.played_at, UNIX_TIMESTAMP(h.played_at) * 1000 as playedAt
+                FROM history h
+                JOIN tracks t ON h.track_id = t.id
+                WHERE h.user_id = ?
+                ORDER BY h.played_at DESC
+                LIMIT 8
+            ");
+            $stmtHist->execute([$userId]);
+            $recentHistoryTracks = $stmtHist->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {}
+
+        // 2. User top artists from history & favorites
+        try {
+            $stmtArtist = $pdo->prepare("
+                SELECT t.artist, COUNT(*) as cnt 
+                FROM history h 
+                JOIN tracks t ON h.track_id = t.id 
+                WHERE h.user_id = ? AND t.artist NOT IN ('YouTube Music', 'Nghệ sĩ', 'Unknown Artist', '') 
+                GROUP BY t.artist 
+                ORDER BY cnt DESC 
+                LIMIT 3
+            ");
+            $stmtArtist->execute([$userId]);
+            $topArtists = $stmtArtist->fetchAll(PDO::FETCH_COLUMN);
+
+            if (empty($topArtists)) {
+                $stmtFavArt = $pdo->prepare("
+                    SELECT t.artist, COUNT(*) as cnt 
+                    FROM favorites f 
+                    JOIN tracks t ON f.track_id = t.id 
+                    WHERE f.user_id = ? AND t.artist NOT IN ('YouTube Music', 'Nghệ sĩ', 'Unknown Artist', '') 
+                    GROUP BY t.artist 
+                    ORDER BY cnt DESC 
+                    LIMIT 3
+                ");
+                $stmtFavArt->execute([$userId]);
+                $topArtists = $stmtFavArt->fetchAll(PDO::FETCH_COLUMN);
+            }
+        } catch (Exception $e) {}
+
+        // 3. User favorites
+        try {
+            $stmtFav = $pdo->prepare("
+                SELECT t.id, t.title, t.artist, t.album, t.duration, t.format, t.cover_url, t.youtube_id,
+                       f.created_at, UNIX_TIMESTAMP(f.created_at) * 1000 as favoritedAt
+                FROM favorites f
+                JOIN tracks t ON f.track_id = t.id
+                WHERE f.user_id = ?
+                ORDER BY f.created_at DESC
+                LIMIT 8
+            ");
+            $stmtFav->execute([$userId]);
+            $userFavorites = $stmtFav->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {}
     }
 
@@ -427,14 +625,14 @@ if ($action === 'list' || $action === 'initial_feed' || $action === 'made_for_yo
             if (count($madeForYou) >= 12) break;
         }
     } else {
-        // 'all' or 'supermix': Prioritize user synced tracks first, then personalized / trending
-        if (!empty($userSyncedTracks)) {
-            foreach ($userSyncedTracks as $st) {
+        // 'all' or 'supermix': Prioritize user favorites / synced tracks first, then personalized
+        if (!empty($userFavorites)) {
+            foreach ($userFavorites as $st) {
                 $yId = $st['youtube_id'] ?: $st['id'];
                 if ($yId && empty($seenYt[$yId])) {
                     $seenYt[$yId] = true;
-                    $st['badge'] = 'GOOGLE SYNC';
-                    $st['tag'] = '[ĐỒNG BỘ]';
+                    $st['badge'] = 'YÊU THÍCH';
+                    $st['tag'] = '[YÊU THÍCH]';
                     if ($yId) {
                         $st['cover_url'] = "https://i.ytimg.com/vi/{$yId}/hqdefault.jpg";
                         $st['cover'] = "https://i.ytimg.com/vi/{$yId}/hqdefault.jpg";
@@ -448,24 +646,24 @@ if ($action === 'list' || $action === 'initial_feed' || $action === 'made_for_yo
             ? ($userTaste . ' best songs official audio') 
             : 'thinh hanh nhac tre vpop 2026';
 
-        $trendingTracks = YouTubeMusicService::search($searchQuery, 14, 'music');
-        if (empty($trendingTracks) || count($trendingTracks) < 6) {
-            $backup = YouTubeMusicService::search($userTaste . ' chill', 14, 'music');
+        $tasteTracks = YouTubeMusicService::search($searchQuery, 12, 'music');
+        if (empty($tasteTracks) || count($tasteTracks) < 6) {
+            $backup = YouTubeMusicService::search($userTaste . ' chill', 12, 'music');
             foreach ($backup as $bk) {
-                if (count($trendingTracks) >= 14) break;
-                $trendingTracks[] = $bk;
+                if (count($tasteTracks) >= 12) break;
+                $tasteTracks[] = $bk;
             }
         }
 
-        if ($pdo && !empty($trendingTracks)) {
-            foreach ($trendingTracks as &$yt) {
+        if ($pdo && !empty($tasteTracks)) {
+            foreach ($tasteTracks as &$yt) {
                 $dbId = cacheYouTubeTrack($pdo, $yt);
                 if ($dbId) $yt['db_id'] = $dbId;
             }
             unset($yt);
         }
 
-        foreach ($trendingTracks as $tt) {
+        foreach ($tasteTracks as $tt) {
             $yId = $tt['youtube_id'] ?: $tt['id'];
             if ($yId && empty($seenYt[$yId])) {
                 $seenYt[$yId] = true;
@@ -479,7 +677,92 @@ if ($action === 'list' || $action === 'initial_feed' || $action === 'made_for_yo
         }
     }
 
-    // Existing local DB tracks for player list
+    // ---------------------------------------------------------
+    // YouTube Music Shelves Generation
+    // ---------------------------------------------------------
+    // Shelf A: Quick Picks (Lựa chọn nhanh - 8 cards)
+    $quickPicks = [];
+    $seenQuick = [];
+    // Prioritize 4 from user favorites / history, then 4 from taste
+    $sourcePicks = array_merge($userFavorites, $recentHistoryTracks, $madeForYou);
+    foreach ($sourcePicks as $sp) {
+        $yId = $sp['youtube_id'] ?: $sp['id'];
+        if ($yId && empty($seenQuick[$yId])) {
+            $seenQuick[$yId] = true;
+            $sp['badge'] = 'QUICK PICK';
+            $sp['tag'] = '[LỰA CHỌN]';
+            if ($yId) {
+                $sp['cover_url'] = $sp['cover_url'] ?: "https://i.ytimg.com/vi/{$yId}/hqdefault.jpg";
+                $sp['cover'] = $sp['cover_url'];
+            }
+            $quickPicks[] = $sp;
+            if (count($quickPicks) >= 8) break;
+        }
+    }
+
+    // Shelf B: Similar To Top Artist (Tương tự như [Top Artist])
+    $primaryArtist = !empty($topArtists[0]) ? $topArtists[0] : 'Sơn Tùng M-TP';
+    $cleanPrimaryArtist = trim(preg_replace('/(\s*ft\.|\s*feat\.|\s*x\s*|\s*,\s*|\s*\/\s*).*$/i', '', $primaryArtist));
+    if (empty($cleanPrimaryArtist)) $cleanPrimaryArtist = 'Sơn Tùng M-TP';
+
+    $similarRaw = YouTubeMusicService::search("{$cleanPrimaryArtist} bài hát hay nhất tuyển tập official audio", 8);
+    $similarTracks = [];
+    $seenSimilar = [];
+    foreach ($similarRaw as $sr) {
+        $yId = $sr['youtube_id'] ?: $sr['id'];
+        if ($yId && empty($seenSimilar[$yId])) {
+            $seenSimilar[$yId] = true;
+            $sr['badge'] = 'GỢI Ý TƯƠNG TỰ';
+            $sr['tag'] = '[CÙNG NGHỆ SĨ]';
+            if ($yId) {
+                $sr['cover_url'] = "https://i.ytimg.com/vi/{$yId}/hqdefault.jpg";
+                $sr['cover'] = "https://i.ytimg.com/vi/{$yId}/hqdefault.jpg";
+            }
+            $similarTracks[] = $sr;
+        }
+    }
+    if ($pdo && !empty($similarTracks)) {
+        foreach ($similarTracks as &$st) {
+            $dbId = cacheYouTubeTrack($pdo, $st);
+            if ($dbId) $st['db_id'] = $dbId;
+        }
+        unset($st);
+    }
+
+    // Shelf C: Trending Hits (Thịnh hành V-Pop 2026)
+    $trendingRaw = YouTubeMusicService::search("bảng xếp hạng vpop hot trending 2026", 8, 'music');
+    $trendingTracks = [];
+    $seenTrending = [];
+    foreach ($trendingRaw as $tr) {
+        $yId = $tr['youtube_id'] ?: $tr['id'];
+        if ($yId && empty($seenTrending[$yId])) {
+            $seenTrending[$yId] = true;
+            $tr['badge'] = 'HOT TREND';
+            $tr['tag'] = '[THỊNH HÀNH]';
+            if ($yId) {
+                $tr['cover_url'] = "https://i.ytimg.com/vi/{$yId}/hqdefault.jpg";
+                $tr['cover'] = "https://i.ytimg.com/vi/{$yId}/hqdefault.jpg";
+            }
+            $trendingTracks[] = $tr;
+        }
+    }
+    if ($pdo && !empty($trendingTracks)) {
+        foreach ($trendingTracks as &$tr) {
+            $dbId = cacheYouTubeTrack($pdo, $tr);
+            if ($dbId) $tr['db_id'] = $dbId;
+        }
+        unset($tr);
+    }
+
+    // Fallback for Listen Again if user has no server history yet:
+    if (empty($recentHistoryTracks) && $pdo) {
+        try {
+            $stmtPop = $pdo->query("SELECT id, title, artist, album, duration, format, cover_url, source_type, youtube_id, views_count FROM tracks ORDER BY views_count DESC, id DESC LIMIT 8");
+            $recentHistoryTracks = $stmtPop->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {}
+    }
+
+    // Existing local DB tracks for player playlist
     $dbTracks = [];
     if ($pdo) {
         $stmt = $pdo->query("SELECT id, title, artist, album, duration, format, cover_url, source_type, youtube_id, is_featured, views_count FROM tracks ORDER BY id DESC LIMIT 15");
@@ -490,23 +773,18 @@ if ($action === 'list' || $action === 'initial_feed' || $action === 'made_for_yo
     $allTracks = [];
     $seenAll = [];
 
-    foreach ($madeForYou as $yt) {
-        $yId = $yt['youtube_id'] ?: $yt['id'];
-        if ($yId && empty($seenAll[$yId])) {
-            $allTracks[] = $yt;
-            $seenAll[$yId] = true;
+    $collectionsToMerge = [$madeForYou, $quickPicks, $similarTracks, $trendingTracks, $dbTracks];
+    foreach ($collectionsToMerge as $col) {
+        foreach ($col as $t) {
+            $yId = $t['youtube_id'] ?: $t['id'];
+            if ($yId && empty($seenAll[$yId])) {
+                $allTracks[] = $t;
+                $seenAll[$yId] = true;
+            }
         }
     }
 
-    foreach ($dbTracks as $t) {
-        $yId = $t['youtube_id'] ?: $t['id'];
-        if ($yId && empty($seenAll[$yId])) {
-            $allTracks[] = $t;
-            $seenAll[$yId] = true;
-        }
-    }
-
-    $featuredData = getFeaturedAlbums($pdo);
+    $featuredData = getFeaturedAlbums($pdo, $userId);
 
     $moodCategories = [
         ['id' => 'all', 'name' => 'Tất cả', 'icon' => 'explore', 'badge' => 'ALL'],
@@ -525,6 +803,14 @@ if ($action === 'list' || $action === 'initial_feed' || $action === 'made_for_yo
         'category' => $category,
         'mood_categories' => $moodCategories,
         'made_for_you' => array_slice($madeForYou, 0, 8),
+        'quick_picks' => array_slice($quickPicks, 0, 8),
+        'listen_again' => array_slice($recentHistoryTracks, 0, 8),
+        'similar_to' => [
+            'artist' => $cleanPrimaryArtist,
+            'title' => 'Tương tự như ' . $cleanPrimaryArtist,
+            'tracks' => array_slice($similarTracks, 0, 8)
+        ],
+        'trending' => array_slice($trendingTracks, 0, 8),
         'featured_albums' => $featuredData['albums'],
         'is_personalized' => $featuredData['is_personalized'],
         'user' => $featuredData['user'],

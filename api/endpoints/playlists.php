@@ -22,14 +22,17 @@ $action = $_GET['action'] ?? $_POST['action'] ?? $_REQUEST['action'] ?? 'list';
 $db = Database::getInstance();
 $pdo = $db->getConnection();
 $userId = $_SESSION['user']['id'] ?? null;
-$rawUser = trim($_GET['user_id'] ?? $_POST['user_id'] ?? $_REQUEST['user_id'] ?? '');
+$rawUser = trim($_GET['user_id'] ?? $_POST['user_id'] ?? $_REQUEST['user_id'] ?? $_REQUEST['owner_uid'] ?? $_REQUEST['uid'] ?? '');
 if (!$userId && !empty($rawUser)) {
     if (is_numeric($rawUser)) {
         $userId = (int)$rawUser;
+    } else if (strpos($rawUser, 'user_') === 0 && is_numeric(substr($rawUser, 5))) {
+        $userId = (int)substr($rawUser, 5);
     } else if ($pdo) {
-        $cleanEmail = strtolower($rawUser);
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? OR username = ? OR REPLACE(REPLACE(LOWER(email), '@', '_'), '.', '_') = ? OR google_id = ? OR uuid = ? LIMIT 1");
-        $stmt->execute([$rawUser, $rawUser, $cleanEmail, $rawUser, $rawUser]);
+        $cleanRaw = strtolower($rawUser);
+        $cleanEmailDot = str_replace('_', '.', $cleanRaw);
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? OR email = ? OR username = ? OR firebase_uid = ? OR google_id = ? OR uuid = ? OR REPLACE(REPLACE(LOWER(email), '@', '_'), '.', '_') = ? LIMIT 1");
+        $stmt->execute([$rawUser, $cleanEmailDot, $rawUser, $rawUser, $rawUser, $rawUser, $cleanRaw]);
         $found = $stmt->fetchColumn();
         if ($found) $userId = (int)$found;
     }
@@ -62,7 +65,7 @@ if ($action === 'favorites_list') {
     $offset = max(0, intval($_GET['offset'] ?? 0));
     if ($pdo) {
         if ($limit > 0) {
-            $stmt = $pdo->prepare("SELECT t.* FROM favorites f JOIN tracks t ON f.track_id = t.id WHERE f.user_id = ? ORDER BY f.created_at DESC LIMIT ? OFFSET ?");
+            $stmt = $pdo->prepare("SELECT t.*, f.created_at as favorited_at, UNIX_TIMESTAMP(f.created_at) * 1000 as favoritedAt FROM favorites f JOIN tracks t ON f.track_id = t.id WHERE f.user_id = ? ORDER BY f.created_at DESC LIMIT ? OFFSET ?");
             $stmt->bindValue(1, $userId, PDO::PARAM_INT);
             $stmt->bindValue(2, $limit, PDO::PARAM_INT);
             $stmt->bindValue(3, $offset, PDO::PARAM_INT);
@@ -82,7 +85,7 @@ if ($action === 'favorites_list') {
                 'has_more' => ($offset + count($tracks)) < $total
             ]);
         } else {
-            $stmt = $pdo->prepare("SELECT t.* FROM favorites f JOIN tracks t ON f.track_id = t.id WHERE f.user_id = ? ORDER BY f.created_at DESC");
+            $stmt = $pdo->prepare("SELECT t.*, f.created_at as favorited_at, UNIX_TIMESTAMP(f.created_at) * 1000 as favoritedAt FROM favorites f JOIN tracks t ON f.track_id = t.id WHERE f.user_id = ? ORDER BY f.created_at DESC");
             $stmt->execute([$userId]);
             $tracks = $stmt->fetchAll();
             echo json_encode(['success' => true, 'favorites' => $tracks, 'total' => count($tracks)]);

@@ -59,6 +59,9 @@ class MinhDucAudioEngine {
     this.isShuffle = false;
     this.repeatMode = 'off'; // 'off' | 'all' | 'one'
     this.isHeroHovered = false;
+    this.smartRadioQueue = [];
+    this.isFetchingRadio = false;
+    this._lastRadioSourceYtId = null;
 
     // Floating Synced Lyrics (Karaoke) state
     this.isFloatingLyricsOpen = false;
@@ -690,7 +693,10 @@ class MinhDucAudioEngine {
     }
 
     this.isPlaying = true;
-    if (track) this.recordHistory(track);
+    if (track) {
+      this.recordHistory(track);
+      this.fetchRelatedRadioTracks(track);
+    }
     this.startPlaybackWatchdog(track);
     this.startTimer();
     this.updateUI();
@@ -789,9 +795,52 @@ class MinhDucAudioEngine {
 
     this.isPlaying = true;
     this.recordHistory(track);
+    this.fetchRelatedRadioTracks(track);
     this.startPlaybackWatchdog(track);
     this.startTimer();
     this.updateUI();
+  }
+
+  // Smart Radio Recommendations (Same Artist & Genre/Vibe - YouTube Music algorithm)
+  async fetchRelatedRadioTracks(track) {
+    if (!track || (!track.title && !track.artist)) return;
+    const artist = (track.artist || '').trim();
+    const title = (track.title || '').trim();
+    const ytId = track.youtube_id || (typeof track.id === 'string' && track.id.startsWith('yt_') ? track.id.substring(3) : '');
+
+    if (this._lastRadioSourceYtId === ytId && this.smartRadioQueue && this.smartRadioQueue.length >= 4) {
+      return;
+    }
+    this._lastRadioSourceYtId = ytId;
+
+    try {
+      const res = await fetch(`api/endpoints/tracks.php?action=related_tracks&artist=${encodeURIComponent(artist)}&title=${encodeURIComponent(title)}&youtube_id=${encodeURIComponent(ytId)}&limit=12`);
+      const data = await res.json();
+      if (data && data.success && Array.isArray(data.tracks) && data.tracks.length > 0) {
+        const freshTracks = data.tracks.filter(t => {
+          const tYt = t.youtube_id || (typeof t.id === 'string' && t.id.startsWith('yt_') ? t.id.substring(3) : '');
+          return tYt && tYt !== ytId && t.title !== title;
+        }).map(t => ({
+          id: t.id || ('yt_' + t.youtube_id),
+          db_id: t.db_id,
+          title: t.title,
+          artist: t.artist || artist || 'YouTube Music',
+          album: t.album || 'YouTube Music Radio',
+          duration: t.duration || 210,
+          format: t.format || 'YT AUDIO 320k',
+          cover_url: t.cover_url || ('https://i.ytimg.com/vi/' + t.youtube_id + '/hqdefault.jpg'),
+          cover: t.cover_url || ('https://i.ytimg.com/vi/' + t.youtube_id + '/hqdefault.jpg'),
+          source_type: 'youtube',
+          youtube_id: t.youtube_id,
+          badge: t.badge || 'SMART RADIO',
+          tag: t.tag || '[ĐỒNG ĐIỆU]'
+        }));
+
+        this.smartRadioQueue = freshTracks;
+      }
+    } catch (err) {
+      console.warn('[SmartRadio] Lỗi nạp radio:', err);
+    }
   }
 
   onTrackEnded() {
@@ -810,14 +859,26 @@ class MinhDucAudioEngine {
   }
 
   next() {
-    if (!this.tracks || this.tracks.length === 0) return;
-    if (!this.currentTrack) {
-      this.playTrack(0);
-      return;
-    }
     if (this.repeatMode === 'one') {
       this.seek(0);
       this.play();
+      return;
+    }
+
+    // 1. Smart Radio: Prioritize artist & genre matching queue
+    if (this.smartRadioQueue && this.smartRadioQueue.length > 0) {
+      const nextRadioTrack = this.smartRadioQueue.shift();
+      if (this.smartRadioQueue.length <= 2) {
+        this.fetchRelatedRadioTracks(nextRadioTrack);
+      }
+      this.playTrackDirect(nextRadioTrack);
+      return;
+    }
+
+    // 2. Sequential / Shuffle fallback
+    if (!this.tracks || this.tracks.length === 0) return;
+    if (!this.currentTrack) {
+      this.playTrack(0);
       return;
     }
     let nextIdx;
@@ -1850,17 +1911,23 @@ class MinhDucAudioEngine {
 
     // A. Global Search Bar (Header)
     const globalSearchBtn = document.getElementById('global-search-btn');
-    if (globalSearchBtn && globalInput) {
-      globalSearchBtn.addEventListener('click', () => {
-        const q = globalInput.value.trim();
+    if (globalSearchBtn) {
+      globalSearchBtn.addEventListener('click', (e) => {
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        const q = globalInput ? globalInput.value.trim() : '';
+        clearTimeout(quickDebounce);
+        if (quickDropdown) quickDropdown.classList.add('hidden');
+        this.searchQuery = q;
+        if (viewInput) viewInput.value = q;
+        this.switchView('search');
         if (q) {
-          clearTimeout(quickDebounce);
-          if (quickDropdown) quickDropdown.classList.add('hidden');
-          this.searchQuery = q;
-          if (viewInput) viewInput.value = q;
-          this.switchView('search');
           this.performSearch(q, this.currentSearchCategory || 'all');
-        } else {
+        } else if (viewInput) {
+          viewInput.focus();
+        } else if (globalInput) {
           globalInput.focus();
         }
       });
@@ -2431,6 +2498,7 @@ class MinhDucAudioEngine {
 
     this.isPlaying = true;
     this.recordHistory(formattedTrack);
+    this.fetchRelatedRadioTracks(formattedTrack);
     this.startPlaybackWatchdog(formattedTrack);
     this.startTimer();
     this.updateUI();
@@ -3198,6 +3266,25 @@ class MinhDucAudioEngine {
           } catch(e){}
         }
       }
+      // Migrate guest history into logged in user's history
+      const guestKey = 'minhduc_history_guest';
+      const guestData = localStorage.getItem(guestKey);
+      if (guestData) {
+        try {
+          const guestTracks = JSON.parse(guestData) || [];
+          if (Array.isArray(guestTracks) && guestTracks.length > 0) {
+            let currentHistory = JSON.parse(localStorage.getItem(emailKey) || '[]');
+            guestTracks.forEach(gt => {
+              const exists = currentHistory.some(ch => (gt.youtube_id && ch.youtube_id === gt.youtube_id) || (gt.title && ch.title === gt.title));
+              if (!exists) currentHistory.push(gt);
+            });
+            currentHistory.sort((a, b) => Number(b.playedAt || b.played_at || 0) - Number(a.playedAt || a.played_at || 0));
+            if (currentHistory.length > 60) currentHistory = currentHistory.slice(0, 60);
+            localStorage.setItem(emailKey, JSON.stringify(currentHistory));
+            localStorage.removeItem(guestKey);
+          }
+        } catch(e){}
+      }
       return emailKey;
     }
     return 'minhduc_history_guest';
@@ -3215,6 +3302,23 @@ class MinhDucAudioEngine {
             localStorage.removeItem(oldKey);
           } catch(e){}
         }
+      }
+      // Migrate guest favorites
+      const guestKey = 'minhduc_favs_guest';
+      const guestData = localStorage.getItem(guestKey);
+      if (guestData) {
+        try {
+          const guestFavs = JSON.parse(guestData) || [];
+          if (Array.isArray(guestFavs) && guestFavs.length > 0) {
+            let currentFavs = JSON.parse(localStorage.getItem(emailKey) || '[]');
+            guestFavs.forEach(gf => {
+              const exists = currentFavs.some(cf => (gf.youtube_id && cf.youtube_id === gf.youtube_id) || (gf.title && cf.title === gf.title));
+              if (!exists) currentFavs.push(gf);
+            });
+            localStorage.setItem(emailKey, JSON.stringify(currentFavs));
+            localStorage.removeItem(guestKey);
+          }
+        } catch(e){}
       }
       return emailKey;
     }
@@ -3295,18 +3399,17 @@ class MinhDucAudioEngine {
       this.renderSidebarRecentTracks();
 
       // If user is logged in, record to MySQL database & Firebase Cloud for this specific user
-      if (this.currentUser && (this.currentUser.id || this.currentUser.email)) {
-        // Prevent duplicate history_record requests on rapid clicks (within 5 seconds)
+      const cloudUid = this.getCloudUid();
+      const uidParam = cloudUid || (this.currentUser ? (this.currentUser.id || this.currentUser.email || this.currentUser.uid || this.currentUser.google_id) : null);
+      if (uidParam) {
+        // Prevent duplicate history_record requests on rapid clicks (within 2.5 seconds)
         const now = Date.now();
         const trIdKey = track.youtube_id || track.db_id || track.id || track.title;
-        if (this._lastRecordedTrKey === trIdKey && (now - (this._lastRecordedTime || 0)) < 5000) {
+        if (this._lastRecordedTrKey === trIdKey && (now - (this._lastRecordedTime || 0)) < 2500) {
           return;
         }
         this._lastRecordedTrKey = trIdKey;
         this._lastRecordedTime = now;
-
-        const cloudUid = this.getCloudUid();
-        const uidParam = cloudUid || this.currentUser.id || this.currentUser.email;
         const ytId = track.youtube_id || (typeof track.id === 'string' && track.id.startsWith('yt_') && track.id.length > 3 ? track.id.substring(3) : '');
         const trId = track.db_id || track.id || '';
         const title = (track.title || '').trim();
@@ -4146,7 +4249,13 @@ class MinhDucAudioEngine {
       }
     });
 
-    // Consolidate back to localStorage
+    // Consolidate and sort strictly DESC by favorited date (newest first)
+    favList.sort((a, b) => {
+      const timeA = Number(a.favoritedAt || (a.favorited_at ? new Date(a.favorited_at).getTime() : 0) || a.added_at || a.timestamp || 0);
+      const timeB = Number(b.favoritedAt || (b.favorited_at ? new Date(b.favorited_at).getTime() : 0) || b.added_at || b.timestamp || 0);
+      return timeB - timeA;
+    });
+
     try {
       localStorage.setItem(favKey, JSON.stringify(favList));
     } catch (e) {}
@@ -4454,6 +4563,17 @@ class MinhDucAudioEngine {
         } catch(fbErr) {}
       }
     }
+
+    // Sort strictly DESC by played date (newest first)
+    history.sort((a, b) => {
+      const timeA = Number(a.playedAt || a.played_at || (a.played_at ? new Date(a.played_at).getTime() : 0) || 0);
+      const timeB = Number(b.playedAt || b.played_at || (b.played_at ? new Date(b.played_at).getTime() : 0) || 0);
+      return timeB - timeA;
+    });
+
+    try {
+      localStorage.setItem(key, JSON.stringify(history));
+    } catch (e) {}
 
     this.allHistoryList = history;
     this.currentHistoryList = history;
@@ -5378,7 +5498,9 @@ class MinhDucAudioEngine {
             artist: artist,
             cover_url: coverUrl,
             duration: duration,
-            format: track.format || 'YT AUDIO 320k'
+            format: track.format || 'YT AUDIO 320k',
+            favorited_at: new Date().toISOString(),
+            favoritedAt: Date.now()
           });
           if (fbRes && typeof fbRes.isFavorite === 'boolean') {
             isFavResult = fbRes.isFavorite;
@@ -5411,7 +5533,9 @@ class MinhDucAudioEngine {
               artist: artist,
               cover_url: coverUrl,
               duration: duration,
-              format: track.format || 'YT AUDIO 320k'
+              format: track.format || 'YT AUDIO 320k',
+              favorited_at: new Date().toISOString(),
+              favoritedAt: Date.now()
             });
           }
         } else {
@@ -5433,7 +5557,9 @@ class MinhDucAudioEngine {
             artist: artist,
             cover_url: coverUrl,
             duration: duration,
-            format: track.format || 'YT AUDIO 320k'
+            format: track.format || 'YT AUDIO 320k',
+            favorited_at: new Date().toISOString(),
+            favoritedAt: Date.now()
           });
           isFavResult = true;
         }
@@ -7607,10 +7733,91 @@ class MinhDucAudioEngine {
     }
   }
 
-  // 10. Load Initial Real Feed from Backend (100% Real YouTube Music & Mood Filter)
+  // Helper: Create a standard YouTube Music shelf card
+  createYtMusicCard(t, idx, shelfType = 'recommend') {
+    const card = document.createElement('div');
+    card.className = 'music-card-item group bg-[#15151e]/80 hover:bg-[#1c1c28] border border-white/10 hover:border-[#a78bfa]/50 rounded-xl p-3 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer';
+    card.setAttribute('data-track-index', idx + 1);
+
+    const ytId = t.youtube_id || (typeof t.id === 'string' && t.id.startsWith('yt_') ? t.id.substring(3) : '');
+    let coverUrl = t.cover_url || t.cover || '';
+    if (!coverUrl || coverUrl.indexOf('googleusercontent') !== -1 || coverUrl.indexOf('sqp=') !== -1) {
+      coverUrl = ytId ? `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg` : 'assets/images/default-album.png';
+    }
+
+    let badgeText = 'YT AUDIO';
+    let badgeColor = 'text-secondary border-secondary/60 shadow-[0_0_8px_rgba(84,216,232,0.3)]';
+    let tagText = '[RECOMMEND]';
+
+    if (shelfType === 'quick_picks') {
+      badgeText = 'RADIO';
+      badgeColor = 'text-[#54d8e8] border-[#54d8e8]/60 shadow-[0_0_8px_rgba(84,216,232,0.3)]';
+      tagText = t.playedAt ? '[NGHE LẠI]' : '[QUICK PICK]';
+    } else if (shelfType === 'similar_to') {
+      badgeText = 'SIMILAR';
+      badgeColor = 'text-[#a78bfa] border-[#a78bfa]/60 shadow-[0_0_8px_rgba(167,139,250,0.3)]';
+      tagText = '[CÙNG GU]';
+    } else if (shelfType === 'trending') {
+      badgeText = 'TOP ' + (idx + 1);
+      badgeColor = 'text-[#ffafd3] border-[#ffafd3]/60 shadow-[0_0_8px_rgba(255,175,211,0.3)]';
+      tagText = '[HOT HIT]';
+    } else {
+      const pillQualities = ['YT AUDIO', 'HQ AUDIO', 'STEREO'];
+      badgeText = pillQualities[idx % pillQualities.length];
+      tagText = t.tag || '[FOR YOU]';
+    }
+
+    const formatText = t.format || 'YT AUDIO 320k';
+
+    card.innerHTML = `
+      <div class="w-full aspect-square rounded-lg overflow-hidden relative mb-2.5">
+        <img alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="${coverUrl}" data-yt-id="${ytId}" onerror="this.onerror=null; if(this.dataset.ytId){this.src='https://i.ytimg.com/vi/'+this.dataset.ytId+'/hqdefault.jpg';}else{this.src='assets/images/default-album.png';}">
+        <div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-black/90 font-mono text-[9px] font-semibold ${badgeColor} rounded">${badgeText}</div>
+        <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+          <div class="w-10 h-10 bg-[#a78bfa] text-black flex items-center justify-center rounded-full shadow-lg transform group-hover:scale-110 transition-transform">
+            <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg>
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-col min-w-0">
+        <h3 class="text-sm font-semibold text-white tracking-wide truncate group-hover:text-[#a78bfa] transition-colors mb-0.5" title="${this.escapeHtml(t.title)}">${this.escapeHtml(t.title)}</h3>
+        <p class="text-xs text-gray-400 truncate mb-2" title="${this.escapeHtml(t.artist || 'YouTube Music')}">${this.escapeHtml(t.artist || 'YouTube Music')}</p>
+        <div class="flex items-center gap-1.5 pt-1.5 border-t border-white/5">
+          <span class="font-mono text-[10px] text-[#a78bfa] bg-[#a78bfa]/10 px-1.5 py-0.5 rounded border border-[#a78bfa]/30 font-semibold">${tagText}</span>
+          <span class="font-mono text-[10px] text-gray-300 bg-white/5 px-1.5 py-0.5 rounded border border-white/10">${this.escapeHtml(formatText)}</span>
+        </div>
+      </div>
+    `;
+
+    card.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.playTrackDirect({
+        id: t.id || ('yt_' + (t.youtube_id || ytId)),
+        db_id: t.db_id,
+        youtube_id: t.youtube_id || ytId,
+        title: t.title,
+        artist: t.artist,
+        album: t.album || 'YouTube Music',
+        cover_url: coverUrl,
+        cover: coverUrl,
+        duration: t.duration || 210,
+        format: t.format || 'YT AUDIO 320k'
+      });
+    });
+
+    return card;
+  }
+
+  // 10. Load Initial Real Feed from Backend (100% Real YouTube Music & Personalized Shelves)
   async loadInitialFeed(moodCategory = 'all') {
     try {
+      const quickPicksGrid = document.getElementById('home-quick-picks-grid');
       const madeForYouGrid = document.getElementById('home-made-for-you-grid');
+      const similarToGrid = document.getElementById('home-similar-to-grid');
+      const similarToTitle = document.getElementById('home-similar-to-title');
+      const similarToDesc = document.getElementById('home-similar-to-desc');
+      const trendingGrid = document.getElementById('home-trending-grid');
+
       if (moodCategory !== 'all' && moodCategory !== 'supermix' && madeForYouGrid) {
         madeForYouGrid.innerHTML = `
           <div class="col-span-full py-8 flex flex-col items-center justify-center gap-2">
@@ -7620,28 +7827,36 @@ class MinhDucAudioEngine {
         `;
       }
 
-      const res = await fetch(`api/endpoints/tracks.php?action=initial_feed&category=${encodeURIComponent(moodCategory)}`);
-      const data = await res.json();
-      if (data.success && data.tracks && data.tracks.length > 0) {
-        // If loading initial/all or supermix, update base player tracks
-        if (moodCategory === 'all' || moodCategory === 'supermix' || !this.tracks || this.tracks.length <= 4) {
-          this.tracks = data.tracks.map(t => ({
-            id: t.id || ('yt_' + t.youtube_id),
-            db_id: t.db_id || t.id,
-            title: t.title,
-            artist: t.artist,
-            album: t.album || 'YouTube Music',
-            duration: t.duration || 210,
-            format: t.format || 'YT AUDIO 320k',
-            cover: t.cover_url || ('https://i.ytimg.com/vi/' + t.youtube_id + '/hqdefault.jpg'),
-            cover_url: t.cover_url || ('https://i.ytimg.com/vi/' + t.youtube_id + '/hqdefault.jpg'),
-            source_type: 'youtube',
-            youtube_id: t.youtube_id,
-            badge: 'YOUTUBE 320k'
-          }));
+      const cloudUid = this.getCloudUid();
+      const uidParam = cloudUid || this.currentUser?.id || this.currentUser?.email || '';
+      const userParam = uidParam ? `&user_id=${encodeURIComponent(uidParam)}` : '';
 
-          if (this.currentTrack) {
-            this.updateUI();
+      const res = await fetch(`api/endpoints/tracks.php?action=initial_feed&category=${encodeURIComponent(moodCategory)}${userParam}`, {
+        credentials: 'include'
+      });
+      const data = await res.json();
+      if (data && data.success) {
+        const tracksList = (data.tracks && data.tracks.length > 0) ? data.tracks : (data.quick_picks || []);
+        if (tracksList && tracksList.length > 0) {
+          if (moodCategory === 'all' || moodCategory === 'supermix' || !this.tracks || this.tracks.length <= 4) {
+            this.tracks = tracksList.map(t => ({
+              id: t.id || ('yt_' + t.youtube_id),
+              db_id: t.db_id || t.id,
+              title: t.title,
+              artist: t.artist,
+              album: t.album || 'YouTube Music',
+              duration: t.duration || 210,
+              format: t.format || 'YT AUDIO 320k',
+              cover: t.cover_url || ('https://i.ytimg.com/vi/' + t.youtube_id + '/hqdefault.jpg'),
+              cover_url: t.cover_url || ('https://i.ytimg.com/vi/' + t.youtube_id + '/hqdefault.jpg'),
+              source_type: 'youtube',
+              youtube_id: t.youtube_id,
+              badge: 'YOUTUBE 320k'
+            }));
+
+            if (this.currentTrack) {
+              this.updateUI();
+            }
           }
         }
 
@@ -7653,76 +7868,54 @@ class MinhDucAudioEngine {
           this.startFeaturedAlbumCarousel();
         }
 
-        // Dynamically render "ĐỀ XUẤT CHO BẠN / MADE FOR YOU" cards with genuine YouTube songs (8 cards in 2 rows)
+        // 1. Render Shelf: QUICK PICKS (Lựa chọn nhanh - 8 cards)
+        const quickPicksList = (data.quick_picks && data.quick_picks.length > 0)
+          ? data.quick_picks
+          : (data.listen_again && data.listen_again.length > 0 ? data.listen_again : (this.tracks ? this.tracks.slice(0, 8) : []));
+        if (quickPicksGrid && quickPicksList && quickPicksList.length > 0) {
+          quickPicksGrid.innerHTML = '';
+          quickPicksList.slice(0, 8).forEach((t, idx) => {
+            quickPicksGrid.appendChild(this.createYtMusicCard(t, idx, 'quick_picks'));
+          });
+        }
+
+        // 2. Render Shelf: MADE FOR YOU (Đề xuất cho bạn - 8 cards)
         const madeForYouList = (data.made_for_you && data.made_for_you.length > 0) 
           ? data.made_for_you 
-          : this.tracks.slice(0, 8);
-
+          : (this.tracks ? this.tracks.slice(0, 8) : []);
         if (madeForYouGrid && madeForYouList.length > 0) {
           madeForYouGrid.innerHTML = '';
-          const pillQualities = ['YT AUDIO', 'HQ AUDIO', 'STEREO', 'YT AUDIO', 'HQ AUDIO', 'STEREO'];
-          const pillColors = [
-            'text-secondary border-secondary/60 shadow-[0_0_8px_rgba(84,216,232,0.3)]',
-            'text-tertiary border-tertiary/60 shadow-[0_0_8px_rgba(255,175,211,0.3)]',
-            'text-primary border-primary/60 shadow-[0_0_8px_rgba(206,189,255,0.3)]',
-            'text-secondary border-secondary/60 shadow-[0_0_8px_rgba(84,216,232,0.3)]',
-            'text-tertiary border-tertiary/60 shadow-[0_0_8px_rgba(255,175,211,0.3)]',
-            'text-primary border-primary/60 shadow-[0_0_8px_rgba(206,189,255,0.3)]'
-          ];
-          const tagLabels = ['[TREND]', '[HOT HIT]', '[VPOP]', '[RECOMMEND]', '[BALLAD]', '[TOP HIT]', '[REMIX]', '[VIRAL]'];
-
           madeForYouList.slice(0, 8).forEach((t, idx) => {
-            const card = document.createElement('div');
-            card.className = 'music-card-item group bg-[#15151e]/80 hover:bg-[#1c1c28] border border-white/10 hover:border-[#a78bfa]/50 rounded-xl p-3 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer';
-            card.setAttribute('data-track-index', idx + 1);
-            const ytId = t.youtube_id || '';
-            let coverUrl = t.cover_url || t.cover || '';
-            if (!coverUrl || coverUrl.indexOf('googleusercontent') !== -1 || coverUrl.indexOf('sqp=') !== -1) {
-              coverUrl = ytId ? `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg` : 'assets/images/default-album.png';
-            }
-            const qualityText = pillQualities[idx % pillQualities.length];
-            const qualityColor = pillColors[idx % pillColors.length];
-            const isSynced = t.is_synced === 1 || t.badge === 'GOOGLE SYNC';
-            const tagText = isSynced ? '[ĐỒNG BỘ]' : (t.tag || tagLabels[idx % tagLabels.length]);
-            const formatText = t.format || 'YT AUDIO 320k';
+            madeForYouGrid.appendChild(this.createYtMusicCard(t, idx, 'made_for_you'));
+          });
+        }
 
-            card.innerHTML = `
-              <div class="w-full aspect-square rounded-lg overflow-hidden relative mb-2.5">
-                <img alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="${coverUrl}" data-yt-id="${ytId}" onerror="this.onerror=null; if(this.dataset.ytId){this.src='https://i.ytimg.com/vi/'+this.dataset.ytId+'/hqdefault.jpg';}else{this.src='assets/images/default-album.png';}">
-                <div class="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-black/90 font-mono text-[9px] font-semibold ${qualityColor} rounded">${qualityText}</div>
-                <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <div class="w-10 h-10 bg-[#a78bfa] text-black flex items-center justify-center rounded-full shadow-lg transform group-hover:scale-110 transition-transform">
-                    <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"></polygon></svg>
-                  </div>
-                </div>
-              </div>
-              <div class="flex flex-col min-w-0">
-                <h3 class="text-sm font-semibold text-white tracking-wide truncate group-hover:text-[#a78bfa] transition-colors mb-0.5" title="${this.escapeHtml(t.title)}">${this.escapeHtml(t.title)}</h3>
-                <p class="text-xs text-gray-400 truncate mb-2" title="${this.escapeHtml(t.artist || 'YouTube Music')}">${this.escapeHtml(t.artist || 'YouTube Music')}</p>
-                <div class="flex items-center gap-1.5 pt-1.5 border-t border-white/5">
-                  <span class="font-mono text-[10px] text-[#a78bfa] bg-[#a78bfa]/10 px-1.5 py-0.5 rounded border border-[#a78bfa]/30 font-semibold">${tagText}</span>
-                  <span class="font-mono text-[10px] text-gray-300 bg-white/5 px-1.5 py-0.5 rounded border border-white/10">${this.escapeHtml(formatText)}</span>
-                </div>
-              </div>
-            `;
-
-            card.addEventListener('click', (e) => {
-              e.preventDefault();
-              this.playTrackDirect({
-                id: t.id || ('yt_' + t.youtube_id),
-                db_id: t.db_id,
-                youtube_id: t.youtube_id,
-                title: t.title,
-                artist: t.artist,
-                album: t.album || 'YouTube Music',
-                cover_url: coverUrl,
-                cover: coverUrl,
-                duration: t.duration || 210,
-                format: t.format || 'YT AUDIO 320k'
-              });
+        // 3. Render Shelf: SIMILAR TO ARTIST (Tương tự nghệ sĩ bạn yêu thích - 8 cards)
+        if (data.similar_to) {
+          const simArtist = data.similar_to.artist || '';
+          if (simArtist && similarToTitle) {
+            similarToTitle.innerHTML = `<span class="w-2 h-2 bg-[#a78bfa]"></span>TƯƠNG TỰ NHƯ ${this.escapeHtml(simArtist.toUpperCase())}`;
+          }
+          if (simArtist && similarToDesc) {
+            similarToDesc.textContent = `Tuyển tập các ca khúc của ${simArtist} và phong cách âm nhạc liên quan`;
+          }
+          const simTracks = data.similar_to.tracks || [];
+          if (similarToGrid && simTracks.length > 0) {
+            similarToGrid.innerHTML = '';
+            simTracks.slice(0, 8).forEach((t, idx) => {
+              similarToGrid.appendChild(this.createYtMusicCard(t, idx, 'similar_to'));
             });
+          }
+        }
 
-            madeForYouGrid.appendChild(card);
+        // 4. Render Shelf: TRENDING HITS (Bảng xếp hạng thịnh hành V-Pop - 8 cards)
+        const trendingList = (data.trending && data.trending.length > 0)
+          ? data.trending
+          : (this.tracks ? this.tracks.slice(0, 8) : []);
+        if (trendingGrid && trendingList && trendingList.length > 0) {
+          trendingGrid.innerHTML = '';
+          trendingList.slice(0, 8).forEach((t, idx) => {
+            trendingGrid.appendChild(this.createYtMusicCard(t, idx, 'trending'));
           });
         }
       }
@@ -8236,7 +8429,12 @@ class MinhDucAudioEngine {
 
     try {
       const storageKey = this.getHistoryStorageKey();
-      const history = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      let history = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      history.sort((a, b) => {
+        const timeA = Number(a.playedAt || a.played_at || (a.played_at ? new Date(a.played_at).getTime() : 0) || 0);
+        const timeB = Number(b.playedAt || b.played_at || (b.played_at ? new Date(b.played_at).getTime() : 0) || 0);
+        return timeB - timeA;
+      });
 
       if (countBadge) {
         countBadge.textContent = `LOG (${history.length})`;
