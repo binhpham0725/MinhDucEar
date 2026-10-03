@@ -224,7 +224,7 @@ class FirebaseService {
     const { doc, setDoc, serverTimestamp } = modules.firestoreMethods;
     const uid = user.uid || (user.email ? user.email.toLowerCase().replace(/[^a-z0-9_]/g, '_') : 'user_' + Date.now());
     const userRef = doc(modules.db, 'users', uid);
-    const dName = customName || user.displayName || user.display_name || user.name || (user.email ? user.email.split('@')[0] : 'Người dùng KienGayMusic');
+    const dName = customName || user.displayName || user.display_name || user.name || (user.email ? user.email.split('@')[0] : 'Người dùng MinhDucEar');
     const pUrl = user.photoURL || user.avatar_url || user.picture || 'assets/images/avatars/default.png';
     const isGoogle = Boolean(user.is_google || (user.providerData && user.providerData.some(p => p.providerId === 'google.com')));
 

@@ -1643,9 +1643,9 @@ html.light .bg-surface-container\/80 {
       </div>
       <div class="flex flex-col leading-tight">
         <div class="flex items-center gap-2">
-          <span class="font-headline-md text-[17px] text-on-surface font-extrabold tracking-tight group-hover:text-primary transition-colors">KienGayMusic</span>
+          <span class="font-headline-md text-[17px] text-on-surface font-extrabold tracking-tight group-hover:text-primary transition-colors">MinhDucEar</span>
         </div>
-        <span class="font-silkscreen text-[9px] text-outline tracking-wider">gey Theo cách của bạn</span>
+        <span class="font-silkscreen text-[9px] text-outline tracking-wider">Lỗ tai của minh ducc</span>
       </div>
     </div>
   </div>
@@ -1757,8 +1757,8 @@ html.light .bg-surface-container\/80 {
         </svg>
       </div>
       <div class="flex flex-col leading-tight">
-        <h5 class="offcanvas-title font-headline-md text-sm font-extrabold text-on-surface" id="mobileNavLabel">KienGayMusic</h5>
-        <span class="font-silkscreen text-[8px] text-outline">gey Theo cách của bạn</span>
+        <h5 class="offcanvas-title font-headline-md text-sm font-extrabold text-on-surface" id="mobileNavLabel">MinhDucEar</h5>
+        <span class="font-silkscreen text-[8px] text-outline">Lỗ tai của minh ducc</span>
       </div>
     </div>
     <button type="button" class="btn-close btn-close-white cursor-pointer" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -2145,7 +2145,7 @@ html.light .bg-surface-container\/80 {
       <div class="flex items-center justify-between gap-2 min-w-0">
         <div class="flex flex-col min-w-0 flex-1">
           <h4 id="right-player-title" class="text-[13px] font-bold text-white tracking-wide truncate" title="Chưa có bài hát">Chưa có bài hát</h4>
-          <p id="right-player-artist" class="text-[11px] text-[#54d8e8] font-silkscreen truncate">KienGayMusic</p>
+          <p id="right-player-artist" class="text-[11px] text-[#54d8e8] font-silkscreen truncate">Minh Đức Ear</p>
         </div>
         <button type="button" id="right-player-fav-btn" class="text-tertiary hover:scale-110 p-1.5 rounded-lg hover:bg-white/5 transition-transform cursor-pointer shrink-0" title="Thêm vào yêu thích">
           <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
@@ -2295,7 +2295,7 @@ html.light .bg-surface-container\/80 {
       </svg>
       <span>← QUAY LẠI TRANG CHỦ</span>
     </button>
-    <div class="font-silkscreen text-[9px] text-gray-500">KIENGAYMUSIC / ACCOUNT CENTER</div>
+    <div class="font-silkscreen text-[9px] text-gray-500">MINHDUCEAR / ACCOUNT CENTER</div>
   </div>
 
   <!-- Main Container Card -->
@@ -2318,7 +2318,7 @@ html.light .bg-surface-container\/80 {
           </div>
           <div>
             <h2 class="font-pixel text-xs sm:text-sm text-primary tracking-wider uppercase">TRANG THÔNG TIN TÀI KHOẢN</h2>
-            <p class="font-silkscreen text-[8px] sm:text-[9px] text-gray-400">KIENGAYMUSIC ACCOUNT &amp; ĐỒNG BỘ YOUTUBE MUSIC</p>
+            <p class="font-silkscreen text-[8px] sm:text-[9px] text-gray-400">MINHDUCEAR ACCOUNT &amp; ĐỒNG BỘ YOUTUBE MUSIC</p>
           </div>
         </div>
 
@@ -2337,10 +2337,10 @@ html.light .bg-surface-container\/80 {
         </div>
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2">
-            <h3 id="inpage-display-name-text" class="font-bold text-sm sm:text-base text-white truncate">KienGayMusic (Google)</h3>
+            <h3 id="inpage-display-name-text" class="font-bold text-sm sm:text-base text-white truncate">Minh Đức (Google)</h3>
             <span id="inpage-role-badge" class="font-silkscreen text-[8px] bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 rounded">AUDIOPHILE</span>
           </div>
-          <p id="inpage-email-text" class="text-xs text-gray-400 truncate font-mono mt-0.5">kiengaymusic.audiophile@gmail.com</p>
+          <p id="inpage-email-text" class="text-xs text-gray-400 truncate font-mono mt-0.5">minhduc.audiophile@gmail.com</p>
           <div id="inpage-google-pill" class="inline-flex items-center gap-1.5 mt-1.5 font-silkscreen text-[8px] text-secondary">
             <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
             <span id="inpage-google-badge-text">GOOGLE SYNCED</span>
@@ -2431,7 +2431,7 @@ html.light .bg-surface-container\/80 {
 
         <div id="inpage-google-unlinked-box" class="p-4 bg-black/40 border border-white/10 rounded-xl space-y-3 hidden">
           <p class="text-xs text-gray-300 leading-relaxed">
-            Tài khoản KienGayMusic của bạn hiện chưa liên kết Google. Nhấn nút bên dưới để liên kết và tự động đồng bộ hóa danh sách phát, bài hát yêu thích với YouTube Music.
+            Tài khoản MinhDucEar của bạn hiện chưa liên kết Google. Nhấn nút bên dưới để liên kết và tự động đồng bộ hóa danh sách phát, bài hát yêu thích với YouTube Music.
           </p>
           <button type="button" id="inpage-btn-link-google-now" class="w-full py-2.5 px-4 bg-[#1e1e28] hover:bg-[#282836] border border-secondary/60 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-2.5 transition-all pixel-btn">
             <svg class="w-4 h-4" viewBox="0 0 24 24">
@@ -2474,7 +2474,7 @@ html.light .bg-surface-container\/80 {
             <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
           </svg>
         </div>
-        <h2 class="font-pixel text-sm text-primary tracking-wider uppercase mb-1">CỔNG TÀI KHOẢN KIENGAYMUSIC</h2>
+        <h2 class="font-pixel text-sm text-primary tracking-wider uppercase mb-1">CỔNG TÀI KHOẢN MINHDUCEAR</h2>
         <p class="font-silkscreen text-[9px] text-gray-400">Đăng nhập bằng Google để tự động đồng bộ hóa nhạc với YouTube Music</p>
       </div>
 
@@ -2498,7 +2498,7 @@ html.light .bg-surface-container\/80 {
       <!-- Divider -->
       <div class="relative flex items-center justify-center my-4">
         <div class="border-t border-white/10 w-full"></div>
-        <span class="bg-[#121217] px-3 font-silkscreen text-[8px] text-gray-400 uppercase tracking-wider">HOẶC TÀI KHOẢN KIENGAYMUSIC</span>
+        <span class="bg-[#121217] px-3 font-silkscreen text-[8px] text-gray-400 uppercase tracking-wider">HOẶC TÀI KHOẢN MINHDUCEAR</span>
       </div>
 
       <!-- Tabs: ĐĂNG NHẬP / ĐĂNG KÝ -->
@@ -3359,7 +3359,7 @@ html.light .bg-surface-container\/80 {
       </div>
       <div class="flex-1 min-w-0 flex flex-col justify-center">
         <h3 id="mobile-drawer-title" class="text-sm sm:text-base font-bold text-white truncate mb-0.5">Chưa chọn bài hát</h3>
-        <p id="mobile-drawer-artist" class="text-xs text-secondary font-silkscreen truncate mb-1.5">KienGayMusic</p>
+        <p id="mobile-drawer-artist" class="text-xs text-secondary font-silkscreen truncate mb-1.5">MinhDuc Audio</p>
         <div class="flex items-center gap-1.5 flex-wrap">
           <span id="mobile-drawer-badge" class="font-mono text-[9px] text-[#a78bfa] bg-[#a78bfa]/10 px-2 py-0.5 rounded border border-[#a78bfa]/30 font-semibold">YT AUDIO 320k</span>
           <span class="font-silkscreen text-[8px] text-secondary bg-secondary/10 px-1.5 py-0.5 rounded border border-secondary/30">STEREO HQ</span>
