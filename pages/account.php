@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MinhDucEar - Thông tin Tài khoản & Đồng bộ YouTube</title>
+  <title>KienGayMusic - Thông tin Tài khoản & Đồng bộ YouTube</title>
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -82,11 +82,11 @@
     <div class="flex items-center gap-3">
       <a href="index.php" class="flex items-center gap-2.5 group">
         <div class="w-8 h-8 rounded bg-[#1e1e24] border border-[#a78bfa]/50 flex items-center justify-center pixel-border-sm group-hover:scale-105 transition-transform">
-          <span class="font-pixel text-[11px] text-primary">M</span>
+          <span class="font-pixel text-[11px] text-primary">K</span>
         </div>
         <div>
-          <span class="font-pixel text-xs text-white tracking-wider block">MinhDucEar</span>
-          <span class="font-silkscreen text-[8px] text-secondary tracking-widest block">LỖ TAI CỦA MINH ĐỨC</span>
+          <span class="font-pixel text-xs text-white tracking-wider block">KienGayMusic</span>
+          <span class="font-silkscreen text-[8px] text-secondary tracking-widest block">gey Theo cách của bạn</span>
         </div>
       </a>
     </div>
@@ -117,7 +117,7 @@
           </div>
           <div>
             <h1 class="font-pixel text-sm text-primary tracking-wider uppercase">TRANG THÔNG TIN TÀI KHOẢN</h1>
-            <p class="font-silkscreen text-[9px] text-gray-400">MinhDucEar Account & Đồng bộ YouTube Music</p>
+            <p class="font-silkscreen text-[9px] text-gray-400">KienGayMusic Account & Đồng bộ YouTube Music</p>
           </div>
         </div>
 
@@ -281,7 +281,7 @@
         <!-- Google Unlinked Box -->
         <div id="box-google-unlinked" class="p-4 bg-black/40 border border-white/10 rounded-xl space-y-3 hidden">
           <p class="text-xs text-gray-300 leading-relaxed">
-            Tài khoản MinhDucEar của bạn hiện chưa liên kết Google. Nhấn nút bên dưới để liên kết tài khoản Google và tự động đồng bộ hóa danh sách phát, bài hát yêu thích với YouTube Music.
+            Tài khoản KienGayMusic của bạn hiện chưa liên kết Google. Nhấn nút bên dưới để liên kết tài khoản Google và tự động đồng bộ hóa danh sách phát, bài hát yêu thích với YouTube Music.
           </p>
           <button type="button" id="btn-link-google-now" class="w-full py-2.5 px-4 bg-[#1e1e28] hover:bg-[#282836] border border-secondary/60 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-2.5 transition-all pixel-btn">
             <svg class="w-4 h-4" viewBox="0 0 24 24">

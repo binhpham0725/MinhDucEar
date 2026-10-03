@@ -154,6 +154,7 @@ class MinhDucAudioEngine {
     window.audioEngine = this;
     window.player = this;
     window.minhDucPlayer = this;
+    window.kienGayMusicPlayer = this;
 
     this.init();
     this.initFirebase();
@@ -2872,7 +2873,7 @@ class MinhDucAudioEngine {
         titleEl.textContent = 'CHƯA PHÁT BÀI HÁT';
         titleEl.title = 'Chưa phát bài hát';
       }
-      if (artistEl) artistEl.textContent = 'Minh Đức Ear';
+      if (artistEl) artistEl.textContent = 'KienGayMusic';
       if (badgeEl) badgeEl.textContent = 'STANDBY';
       if (favBtn) {
         favBtn.classList.remove('text-red-500');
@@ -2909,7 +2910,7 @@ class MinhDucAudioEngine {
       titleEl.title = track.title || '';
     }
     if (artistEl) {
-      artistEl.textContent = track.artist || 'MinhDuc Audio';
+      artistEl.textContent = track.artist || 'KienGayMusic';
     }
     if (badgeEl) {
       badgeEl.textContent = badgeText;
@@ -2956,7 +2957,7 @@ class MinhDucAudioEngine {
       if (placeholderEl) placeholderEl.classList.remove('hidden');
       if (gradientEl) gradientEl.classList.add('hidden');
       if (titleEl) titleEl.textContent = 'Chưa chọn bài hát';
-      if (artistEl) artistEl.textContent = 'Minh Đức Ear';
+      if (artistEl) artistEl.textContent = 'KienGayMusic';
       if (badgeEl) badgeEl.textContent = 'STANDBY';
       if (favBtn) {
         favBtn.classList.remove('text-red-500');
@@ -2988,7 +2989,7 @@ class MinhDucAudioEngine {
       coverImg.src = coverUrl;
     }
     if (titleEl) titleEl.textContent = track.title || 'Đang phát bài hát';
-    if (artistEl) artistEl.textContent = track.artist || 'Minh Đức Ear';
+    if (artistEl) artistEl.textContent = track.artist || 'KienGayMusic';
     if (badgeEl) badgeEl.textContent = badgeText;
 
     if (favBtn) {
@@ -5198,7 +5199,7 @@ class MinhDucAudioEngine {
 
     const plName = playlist.name || playlist.title || 'Playlist';
     const plCover = playlist.cover_url || playlist.cover || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=400';
-    const plDesc = playlist.description || 'Tuyển tập danh sách phát chất lượng cao trên MinhDucEar.';
+    const plDesc = playlist.description || 'Tuyển tập danh sách phát chất lượng cao trên KienGayMusic.';
     const plArtist = playlist.is_curated ? 'YouTube Music • Tuyển chọn' : 'Danh sách phát cá nhân';
     const plCount = playlist.total_tracks ? `${playlist.total_tracks} TRACKS` : 'PLAYLIST';
 
@@ -8509,6 +8510,7 @@ class MinhDucAudioEngine {
 function initMinhDucPlayer() {
   if (!window.minhDucPlayer) {
     window.minhDucPlayer = new MinhDucAudioEngine();
+    window.kienGayMusicPlayer = window.minhDucPlayer;
     window.player = window.minhDucPlayer;
   }
 }
