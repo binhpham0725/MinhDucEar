@@ -4,9 +4,12 @@
  * Supports downloading songs from MySQL audio_blob or YouTube Music (HQ MP3 / M4A)
  * MinhDucEar Platform
  */
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+
+// Release session locks immediately to prevent blocking parallel requests or downloads
+if (session_status() === PHP_SESSION_ACTIVE) {
+    session_write_close();
 }
+
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
@@ -70,7 +73,7 @@ if (!is_dir($uploadDir)) {
     @mkdir($uploadDir, 0777, true);
 }
 
-// Function to generate clean filename
+// Function to generate clean UTF-8 filename
 function getDownloadFilename($artist, $title, $ext = 'mp3') {
     $name = trim("{$artist} - {$title}");
     // Remove characters forbidden in filenames: \ / : * ? " < > |
@@ -79,6 +82,32 @@ function getDownloadFilename($artist, $title, $ext = 'mp3') {
     if (empty($clean)) $clean = 'Track_' . date('Ymd_His');
     return $clean . '.' . $ext;
 }
+
+// Function to send RFC 6266 compliant attachment download headers
+function sendDownloadHeaders($filename, $filesize, $mime = 'audio/mpeg') {
+    $ext = pathinfo($filename, PATHINFO_EXTENSION) ?: 'mp3';
+    $asciiFilename = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $filename);
+    $asciiFilename = preg_replace('/[^a-zA-Z0-9_\-\. ]/', '', $asciiFilename);
+    $asciiFilename = trim(preg_replace('/\s+/', ' ', $asciiFilename));
+    if (empty($asciiFilename)) {
+        $asciiFilename = 'track.' . $ext;
+    }
+
+    // Clear output buffer to guarantee audio binary is never corrupt
+    while (ob_get_level()) {
+        @ob_end_clean();
+    }
+
+    header('Content-Type: ' . $mime);
+    header("Content-Disposition: attachment; filename=\"{$asciiFilename}\"; filename*=UTF-8''" . rawurlencode($filename));
+    header('Content-Length: ' . $filesize);
+    header('Cache-Control: public, must-revalidate, max-age=86400');
+    header('Pragma: public');
+    header('Expires: 0');
+    header('Accept-Ranges: bytes');
+}
+
+$scriptUrl = $_SERVER['SCRIPT_NAME'] ?? '/MinhDucEar/api/endpoints/download.php';
 
 // -------------------------------------------------------------------------
 // 1. Check if track has audio_blob in MySQL database
@@ -104,16 +133,13 @@ if ($pdo && is_numeric($rawId) && (int)$rawId > 0) {
                     'artist' => $artist,
                     'filename' => $filename,
                     'file_size' => strlen($blobData),
-                    'download_url' => "api/endpoints/download.php?id=" . urlencode($rawId) . "&title=" . urlencode($title) . "&artist=" . urlencode($artist)
+                    'download_url' => "{$scriptUrl}?id=" . urlencode($rawId) . "&title=" . urlencode($title) . "&artist=" . urlencode($artist)
                 ]);
                 exit;
             }
 
             // Stream DB Blob directly as download
-            header('Content-Type: ' . $mime);
-            header('Content-Disposition: attachment; filename="' . addslashes($filename) . '"; filename*=UTF-8\'\'' . rawurlencode($filename));
-            header('Content-Length: ' . strlen($blobData));
-            header('Cache-Control: public, max-age=86400');
+            sendDownloadHeaders($filename, strlen($blobData), $mime);
             echo $blobData;
             exit;
         }
@@ -152,16 +178,12 @@ if (file_exists($cachedMp3) && filesize($cachedMp3) > 10000) {
             'artist' => $artist,
             'filename' => $filename,
             'file_size' => filesize($cachedMp3),
-            'download_url' => "api/endpoints/download.php?youtube_id=" . urlencode($youtubeId) . "&title=" . urlencode($title) . "&artist=" . urlencode($artist)
+            'download_url' => "{$scriptUrl}?youtube_id=" . urlencode($youtubeId) . "&title=" . urlencode($title) . "&artist=" . urlencode($artist)
         ]);
         exit;
     }
 
-    // Direct download
-    header('Content-Type: audio/mpeg');
-    header('Content-Disposition: attachment; filename="' . addslashes($filename) . '"; filename*=UTF-8\'\'' . rawurlencode($filename));
-    header('Content-Length: ' . filesize($cachedMp3));
-    header('Cache-Control: public, max-age=86400');
+    sendDownloadHeaders($filename, filesize($cachedMp3), 'audio/mpeg');
     @readfile($cachedMp3);
     exit;
 } elseif (file_exists($cachedM4a) && filesize($cachedM4a) > 10000) {
@@ -176,15 +198,12 @@ if (file_exists($cachedMp3) && filesize($cachedMp3) > 10000) {
             'artist' => $artist,
             'filename' => $filename,
             'file_size' => filesize($cachedM4a),
-            'download_url' => "api/endpoints/download.php?youtube_id=" . urlencode($youtubeId) . "&title=" . urlencode($title) . "&artist=" . urlencode($artist)
+            'download_url' => "{$scriptUrl}?youtube_id=" . urlencode($youtubeId) . "&title=" . urlencode($title) . "&artist=" . urlencode($artist)
         ]);
         exit;
     }
 
-    header('Content-Type: audio/mp4');
-    header('Content-Disposition: attachment; filename="' . addslashes($filename) . '"; filename*=UTF-8\'\'' . rawurlencode($filename));
-    header('Content-Length: ' . filesize($cachedM4a));
-    header('Cache-Control: public, max-age=86400');
+    sendDownloadHeaders($filename, filesize($cachedM4a), 'audio/mp4');
     @readfile($cachedM4a);
     exit;
 }
@@ -238,15 +257,12 @@ if (file_exists($cachedMp3) && filesize($cachedMp3) > 10000) {
             'artist' => $artist,
             'filename' => $filename,
             'file_size' => filesize($cachedMp3),
-            'download_url' => "api/endpoints/download.php?youtube_id=" . urlencode($youtubeId) . "&title=" . urlencode($title) . "&artist=" . urlencode($artist)
+            'download_url' => "{$scriptUrl}?youtube_id=" . urlencode($youtubeId) . "&title=" . urlencode($title) . "&artist=" . urlencode($artist)
         ]);
         exit;
     }
 
-    header('Content-Type: audio/mpeg');
-    header('Content-Disposition: attachment; filename="' . addslashes($filename) . '"; filename*=UTF-8\'\'' . rawurlencode($filename));
-    header('Content-Length: ' . filesize($cachedMp3));
-    header('Cache-Control: public, max-age=86400');
+    sendDownloadHeaders($filename, filesize($cachedMp3), 'audio/mpeg');
     @readfile($cachedMp3);
     exit;
 }
@@ -266,15 +282,12 @@ if (file_exists($cachedM4a) && filesize($cachedM4a) > 10000) {
             'artist' => $artist,
             'filename' => $filename,
             'file_size' => filesize($cachedM4a),
-            'download_url' => "api/endpoints/download.php?youtube_id=" . urlencode($youtubeId) . "&title=" . urlencode($title) . "&artist=" . urlencode($artist)
+            'download_url' => "{$scriptUrl}?youtube_id=" . urlencode($youtubeId) . "&title=" . urlencode($title) . "&artist=" . urlencode($artist)
         ]);
         exit;
     }
 
-    header('Content-Type: audio/mp4');
-    header('Content-Disposition: attachment; filename="' . addslashes($filename) . '"; filename*=UTF-8\'\'' . rawurlencode($filename));
-    header('Content-Length: ' . filesize($cachedM4a));
-    header('Cache-Control: public, max-age=86400');
+    sendDownloadHeaders($filename, filesize($cachedM4a), 'audio/mp4');
     @readfile($cachedM4a);
     exit;
 }
@@ -291,6 +304,7 @@ foreach ($streamUrls as $line) {
 }
 
 if (!empty($directStreamUrl)) {
+    $filename = getDownloadFilename($artist, $title, 'm4a');
     if ($action === 'prepare') {
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode([
@@ -299,16 +313,14 @@ if (!empty($directStreamUrl)) {
             'fallback_stream' => true,
             'title' => $title,
             'artist' => $artist,
-            'filename' => getDownloadFilename($artist, $title, 'm4a'),
+            'filename' => $filename,
             'download_url' => $directStreamUrl
         ]);
         exit;
     }
 
     // Stream remote file directly through PHP with Content-Disposition
-    $filename = getDownloadFilename($artist, $title, 'm4a');
-    header('Content-Type: audio/mp4');
-    header('Content-Disposition: attachment; filename="' . addslashes($filename) . '"; filename*=UTF-8\'\'' . rawurlencode($filename));
+    sendDownloadHeaders($filename, 0, 'audio/mp4');
     @readfile($directStreamUrl);
     exit;
 }

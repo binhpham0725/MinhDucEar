@@ -1703,6 +1703,9 @@ class MinhDucAudioEngine {
 
     this.showToast(`📥 Đang chuẩn bị tải "${title}" (HQ MP3)... Vui lòng đợi trong giây lát!`, 'info');
 
+    const isPagesDir = window.location.pathname.includes('/pages/');
+    const apiBase = isPagesDir ? '../api/endpoints/' : 'api/endpoints/';
+
     try {
       const params = new URLSearchParams({
         action: 'prepare',
@@ -1712,40 +1715,70 @@ class MinhDucAudioEngine {
       if (ytId) params.append('youtube_id', ytId);
       if (trackId && typeof trackId === 'number') params.append('id', trackId);
 
-      const res = await fetch(`api/endpoints/download.php?${params.toString()}`, {
+      const res = await fetch(`${apiBase}download.php?${params.toString()}`, {
         credentials: 'include'
       });
       const data = await res.json();
 
       if (data && data.success && data.download_url) {
+        let finalUrl = data.download_url;
+        if (!finalUrl.startsWith('http') && !finalUrl.startsWith('/')) {
+          finalUrl = apiBase + finalUrl.replace(/^api\/endpoints\//, '');
+        }
+
+        const cleanFilename = data.filename || `${artist} - ${title}.mp3`;
+
+        // Fetch as blob to guarantee 100% successful browser save without "Không thấy tệp trên trang"
+        try {
+          const fileRes = await fetch(finalUrl, { credentials: 'include' });
+          if (fileRes.ok) {
+            const blob = await fileRes.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = blobUrl;
+            a.download = cleanFilename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+              if (a.parentNode) document.body.removeChild(a);
+              URL.revokeObjectURL(blobUrl);
+            }, 6000);
+            this.showToast(`✅ Đã tải xong "${cleanFilename}"!`, 'success');
+            return;
+          }
+        } catch (blobErr) {
+          console.warn('Blob download fetch error, fallback to direct anchor:', blobErr);
+        }
+
+        // Direct anchor fallback
         const a = document.createElement('a');
         a.style.display = 'none';
-        a.href = data.download_url;
-        if (data.filename) {
-          a.setAttribute('download', data.filename);
-        }
+        a.href = finalUrl;
+        a.setAttribute('download', cleanFilename);
         document.body.appendChild(a);
         a.click();
         setTimeout(() => {
           if (a.parentNode) document.body.removeChild(a);
-        }, 2000);
+        }, 3000);
 
-        this.showToast(`✅ Đã bắt đầu tải "${data.filename || title}"!`, 'success');
+        this.showToast(`✅ Đã bắt đầu tải "${cleanFilename}"!`, 'success');
       } else {
         throw new Error(data?.message || 'Không thể tạo file tải về.');
       }
     } catch (err) {
       console.warn('Prepare download API error, falling back to direct stream:', err);
-      const fallbackUrl = `api/endpoints/download.php?youtube_id=${encodeURIComponent(ytId)}&title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`;
+      const fallbackUrl = `${apiBase}download.php?youtube_id=${encodeURIComponent(ytId)}&title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`;
+      const cleanFilename = `${artist} - ${title}.mp3`;
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = fallbackUrl;
-      a.setAttribute('download', `${artist} - ${title}.mp3`);
+      a.setAttribute('download', cleanFilename);
       document.body.appendChild(a);
       a.click();
       setTimeout(() => {
         if (a.parentNode) document.body.removeChild(a);
-      }, 2000);
+      }, 3000);
       this.showToast(`Đang tải trực tiếp "${title}"...`, 'info');
     } finally {
       this._downloadingMap.delete(downloadKey);
