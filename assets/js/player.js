@@ -1667,6 +1667,95 @@ class MinhDucAudioEngine {
     this.updateControllerFavoriteUI();
   }
 
+
+  // Direct song download handler (MP3 HQ / Database audio)
+  async downloadTrack(track = null, btnElement = null) {
+    const targetTrack = track || this.currentTrack;
+    if (!targetTrack) {
+      this.showToast('Vui lòng chọn hoặc phát một bài hát để tải về!', 'info');
+      return;
+    }
+
+    const title = targetTrack.title || 'Bài hát';
+    const artist = targetTrack.artist || 'MinhDucEar';
+    const trackId = targetTrack.db_id || targetTrack.id || '';
+    const ytId = targetTrack.youtube_id || (typeof trackId === 'string' && trackId.startsWith('yt_') ? trackId.substring(3) : '');
+
+    this._downloadingMap = this._downloadingMap || new Set();
+    const downloadKey = ytId || trackId || title;
+    if (this._downloadingMap.has(downloadKey)) {
+      this.showToast(`Đang trong tiến trình chuẩn bị file "${title}". Xin chờ trong giây lát...`, 'info');
+      return;
+    }
+    this._downloadingMap.add(downloadKey);
+
+    let originalHtml = '';
+    if (btnElement) {
+      originalHtml = btnElement.innerHTML;
+      btnElement.disabled = true;
+      btnElement.innerHTML = `
+        <svg class="w-4 h-4 animate-spin text-[#54d8e8] inline-block pointer-events-none" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      `;
+    }
+
+    this.showToast(`📥 Đang chuẩn bị tải "${title}" (HQ MP3)... Vui lòng đợi trong giây lát!`, 'info');
+
+    try {
+      const params = new URLSearchParams({
+        action: 'prepare',
+        title: title,
+        artist: artist
+      });
+      if (ytId) params.append('youtube_id', ytId);
+      if (trackId && typeof trackId === 'number') params.append('id', trackId);
+
+      const res = await fetch(`api/endpoints/download.php?${params.toString()}`, {
+        credentials: 'include'
+      });
+      const data = await res.json();
+
+      if (data && data.success && data.download_url) {
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = data.download_url;
+        if (data.filename) {
+          a.setAttribute('download', data.filename);
+        }
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          if (a.parentNode) document.body.removeChild(a);
+        }, 2000);
+
+        this.showToast(`✅ Đã bắt đầu tải "${data.filename || title}"!`, 'success');
+      } else {
+        throw new Error(data?.message || 'Không thể tạo file tải về.');
+      }
+    } catch (err) {
+      console.warn('Prepare download API error, falling back to direct stream:', err);
+      const fallbackUrl = `api/endpoints/download.php?youtube_id=${encodeURIComponent(ytId)}&title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`;
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = fallbackUrl;
+      a.setAttribute('download', `${artist} - ${title}.mp3`);
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        if (a.parentNode) document.body.removeChild(a);
+      }, 2000);
+      this.showToast(`Đang tải trực tiếp "${title}"...`, 'info');
+    } finally {
+      this._downloadingMap.delete(downloadKey);
+      if (btnElement) {
+        btnElement.disabled = false;
+        btnElement.innerHTML = originalHtml;
+      }
+    }
+  }
+
   // 7. Event Handlers & Button Binding
   bindControls() {
     // Master play button
@@ -1681,6 +1770,24 @@ class MinhDucAudioEngine {
     if (btnPrev) btnPrev.addEventListener('click', () => this.prev());
 
     // Bottom bar & mobile favorite buttons
+
+    // Direct audio download buttons
+    const downloadButtons = [
+      document.getElementById('btn-footer-download'),
+      document.getElementById('right-player-download-btn'),
+      document.getElementById('mobile-drawer-download-btn'),
+      document.getElementById('mobile-mini-download-btn')
+    ];
+    downloadButtons.forEach(btn => {
+      if (btn && !btn._hasDownloadBound) {
+        btn._hasDownloadBound = true;
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.downloadTrack(this.currentTrack, btn);
+        });
+      }
+    });
+
     const favButtons = [
       document.getElementById('btn-favorite'),
       document.getElementById('mobile-mini-fav-btn'),
@@ -2453,6 +2560,10 @@ class MinhDucAudioEngine {
           <div class="flex items-center justify-between pt-1.5 border-t border-white/5">
             <span class="font-mono text-[9px] text-secondary bg-secondary/10 px-1.5 py-0.5 rounded border border-secondary/30 font-semibold">YOUTUBE</span>
             <div class="flex items-center gap-1">
+              <!-- Nút Tải bài hát -->
+              <button type="button" class="btn-card-download p-1 text-gray-400 hover:text-[#54d8e8] rounded transition-colors" title="Tải bài hát này về máy (MP3)">
+                <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              </button>
               <!-- Nút Thêm vào Playlist -->
               <button type="button" class="btn-card-add-pl p-1 text-gray-400 hover:text-white rounded transition-colors" title="Thêm vào Playlist">
                 <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
@@ -2468,9 +2579,18 @@ class MinhDucAudioEngine {
 
       // Click card or play button plays directly
       card.addEventListener('click', (e) => {
-        if (e.target.closest('.btn-card-add-pl') || e.target.closest('.btn-card-fav')) return;
+        if (e.target.closest('.btn-card-add-pl') || e.target.closest('.btn-card-fav') || e.target.closest('.btn-card-download')) return;
         this.playTrackDirect(track);
       });
+
+      // Bind Download
+      const dlBtn = card.querySelector('.btn-card-download');
+      if (dlBtn) {
+        dlBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.downloadTrack(track, dlBtn);
+        });
+      }
 
       // Bind Add to Playlist
       const addPlBtn = card.querySelector('.btn-card-add-pl');
@@ -4031,6 +4151,9 @@ class MinhDucAudioEngine {
           <div class="flex items-center justify-between pt-1.5 border-t border-white/5">
             <span class="font-mono text-[8px] text-secondary bg-secondary/10 px-1.5 py-0.5 rounded border border-secondary/30 font-semibold">EXPLORE</span>
             <div class="flex items-center gap-1">
+              <button type="button" class="btn-card-download p-1 text-gray-400 hover:text-[#54d8e8] rounded transition-colors" title="Tải bài hát này về máy (MP3)">
+                <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              </button>
               <button type="button" class="btn-card-add-pl p-1 text-gray-400 hover:text-white rounded transition-colors" title="Thêm vào Playlist">
                 <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
               </button>
@@ -4043,7 +4166,7 @@ class MinhDucAudioEngine {
       `;
 
       card.addEventListener('click', (e) => {
-        if (e.target.closest('.btn-card-add-pl') || e.target.closest('.btn-card-fav')) return;
+        if (e.target.closest('.btn-card-add-pl') || e.target.closest('.btn-card-fav') || e.target.closest('.btn-card-download')) return;
         this.playTrackDirect(track);
       });
 
@@ -4376,6 +4499,10 @@ class MinhDucAudioEngine {
         <div class="flex items-center gap-3 shrink-0 ml-3">
           <span class="font-mono text-[9px] text-pink-400 bg-pink-400/10 px-2 py-0.5 rounded border border-pink-400/30 hidden sm:inline-block">${track.format || 'FLAC 96k'}</span>
           <span class="font-mono text-[10px] text-gray-400 hidden sm:inline-block">${duration}</span>
+          <!-- Download button -->
+          <button type="button" class="btn-fav-item-download w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-[#54d8e8] flex items-center justify-center transition-colors cursor-pointer" title="Tải bài hát này về máy (MP3)">
+            <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          </button>
           <!-- Play button -->
           <button type="button" class="btn-fav-item-play w-8 h-8 rounded-full bg-pink-500/20 hover:bg-pink-500 text-pink-300 hover:text-black flex items-center justify-center transition-colors cursor-pointer" title="Phát bài này">
             ▶
@@ -4388,9 +4515,17 @@ class MinhDucAudioEngine {
       `;
 
       row.addEventListener('click', (e) => {
-        if (e.target.closest('.btn-fav-item-remove')) return;
+        if (e.target.closest('.btn-fav-item-remove') || e.target.closest('.btn-fav-item-download')) return;
         this.playTrackDirect(track);
       });
+
+      const dlBtn = row.querySelector('.btn-fav-item-download');
+      if (dlBtn) {
+        dlBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.downloadTrack(track, dlBtn);
+        });
+      }
 
       const removeBtn = row.querySelector('.btn-fav-item-remove');
       if (removeBtn) {
@@ -4696,15 +4831,27 @@ class MinhDucAudioEngine {
             </div>
           </div>
         </div>
-        <div class="flex items-center gap-3 shrink-0 ml-3">
+        <div class="flex items-center gap-2 shrink-0 ml-3">
           <span class="font-mono text-[9px] text-secondary bg-secondary/10 px-2 py-0.5 rounded border border-secondary/30 hidden sm:inline-block">${track.format || 'YT 320k'}</span>
+          <button type="button" class="btn-hist-download w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-[#54d8e8] flex items-center justify-center transition-colors cursor-pointer" title="Tải bài hát này về máy (MP3)">
+            <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          </button>
           <button type="button" class="btn-hist-play w-8 h-8 rounded-full bg-secondary/20 hover:bg-secondary text-secondary hover:text-black flex items-center justify-center transition-colors cursor-pointer" title="Phát lại">
             ▶
           </button>
         </div>
       `;
 
-      row.addEventListener('click', () => {
+      const dlBtn = row.querySelector('.btn-hist-download');
+      if (dlBtn) {
+        dlBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.downloadTrack(track, dlBtn);
+        });
+      }
+
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('.btn-hist-download')) return;
         this.playTrackDirect(track);
       });
 
@@ -5331,6 +5478,10 @@ class MinhDucAudioEngine {
         <div class="flex items-center gap-3 shrink-0 ml-3">
           <span class="font-mono text-[9px] text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/30 hidden sm:inline-block">${track.format || 'FLAC 96k'}</span>
           <span class="font-mono text-[10px] text-gray-400 hidden sm:inline-block">${duration}</span>
+          <!-- Download Track -->
+          <button type="button" class="btn-album-track-download w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-[#54d8e8] flex items-center justify-center transition-colors cursor-pointer" title="Tải bài hát này về máy (MP3)">
+            <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          </button>
           <!-- Play Track -->
           <button type="button" class="btn-album-track-play w-8 h-8 rounded-full bg-primary/20 hover:bg-primary text-primary hover:text-black flex items-center justify-center transition-colors cursor-pointer" title="Phát bài này">
             ▶
@@ -5343,11 +5494,19 @@ class MinhDucAudioEngine {
       `;
 
       row.addEventListener('click', (e) => {
-        if (e.target.closest('.btn-album-track-fav') || e.target.closest('.btn-album-track-play')) return;
+        if (e.target.closest('.btn-album-track-fav') || e.target.closest('.btn-album-track-play') || e.target.closest('.btn-album-track-download')) return;
         this.tracks = [...tracks];
         this.currentTrackIndex = idx;
         this.loadTrack(track, true);
       });
+
+      const dlBtn = row.querySelector('.btn-album-track-download');
+      if (dlBtn) {
+        dlBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.downloadTrack(track, dlBtn);
+        });
+      }
 
       const playTrackBtn = row.querySelector('.btn-album-track-play');
       if (playTrackBtn) {
@@ -7849,27 +8008,46 @@ class MinhDucAudioEngine {
       <div class="flex flex-col min-w-0">
         <h3 class="text-sm font-semibold text-white tracking-wide truncate group-hover:text-[#a78bfa] transition-colors mb-0.5" title="${this.escapeHtml(t.title)}">${this.escapeHtml(t.title)}</h3>
         <p class="text-xs text-gray-400 truncate mb-2" title="${this.escapeHtml(t.artist || 'YouTube Music')}">${this.escapeHtml(t.artist || 'YouTube Music')}</p>
-        <div class="flex items-center gap-1.5 pt-1.5 border-t border-white/5">
-          <span class="font-mono text-[10px] text-[#a78bfa] bg-[#a78bfa]/10 px-1.5 py-0.5 rounded border border-[#a78bfa]/30 font-semibold">${tagText}</span>
-          <span class="font-mono text-[10px] text-gray-300 bg-white/5 px-1.5 py-0.5 rounded border border-white/10">${this.escapeHtml(formatText)}</span>
+        <div class="flex items-center justify-between gap-1.5 pt-1.5 border-t border-white/5">
+          <div class="flex items-center gap-1.5 min-w-0">
+            <span class="font-mono text-[10px] text-[#a78bfa] bg-[#a78bfa]/10 px-1.5 py-0.5 rounded border border-[#a78bfa]/30 font-semibold truncate">${tagText}</span>
+            <span class="font-mono text-[10px] text-gray-300 bg-white/5 px-1.5 py-0.5 rounded border border-white/10 shrink-0">${this.escapeHtml(formatText)}</span>
+          </div>
+          <button type="button" class="btn-card-download p-1 text-gray-400 hover:text-[#54d8e8] hover:bg-white/10 rounded transition-colors shrink-0" title="Tải bài hát này về máy (MP3)">
+            <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+          </button>
         </div>
       </div>
     `;
 
-    card.addEventListener('click', (e) => {
-      e.preventDefault();
-      this.playTrackDirect({
-        id: t.id || ('yt_' + (t.youtube_id || ytId)),
-        db_id: t.db_id,
-        youtube_id: t.youtube_id || ytId,
-        title: t.title,
-        artist: t.artist,
-        album: t.album || 'YouTube Music',
-        cover_url: coverUrl,
-        cover: coverUrl,
-        duration: t.duration || 210,
-        format: t.format || 'YT AUDIO 320k'
+    const trackObj = {
+      id: t.id || ('yt_' + (t.youtube_id || ytId)),
+      db_id: t.db_id,
+      youtube_id: t.youtube_id || ytId,
+      title: t.title,
+      artist: t.artist,
+      album: t.album || 'YouTube Music',
+      cover_url: coverUrl,
+      cover: coverUrl,
+      duration: t.duration || 210,
+      format: t.format || 'YT AUDIO 320k'
+    };
+
+    const downloadBtn = card.querySelector('.btn-card-download');
+    if (downloadBtn) {
+      downloadBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        this.downloadTrack(trackObj, downloadBtn);
       });
+    }
+
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.btn-card-download')) return;
+      e.preventDefault();
+      this.playTrackDirect(trackObj);
     });
 
     return card;

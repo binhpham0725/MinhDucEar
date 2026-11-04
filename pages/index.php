@@ -2147,7 +2147,13 @@ html.light .bg-surface-container\/80 {
           <h4 id="right-player-title" class="text-[13px] font-bold text-white tracking-wide truncate" title="Chưa có bài hát">Chưa có bài hát</h4>
           <p id="right-player-artist" class="text-[11px] text-[#54d8e8] font-silkscreen truncate">Minh Đức Ear</p>
         </div>
-        <button type="button" id="right-player-fav-btn" class="text-tertiary hover:scale-110 p-1.5 rounded-lg hover:bg-white/5 transition-transform cursor-pointer shrink-0" title="Thêm vào yêu thích">
+        <div class="flex items-center gap-1 shrink-0">
+          <button type="button" id="right-player-download-btn" class="text-[#54d8e8] hover:text-white hover:scale-110 p-1.5 rounded-lg hover:bg-white/5 transition-transform cursor-pointer shrink-0" title="Tải bài hát này về máy (MP3)">
+            <svg class="w-4 h-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+          </button>
+          <button type="button" id="right-player-fav-btn" class="text-tertiary hover:scale-110 p-1.5 rounded-lg hover:bg-white/5 transition-transform cursor-pointer shrink-0" title="Thêm vào yêu thích">
           <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
             <rect fill="currentColor" height="3" width="4" x="2" y="2"></rect>
             <rect fill="currentColor" height="3" width="4" x="10" y="2"></rect>
@@ -2157,6 +2163,7 @@ html.light .bg-surface-container\/80 {
             <rect fill="currentColor" height="2" width="2" x="7" y="13"></rect>
           </svg>
         </button>
+        </div>
       </div>
 
       <!-- Mini Timeline Progress in Card -->
@@ -3127,6 +3134,11 @@ html.light .bg-surface-container\/80 {
 
   <!-- Mobile Quick Action Buttons (Favorite, Play/Pause, Next, Lyrics) -->
   <div class="flex sm:hidden items-center gap-1 shrink-0 ml-2">
+    <button type="button" id="mobile-mini-download-btn" class="w-8 h-8 rounded text-[#54d8e8] hover:scale-110 flex items-center justify-center cursor-pointer active:scale-95 transition-all" title="Tải bài hát về máy (MP3)">
+      <svg class="w-4 h-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+      </svg>
+    </button>
     <button type="button" id="mobile-mini-fav-btn" class="w-8 h-8 rounded text-tertiary hover:scale-110 flex items-center justify-center cursor-pointer active:scale-95 transition-all" title="Yêu thích">
       <svg class="w-4 h-4 pixel-icon" fill="none" viewBox="0 0 16 16">
         <rect fill="currentColor" height="3" width="4" x="2" y="2"></rect>
@@ -3166,6 +3178,13 @@ html.light .bg-surface-container\/80 {
           <rect fill="currentColor" height="3" width="10" x="3" y="8"></rect>
           <rect fill="currentColor" height="2" width="6" x="5" y="11"></rect>
           <rect fill="currentColor" height="2" width="2" x="7" y="13"></rect>
+        </svg>
+      </button>
+
+      <!-- Direct Download Button -->
+      <button id="btn-footer-download" class="text-on-surface-variant hover:text-[#54d8e8] p-1 transition-all cursor-pointer relative group" title="Tải bài hát này về máy (MP3) / Download song">
+        <svg class="w-4 h-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
         </svg>
       </button>
 
@@ -3394,6 +3413,11 @@ html.light .bg-surface-container\/80 {
       </button>
       <button type="button" id="mobile-drawer-next-btn" class="p-2 text-on-surface-variant hover:text-on-surface cursor-pointer" title="Bài tiếp">
         <svg class="w-5 h-5 pixel-icon" fill="none" viewBox="0 0 16 16"><polygon fill="currentColor" points="2,3 11,8 2,13"></polygon><rect fill="currentColor" height="10" width="2" x="12" y="3"></rect></svg>
+      </button>
+      <button type="button" id="mobile-drawer-download-btn" class="p-2 text-[#54d8e8] hover:text-white cursor-pointer transition-transform active:scale-125" title="Tải bài hát này về máy (MP3)">
+        <svg class="w-5 h-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+        </svg>
       </button>
       <button type="button" id="mobile-drawer-fav-btn" class="p-2 text-tertiary cursor-pointer transition-transform active:scale-125" title="Yêu thích">
         <svg class="w-5 h-5 pixel-icon" fill="none" viewBox="0 0 16 16"><rect fill="currentColor" height="3" width="4" x="2" y="2"></rect><rect fill="currentColor" height="3" width="4" x="10" y="2"></rect><rect fill="currentColor" height="4" width="14" x="1" y="4"></rect><rect fill="currentColor" height="3" width="10" x="3" y="8"></rect><rect fill="currentColor" height="2" width="6" x="5" y="11"></rect><rect fill="currentColor" height="2" width="2" x="7" y="13"></rect></svg>
