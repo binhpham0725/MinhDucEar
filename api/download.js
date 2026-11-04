@@ -121,12 +121,22 @@ export default async function handler(req, res) {
       }
     }
 
-    // If stream cannot be resolved directly, fallback to Vevioz embed
+    // If action was explicitly 'stream' and not available, return 404
+    if (action === 'stream') {
+      return res.status(404).json({
+        success: false,
+        vevioz_url: veviozEmbedUrl,
+        message: 'Direct stream unavailable. Please use Vevioz Downloader.'
+      });
+    }
+
+    // Default fallback
     return res.status(200).json({
       success: true,
       ready: true,
       vevioz_url: veviozEmbedUrl,
       filename: cleanFilename,
+      download_url: streamUrl,
       message: 'Vui lòng sử dụng Vevioz Downloader tích hợp'
     });
   } catch (err) {
