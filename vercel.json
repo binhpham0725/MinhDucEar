@@ -2,6 +2,10 @@
   "version": 2,
   "rewrites": [
     {
+      "source": "/api/endpoints/download.php",
+      "destination": "/api/download"
+    },
+    {
       "source": "/api/endpoints/tracks.php",
       "destination": "/api/tracks"
     },
@@ -20,6 +24,10 @@
     {
       "source": "/api/endpoints/stats.php",
       "destination": "/api/stats"
+    },
+    {
+      "source": "/api/download",
+      "destination": "/api/download"
     },
     {
       "source": "/api/tracks",

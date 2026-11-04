@@ -1721,6 +1721,14 @@ class MinhDucAudioEngine {
       const data = await res.json();
 
       if (data && data.success && data.download_url) {
+        // If on Vercel or external converter URL
+        const isExternal = data.is_vercel || (data.download_url.startsWith('http') && !data.download_url.includes(window.location.hostname));
+        if (isExternal) {
+          window.open(data.download_url, '_blank');
+          this.showToast(`🎵 Đang mở trang tải MP3 cho "${title}"...`, 'success');
+          return;
+        }
+
         let finalUrl = data.download_url;
         if (!finalUrl.startsWith('http') && !finalUrl.startsWith('/')) {
           finalUrl = apiBase + finalUrl.replace(/^api\/endpoints\//, '');
@@ -1728,7 +1736,7 @@ class MinhDucAudioEngine {
 
         const cleanFilename = data.filename || `${artist} - ${title}.mp3`;
 
-        // Fetch as blob to guarantee 100% successful browser save without "Không thấy tệp trên trang"
+        // Fetch as blob to guarantee 100% successful local browser save
         try {
           const fileRes = await fetch(finalUrl, { credentials: 'include' });
           if (fileRes.ok) {
@@ -1751,7 +1759,7 @@ class MinhDucAudioEngine {
           console.warn('Blob download fetch error, fallback to direct anchor:', blobErr);
         }
 
-        // Direct anchor fallback
+        // Direct anchor fallback for local server
         const a = document.createElement('a');
         a.style.display = 'none';
         a.href = finalUrl;
@@ -1767,19 +1775,14 @@ class MinhDucAudioEngine {
         throw new Error(data?.message || 'Không thể tạo file tải về.');
       }
     } catch (err) {
-      console.warn('Prepare download API error, falling back to direct stream:', err);
-      const fallbackUrl = `${apiBase}download.php?youtube_id=${encodeURIComponent(ytId)}&title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`;
-      const cleanFilename = `${artist} - ${title}.mp3`;
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = fallbackUrl;
-      a.setAttribute('download', cleanFilename);
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => {
-        if (a.parentNode) document.body.removeChild(a);
-      }, 3000);
-      this.showToast(`Đang tải trực tiếp "${title}"...`, 'info');
+      console.warn('Prepare download API error, falling back to clean converter:', err);
+      if (ytId) {
+        const dirpyUrl = `https://dirpy.com/studio?url=https://www.youtube.com/watch?v=${ytId}`;
+        window.open(dirpyUrl, '_blank');
+        this.showToast(`🎵 Đang mở trang tải MP3 cho "${title}"...`, 'info');
+      } else {
+        this.showToast(`Không thể tải bài hát lúc này. Vui lòng thử lại!`, 'error');
+      }
     } finally {
       this._downloadingMap.delete(downloadKey);
       if (btnElement) {
