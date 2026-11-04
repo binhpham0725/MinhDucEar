@@ -3756,6 +3756,60 @@ html.light .bg-surface-container\/80 {
     </div>
   </div>
 </div>
+  <!-- MODAL: TẢI BÀI HÁT TRỰC TIẾP (VEVIOZ DOWNLOADER API) -->
+<div id="modal-vevioz-download" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden p-4">
+  <div class="w-full max-w-md bg-[#14141d] rounded-2xl pixel-border p-5 shadow-[0_0_50px_rgba(84,216,232,0.35)] relative text-on-surface flex flex-col gap-3">
+    <!-- Header -->
+    <div class="flex items-center justify-between pb-2.5 border-b border-white/10">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded bg-secondary/20 text-secondary border border-secondary/40 flex items-center justify-center font-bold text-sm">
+          📥
+        </div>
+        <div>
+          <h3 class="font-silkscreen text-xs text-secondary font-bold uppercase tracking-wider">VEVIOZ AUDIO DOWNLOADER</h3>
+          <p class="text-[10px] text-gray-400 font-sans">Tải nhạc trực tiếp vào máy qua API https://api.vevioz.com/</p>
+        </div>
+      </div>
+      <button type="button" id="btn-close-vevioz-modal" class="text-gray-400 hover:text-white p-1 rounded transition-colors cursor-pointer text-base">✕</button>
+    </div>
+
+    <!-- Song Preview -->
+    <div class="flex items-center gap-3 p-2.5 bg-black/50 rounded-xl border border-white/10">
+      <img id="vevioz-track-thumb" src="" class="w-12 h-12 rounded-lg object-cover border border-white/10 shadow shrink-0">
+      <div class="min-w-0 flex-1">
+        <h4 id="vevioz-track-title" class="font-bold text-xs text-white truncate">[Tên bài hát]</h4>
+        <p id="vevioz-track-artist" class="text-[10px] text-gray-400 truncate">[Nghệ sĩ]</p>
+        <span class="inline-block mt-0.5 text-[9px] font-silkscreen px-1.5 py-0.5 rounded bg-secondary/15 text-secondary border border-secondary/30 font-bold">API VEVIOZ HQ MP3 320KBPS</span>
+      </div>
+    </div>
+
+    <!-- Vevioz Iframe Container -->
+    <div class="relative w-full rounded-xl overflow-hidden border border-white/10 bg-black/60 min-h-[360px] flex items-center justify-center">
+      <div id="vevioz-loading-spinner" class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[#0c0c12]/90 z-10">
+        <div class="w-7 h-7 rounded-full border-2 border-secondary border-t-transparent animate-spin"></div>
+        <span class="font-silkscreen text-[10px] text-gray-300">Đang nạp API Vevioz Downloader...</span>
+      </div>
+      <iframe
+        id="vevioz-api-frame"
+        src="about:blank"
+        title="Vevioz Downloader"
+        loading="lazy"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allow="clipboard-write"
+        sandbox="allow-scripts allow-forms allow-downloads allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+        style="width:100%;height:380px;border:0;">
+      </iframe>
+    </div>
+
+    <!-- Footer Note -->
+    <div class="flex items-center justify-between pt-1">
+      <span class="text-[9px] text-gray-500 font-silkscreen">Ấn nút chuyển đổi để tải thẳng về hàng đợi tải</span>
+      <button type="button" id="btn-cancel-vevioz" class="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 text-[10px] font-silkscreen transition-colors cursor-pointer">
+        ĐÓNG
+      </button>
+    </div>
+  </div>
+</div>
   <script type="module" src="scripts/index.js"></script>
   <!-- Bootstrap 5.3.3 Bundle JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

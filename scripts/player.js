@@ -1706,7 +1706,18 @@ class MinhDucAudioEngine {
           if (download.origin === 'https://api.vevioz.com' && download.pathname.startsWith('/api/v1/files/')) {
             const cleanName = this._veviozCurrentFilename || 'MinhDucEar_Track.mp3';
             
-            // Trigger browser download queue immediately without opening new tab
+            // 1. Direct anchor download into browser queue
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = download.href;
+            a.setAttribute('download', cleanName);
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+              if (a.parentNode) document.body.removeChild(a);
+            }, 5000);
+
+            // 2. Hidden iframe backup to ensure triggering in all browser policies
             const dlFrame = document.createElement('iframe');
             dlFrame.style.display = 'none';
             dlFrame.src = download.href;
@@ -1735,19 +1746,6 @@ class MinhDucAudioEngine {
     if (modal) {
       modal.addEventListener('click', (e) => {
         if (e.target === modal) this.closeVeviozModal();
-      });
-    }
-
-    // Direct Stream 1-Click button binding
-    const btnDirectStream = document.getElementById('btn-vevioz-direct-stream');
-    if (btnDirectStream) {
-      btnDirectStream.addEventListener('click', () => {
-        if (this._currentVeviozTrack) {
-          const t = this._currentVeviozTrack;
-          const trId = t.db_id || t.id || '';
-          const yId = t.youtube_id || (typeof trId === 'string' && trId.startsWith('yt_') ? trId.substring(3) : '');
-          this.triggerDirectStream(yId, t.title, t.artist);
-        }
       });
     }
   }
@@ -1799,45 +1797,6 @@ class MinhDucAudioEngine {
     if (frame) frame.src = 'about:blank';
   }
 
-  async triggerDirectStream(ytId, title, artist) {
-    if (!ytId) {
-      this.showToast('Không có YouTube ID để tải trực tiếp!', 'error');
-      return;
-    }
-    const cleanFilename = `${artist || 'MinhDucEar'} - ${title || 'Song'}.mp3`.replace(/[\\\/:\*\?"<>\|]/g, '');
-    this.showToast(`⚡ Đang kiểm tra luồng tải trực tiếp "${title}"...`, 'info');
-
-    const isPagesDir = window.location.pathname.includes('/pages/');
-    const streamUrl = isPagesDir 
-      ? `../api/download?youtube_id=${encodeURIComponent(ytId)}&action=stream&title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`
-      : `api/download?youtube_id=${encodeURIComponent(ytId)}&action=stream&title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`;
-
-    try {
-      const res = await fetch(streamUrl);
-      const ct = res.headers.get('content-type') || '';
-      if (res.ok && ct.includes('audio/')) {
-        const blob = await res.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = blobUrl;
-        a.download = cleanFilename;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-          if (a.parentNode) document.body.removeChild(a);
-          URL.revokeObjectURL(blobUrl);
-        }, 5000);
-        this.showToast(`✅ Đã tải xong "${cleanFilename}" về máy!`, 'success');
-        this.closeVeviozModal();
-      } else {
-        this.showToast(`⚡ Luồng trực tiếp đang bận. Vui lòng bấm Download ở bảng Vevioz bên dưới!`, 'info');
-      }
-    } catch (e) {
-      this.showToast(`⚡ Vui lòng bấm Download ở bảng Vevioz bên dưới!`, 'info');
-    }
-  }
-
   // Direct song download handler (MP3 HQ / Database audio)
   async downloadTrack(track = null, btnElement = null) {
     const targetTrack = track || this.currentTrack;
@@ -1851,6 +1810,19 @@ class MinhDucAudioEngine {
     const trackId = targetTrack.db_id || targetTrack.id || '';
     const ytId = targetTrack.youtube_id || (typeof trackId === 'string' && trackId.startsWith('yt_') ? trackId.substring(3) : '');
     const cleanFilename = `${artist} - ${title}.mp3`.replace(/[\\\/:\*\?"<>\|]/g, '');
+
+    // 0. If direct audio file URL is available (e.g. database upload), download immediately
+    if (targetTrack.audio_url && typeof targetTrack.audio_url === 'string' && targetTrack.audio_url.match(/\.(mp3|m4a|wav|ogg)($|\?)/i)) {
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = targetTrack.audio_url;
+      a.setAttribute('download', cleanFilename);
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { if (a.parentNode) document.body.removeChild(a); }, 3000);
+      this.showToast(`✅ Đã đưa "${cleanFilename}" vào hàng đợi tải trình duyệt!`, 'success');
+      return;
+    }
 
     this._downloadingMap = this._downloadingMap || new Set();
     const downloadKey = ytId || trackId || title;
@@ -1877,7 +1849,7 @@ class MinhDucAudioEngine {
 
     try {
       if (isLocalhost) {
-        this.showToast(`📥 Đang tải bài hát "${title}" từ hệ thống nội bộ...`, 'info');
+        this.showToast(`📥 Đang nén file MP3 bài hát "${title}"...`, 'info');
         // Localhost: Use native XAMPP yt-dlp + ffmpeg backend
         const apiBase = isPagesDir ? '../api/endpoints/' : 'api/endpoints/';
         const params = new URLSearchParams({
@@ -1911,34 +1883,9 @@ class MinhDucAudioEngine {
 
       // On Vercel or cloud deployment:
       if (ytId) {
-        // 1. Open Vevioz Downloader modal on the page
+        // Open Vevioz Downloader modal directly on the page
         this.openVeviozModal(targetTrack);
-        this.showToast(`📥 Đang kết nối Vevioz HQ Downloader cho "${title}"...`, 'info');
-
-        // 2. In parallel, silently test if direct stream is available (NEVER navigate page!)
-        const streamUrl = isPagesDir
-          ? `../api/download?youtube_id=${encodeURIComponent(ytId)}&action=stream&title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`
-          : `api/download?youtube_id=${encodeURIComponent(ytId)}&action=stream&title=${encodeURIComponent(title)}&artist=${encodeURIComponent(artist)}`;
-
-        fetch(streamUrl).then(async (res) => {
-          const ct = res.headers.get('content-type') || '';
-          if (res.ok && ct.includes('audio/')) {
-            const blob = await res.blob();
-            const blobUrl = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = blobUrl;
-            a.download = cleanFilename;
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => {
-              if (a.parentNode) document.body.removeChild(a);
-              URL.revokeObjectURL(blobUrl);
-            }, 5000);
-            this.showToast(`✅ Đã đưa "${cleanFilename}" vào hàng đợi tải trình duyệt!`, 'success');
-            this.closeVeviozModal();
-          }
-        }).catch(() => {});
+        this.showToast(`📥 Đang nạp Vevioz HQ MP3 Downloader cho "${title}"...`, 'info');
       } else {
         throw new Error('Bài hát không có mã YouTube ID để tải.');
       }
